@@ -32,13 +32,15 @@ export default async function Tiendas() {
       <Navbar />
       <section className="lp-section" style={{ paddingTop: 34 }}>
         <div className="container">
-          <div style={{ marginBottom: 16 }}><BotonVolver fallback="/" /></div>
-          <div className="mkt-head">
-            <div>
+          <div className="tienda-head">
+            <div className="tienda-head-back">
+              <BotonVolver fallback="/" />
+            </div>
+            <div style={{ minWidth: 0 }}>
               <span className="eyebrow">Directorio</span>
               <h2 style={{ margin: '4px 0 0' }}>Todas las tiendas</h2>
+              <p className="muted" style={{ margin: '6px 0 0' }}>Explora las tiendas de los emprendedores de Cumaná y entra a la que quieras.</p>
             </div>
-            <p className="muted" style={{ margin: 0 }}>Explora las tiendas de los emprendedores de Cumaná y entra a la que quieras.</p>
           </div>
           <TiendasClient inicial={inicial} rubros={rubros} />
         </div>
