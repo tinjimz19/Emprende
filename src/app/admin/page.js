@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { api, usd } from '@/lib/api';
+import { api, usd, API_BASE, getToken } from '@/lib/api';
 
 const ESTADO_BADGE = {
   activa: 'badge-ok',
@@ -27,6 +27,23 @@ export default function AdminHome() {
   const [okPlan, setOkPlan] = useState('');
   const [filtro, setFiltro] = useState('');
   const [error, setError] = useState('');
+  const [respaldando, setRespaldando] = useState(false);
+
+  async function respaldar() {
+    setRespaldando(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/respaldo`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error('No se pudo generar el respaldo');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `emprende-respaldo-${new Date().toISOString().slice(0, 10)}.sql`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) { setError(e.message); }
+    finally { setRespaldando(false); }
+  }
 
   async function cargar() {
     try {
@@ -111,6 +128,11 @@ export default function AdminHome() {
     <>
       <h1 style={{ marginTop: 0 }}>Plataforma</h1>
       <p className="muted tiny" style={{ marginTop: -4 }}>Aprueba, suspende y supervisa las tiendas.</p>
+      <div className="row" style={{ margin: '10px 0 0' }}>
+        <button className="btn btn-soft btn-sm" onClick={respaldar} disabled={respaldando} title="Descargar un respaldo .sql de toda la base de datos">
+          {respaldando ? 'Generando…' : '⬇ Respaldar base de datos'}
+        </button>
+      </div>
 
       <div className="grid grid-stats" style={{ marginTop: 22 }}>
         {cards.map(([l, n, c]) => (

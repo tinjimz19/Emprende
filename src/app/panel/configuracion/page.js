@@ -179,6 +179,18 @@ export default function Configuracion() {
                 {copiado ? '¡Copiado! ✓' : 'Copiar link'}
               </button>
             </div>
+            <div style={{ marginTop: 14 }}>
+              <div className="muted tiny" style={{ marginBottom: 8 }}>Código QR de tu tienda (imprímelo o compártelo):</div>
+              <img alt="QR de la tienda" width={140} height={140}
+                style={{ borderRadius: 10, border: '1px solid var(--border-soft)', background: '#fff', padding: 6 }}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=6&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/t/${t.slug}` : `/t/${t.slug}`)}`} />
+              <div>
+                <a className="btn btn-ghost btn-sm" style={{ marginTop: 8 }} target="_blank" rel="noreferrer"
+                  href={`https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/t/${t.slug}` : `/t/${t.slug}`)}`}>
+                  Descargar QR
+                </a>
+              </div>
+            </div>
           </div>
 
           <div className="card" style={{ marginTop: 18 }}>

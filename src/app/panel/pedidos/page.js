@@ -4,6 +4,13 @@ import { api, usd } from '@/lib/api';
 
 const ESTADOS = ['pendiente', 'confirmado', 'pagado', 'entregado', 'cancelado'];
 const LABEL_ENVIO = { delivery: 'Delivery', origen: 'Entrega en origen', mrw: 'MRW', zoom: 'ZOOM', acordado: 'Entrega acordada' };
+const MSG_ESTADO = {
+  pendiente: 'Recibimos tu pedido y lo estamos procesando. 🙌',
+  confirmado: '¡Tu pedido fue confirmado! ✅ Ya lo estamos preparando.',
+  pagado: '¡Confirmamos tu pago! 🙏 Gracias. Estamos preparando tu pedido.',
+  entregado: '¡Tu pedido fue entregado! 🎉 ¡Gracias por tu compra!',
+  cancelado: 'Tu pedido fue cancelado. Si tienes alguna duda, escríbenos.',
+};
 
 export default function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
@@ -34,7 +41,7 @@ export default function Pedidos() {
     L.push('');
     L.push(`*Total: ${usd(p.total)}*`);
     if (p.metodo_envio) L.push(`Método de envío: ${LABEL_ENVIO[p.metodo_envio] || p.metodo_envio}`);
-    L.push(`Estado actual: ${p.estado}`);
+    if (MSG_ESTADO[p.estado]) L.push(MSG_ESTADO[p.estado]);
     L.push('');
     L.push('¿Coordinamos los detalles? 🙌');
     return L.join('\n');
