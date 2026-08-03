@@ -1,12 +1,33 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { api, usd } from '@/lib/api';
+import { api, usd, enviarFormulario } from '@/lib/api';
+
+const CSV_HEADERS = 'nombre,precio,precio_oferta,descripcion,categoria,stock,estado,imagen_url';
+const CSV_EJEMPLO = [
+  'Camisa manga larga,18.50,14.90,Camisa de algodón para caballero,Ropa,25,borrador,https://ejemplo.com/camisa.jpg',
+  'Gorra clásica,7.00,,Gorra ajustable unisex,Accesorios,40,borrador,',
+];
+
+const BADGE = {
+  ok: { bg: '#e7f6ec', color: '#1a7f43', txt: 'Listo' },
+  duplicado: { bg: '#fff4e0', color: '#a86400', txt: 'Duplicado' },
+  error: { bg: '#fdecec', color: '#c0392b', txt: 'Error' },
+  limite: { bg: '#f0edff', color: '#5b4bd6', txt: 'Límite' },
+};
 
 export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
+
+  // Importación por CSV
+  const [modal, setModal] = useState(false);
+  const [archivo, setArchivo] = useState(null);
+  const [preview, setPreview] = useState(null);   // { resumen, filas }
+  const [resultado, setResultado] = useState(null); // { creados, resumen }
+  const [procesando, setProcesando] = useState(false);
+  const [errImp, setErrImp] = useState('');
 
   async function cargar() {
     setCargando(true);
@@ -26,11 +47,65 @@ export default function Productos() {
     catch (e) { setError(e.message); }
   }
 
+  function abrirImportar() {
+    setModal(true);
+    setArchivo(null);
+    setPreview(null);
+    setResultado(null);
+    setErrImp('');
+  }
+
+  function descargarPlantilla() {
+    const contenido = '﻿' + CSV_HEADERS + '\n' + CSV_EJEMPLO.join('\n') + '\n';
+    const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla-productos.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function elegirArchivo(e) {
+    setArchivo(e.target.files?.[0] || null);
+    setPreview(null);
+    setResultado(null);
+    setErrImp('');
+  }
+
+  async function previsualizar() {
+    if (!archivo) { setErrImp('Selecciona un archivo CSV.'); return; }
+    setErrImp('');
+    setProcesando(true);
+    try {
+      const d = await enviarFormulario('/api/productos/importar', { confirmar: '0' }, archivo, 'archivo');
+      setPreview(d);
+    } catch (e) { setErrImp(e.message); }
+    finally { setProcesando(false); }
+  }
+
+  async function confirmar() {
+    if (!archivo) return;
+    setErrImp('');
+    setProcesando(true);
+    try {
+      const d = await enviarFormulario('/api/productos/importar', { confirmar: '1' }, archivo, 'archivo');
+      setResultado(d);
+      await cargar();
+    } catch (e) { setErrImp(e.message); }
+    finally { setProcesando(false); }
+  }
+
+  const r = preview?.resumen;
+
   return (
     <>
       <div className="row">
         <h1 style={{ margin: 0 }}>Productos</h1>
         <div className="spacer" />
+        <button className="btn btn-ghost btn-sm" onClick={abrirImportar}>Importar CSV</button>{' '}
         <Link className="btn btn-primary btn-sm" href="/panel/productos/nuevo">+ Nuevo producto</Link>
       </div>
       {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}
@@ -74,6 +149,109 @@ export default function Productos() {
           </tbody>
         </table>
       </div>
+
+      {modal && (
+        <div
+          onClick={() => !procesando && setModal(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
+        >
+          <div className="card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 620, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+            <div className="row" style={{ alignItems: 'center' }}>
+              <h2 style={{ margin: 0, fontSize: 19 }}>Importar productos por CSV</h2>
+              <div className="spacer" />
+              <button className="btn btn-ghost btn-sm" onClick={() => setModal(false)} disabled={procesando}>✕</button>
+            </div>
+
+            {/* Paso final: reporte de importación */}
+            {resultado ? (
+              <div style={{ marginTop: 16 }}>
+                <div className="ok-box" style={{ padding: 16, borderRadius: 12, background: '#e7f6ec', color: '#1a7f43', fontWeight: 600 }}>
+                  ✓ Se importaron {resultado.creados} producto{resultado.creados === 1 ? '' : 's'} correctamente.
+                </div>
+                {resultado.resumen && (resultado.resumen.duplicados > 0 || resultado.resumen.errores > 0 || resultado.resumen.limite > 0) && (
+                  <p className="muted" style={{ fontSize: 13, marginTop: 12 }}>
+                    Se omitieron: {resultado.resumen.duplicados} duplicado(s), {resultado.resumen.errores} con error, {resultado.resumen.limite} por límite de plan.
+                  </p>
+                )}
+                <div className="row" style={{ marginTop: 18 }}>
+                  <div className="spacer" />
+                  <button className="btn btn-primary" onClick={() => setModal(false)}>Cerrar</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="muted" style={{ fontSize: 13.5, marginTop: 10, lineHeight: 1.6 }}>
+                  Sube un archivo <b>.csv</b> con tus productos. Descarga la plantilla para ver el formato exacto.
+                  Los productos se crean como <b>borrador</b> (no destacados) y se omiten los que ya existan con el mismo nombre.
+                </p>
+
+                <div className="row" style={{ gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+                  <button className="btn btn-ghost btn-sm" onClick={descargarPlantilla} type="button">↓ Descargar plantilla CSV</button>
+                </div>
+
+                <div className="field" style={{ marginTop: 14 }}>
+                  <label>Archivo CSV</label>
+                  <input type="file" accept=".csv,text/csv" onChange={elegirArchivo} className="input" />
+                </div>
+
+                {errImp && <div className="error" style={{ marginTop: 12 }}>{errImp}</div>}
+
+                {/* Paso 2: vista previa */}
+                {preview && r && (
+                  <div style={{ marginTop: 16 }}>
+                    <div className="row" style={{ gap: 8, flexWrap: 'wrap', fontSize: 13 }}>
+                      <span className="badge" style={{ background: '#e7f6ec', color: '#1a7f43' }}>{r.ok} listos</span>
+                      {r.duplicados > 0 && <span className="badge" style={{ background: '#fff4e0', color: '#a86400' }}>{r.duplicados} duplicados</span>}
+                      {r.errores > 0 && <span className="badge" style={{ background: '#fdecec', color: '#c0392b' }}>{r.errores} con error</span>}
+                      {r.limite > 0 && <span className="badge" style={{ background: '#f0edff', color: '#5b4bd6' }}>{r.limite} por límite</span>}
+                    </div>
+
+                    <div className="card" style={{ marginTop: 12, padding: 0, maxHeight: 260, overflow: 'auto' }}>
+                      <table className="table" style={{ fontSize: 13 }}>
+                        <thead>
+                          <tr><th style={{ width: 42 }}>#</th><th>Producto</th><th>Estado</th></tr>
+                        </thead>
+                        <tbody>
+                          {preview.filas.map((f, i) => {
+                            const b = BADGE[f.estado] || BADGE.error;
+                            return (
+                              <tr key={i}>
+                                <td className="muted">{f.fila}</td>
+                                <td>
+                                  <div style={{ fontWeight: 600 }}>{f.nombre || <span className="muted">(sin nombre)</span>}</div>
+                                  {f.mensaje && <div className="muted" style={{ fontSize: 12 }}>{f.mensaje}</div>}
+                              </td>
+                              <td><span className="badge" style={{ background: b.bg, color: b.color }}>{b.txt}</span></td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                <div className="row" style={{ marginTop: 18, gap: 8 }}>
+                  <button className="btn btn-ghost" onClick={() => setModal(false)} disabled={procesando}>Cancelar</button>
+                  <div className="spacer" />
+                  {!preview ? (
+                    <button className="btn btn-primary" onClick={previsualizar} disabled={procesando || !archivo}>
+                      {procesando ? 'Analizando…' : 'Previsualizar'}
+                    </button>
+                  ) : (
+                    <>
+                      <button className="btn btn-ghost" onClick={previsualizar} disabled={procesando}>Volver a analizar</button>
+                      <button className="btn btn-primary" onClick={confirmar} disabled={procesando || r.ok === 0}>
+                        {procesando ? 'Importando…' : `Confirmar importación (${r.ok})`}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
