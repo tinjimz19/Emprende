@@ -144,6 +144,17 @@ export default function Pedidos() {
                 {ESTADOS.map((e) => <option key={e} value={e}>{e}</option>)}
               </select>
             </div>
+            {sel.comprobante_url && (
+              <div style={{ marginTop: 14 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', display: 'block', marginBottom: 6 }}>Comprobante de pago</label>
+                <img
+                  src={sel.comprobante_url}
+                  alt="Comprobante de pago"
+                  onClick={() => setLightbox(sel.comprobante_url)}
+                  style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 10, cursor: 'zoom-in', border: '1px solid var(--border-soft)' }}
+                />
+              </div>
+            )}
             {sel.cliente_telefono && (
               <a className="btn btn-wa btn-block" target="_blank" rel="noreferrer"
                 href={`https://wa.me/${sel.cliente_telefono.replace(/\D/g, '')}?text=${encodeURIComponent(mensajePedido(sel))}`}>

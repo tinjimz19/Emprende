@@ -26,6 +26,16 @@ async function getTiendas() {
   }
 }
 
+async function getPlanes() {
+  try {
+    const res = await fetch(`${API}/api/planes`, { cache: 'no-store' });
+    const json = await res.json();
+    return json?.data?.planes || [];
+  } catch {
+    return [];
+  }
+}
+
 const VALORES = [
   ['M12 2v20M2 12h20', 'Precios en $ y Bs', 'Cambia tu tasa una sola vez y todos tus precios se actualizan al instante. Sin tocar producto por producto.'],
   ['M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-8A8.4 8.4 0 1121 11.5z', 'Cierre por WhatsApp', 'Cada producto y cada pedido lleva directo al chat con tu cliente. Vende como ya vendes, pero ordenado.'],
@@ -33,7 +43,8 @@ const VALORES = [
   ['M4 4h16v16H4zM8 9h8M8 13h8M8 17h5', 'Cuentas claras', 'Registra ventas y gastos y mira tu ganancia del mes de un vistazo. Adiós al cuaderno.'],
 ];
 
-const PLANES = [
+// Respaldo si el API de planes no responde.
+const PLANES_FALLBACK = [
   {
     nombre: 'Emprende', precio: '0', periodo: '/mes', destacado: false,
     resumen: 'Para empezar hoy mismo.',
@@ -62,8 +73,30 @@ function Check() {
   );
 }
 
+// Convierte un plan del API en el formato de la tarjeta del home.
+function planParaHome(p, i, total) {
+  const precioNum = Number(p.precio_mensual) || 0;
+  const precio = precioNum % 1 === 0 ? String(precioNum) : precioNum.toFixed(2);
+  return {
+    nombre: p.nombre,
+    precio,
+    periodo: '/mes',
+    destacado: total >= 3 ? i === 1 : precioNum > 0,
+    resumen: precioNum === 0 ? 'Para empezar hoy mismo.' : 'Para crecer tu negocio.',
+    features: [
+      p.max_productos == null ? 'Productos ilimitados' : `Hasta ${p.max_productos} productos`,
+      `Hasta ${p.max_fotos} fotos por producto`,
+      p.max_destacados == null ? 'Destacados ilimitados' : `${p.max_destacados} productos destacados`,
+      'Cierre por WhatsApp',
+      'Precios en $ y Bs',
+    ],
+    cta: precioNum === 0 ? 'Empezar gratis' : `Elegir ${p.nombre}`,
+  };
+}
+
 export default async function Home() {
-  const [vitrina, tiendas] = await Promise.all([getVitrina(), getTiendas()]);
+  const [vitrina, tiendas, planesRaw] = await Promise.all([getVitrina(), getTiendas(), getPlanes()]);
+  const planes = planesRaw.length ? planesRaw.map((p, i) => planParaHome(p, i, planesRaw.length)) : PLANES_FALLBACK;
 
   return (
     <div className="lp">
@@ -131,7 +164,7 @@ export default async function Home() {
             <p>Empieza gratis y crece cuando tu negocio lo pida. Sin permanencia, cancela cuando quieras.</p>
           </div>
           <div className="plans">
-            {PLANES.map((p) => (
+            {planes.map((p) => (
               <div className={`plan ${p.destacado ? 'featured' : ''}`} key={p.nombre}>
                 {p.destacado && <span className="tag">Más popular</span>}
                 <div className="pname">{p.nombre}</div>
