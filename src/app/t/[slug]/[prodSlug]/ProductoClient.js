@@ -51,7 +51,8 @@ export default function ProductoClient({ slug, prodSlug }) {
   // Reseñas
   const [comentarios, setComentarios] = useState([]);
   const [resumen, setResumen] = useState({ promedio: 0, total: 0 });
-  const [nuevo, setNuevo] = useState({ nombre: '', calificacion: 0, comentario: '' });
+  const [nuevo, setNuevo] = useState({ calificacion: 0, comentario: '' });
+  const [esCliente, setEsCliente] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [errCom, setErrCom] = useState('');
   const [okCom, setOkCom] = useState(false);
@@ -77,6 +78,9 @@ export default function ProductoClient({ slug, prodSlug }) {
     if (typeof window === 'undefined' || getClienteToken() || !getToken()) return;
     api('/api/auth/me').then((d) => setDueno({ rol: d.usuario?.rol, tiendaSlug: d.tienda?.slug })).catch(() => {});
   }, []);
+
+  // ¿Hay sesión de comprador? Solo esos pueden dejar reseña.
+  useEffect(() => { setEsCliente(!!getClienteToken()); }, []);
 
   useEffect(() => {
     if (!prod?.id) return;
@@ -149,21 +153,21 @@ export default function ProductoClient({ slug, prodSlug }) {
   async function enviarComentario(e) {
     e.preventDefault();
     setErrCom(''); setOkCom(false);
-    if (!nuevo.nombre.trim() || !nuevo.comentario.trim() || nuevo.calificacion < 1) {
-      setErrCom('Completa tu nombre, una calificación y tu comentario.');
+    if (!nuevo.comentario.trim() || nuevo.calificacion < 1) {
+      setErrCom('Elige una calificación y escribe tu comentario.');
       return;
     }
     setEnviando(true);
     try {
       const d = await api(`/api/publico/${slug}/comentarios`, {
-        method: 'POST', auth: false,
-        body: { producto_id: prod.id, nombre: nuevo.nombre, calificacion: nuevo.calificacion, comentario: nuevo.comentario },
+        method: 'POST', cliente: true,
+        body: { producto_id: prod.id, calificacion: nuevo.calificacion, comentario: nuevo.comentario },
       });
       setComentarios((c) => [d.comentario, ...c]);
       const total = resumen.total + 1;
       const promedio = ((resumen.promedio * resumen.total) + Number(nuevo.calificacion)) / total;
       setResumen({ total, promedio });
-      setNuevo({ nombre: '', calificacion: 0, comentario: '' });
+      setNuevo({ calificacion: 0, comentario: '' });
       setOkCom(true);
       setTimeout(() => setOkCom(false), 3000);
     } catch (e) { setErrCom(e.message); }
@@ -282,26 +286,30 @@ export default function ProductoClient({ slug, prodSlug }) {
             )}
           </div>
 
-          <form className="card resena-form" onSubmit={enviarComentario}>
-            <h3 style={{ marginTop: 0 }}>Deja tu opinión</h3>
-            <div className="row" style={{ gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-              <div className="field" style={{ flex: '1 1 220px', marginBottom: 0 }}>
-                <label>Tu nombre</label>
-                <input className="input" value={nuevo.nombre} onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })} maxLength={80} />
-              </div>
+          {esCliente ? (
+            <form className="card resena-form" onSubmit={enviarComentario}>
+              <h3 style={{ marginTop: 0 }}>Deja tu opinión</h3>
               <div className="field" style={{ marginBottom: 0 }}>
                 <label>Tu calificación</label>
                 <StarInput valor={nuevo.calificacion} onChange={(v) => setNuevo({ ...nuevo, calificacion: v })} />
               </div>
+              <div className="field" style={{ marginTop: 12 }}>
+                <label>Tu comentario</label>
+                <textarea rows={3} value={nuevo.comentario} maxLength={1000} onChange={(e) => setNuevo({ ...nuevo, comentario: e.target.value })} />
+              </div>
+              {errCom && <div className="error" style={{ marginBottom: 10 }}>{errCom}</div>}
+              {okCom && <div className="ok-box" style={{ marginBottom: 10 }}>¡Gracias por tu opinión!</div>}
+              <button className="btn btn-primary" disabled={enviando}>{enviando ? 'Enviando…' : 'Publicar reseña'}</button>
+            </form>
+          ) : (
+            <div className="card" style={{ textAlign: 'center' }}>
+              <p className="muted" style={{ margin: '4px 0 12px' }}>Para dejar una reseña, inicia sesión o crea tu cuenta de comprador.</p>
+              <div className="row" style={{ justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <Link className="btn btn-primary btn-sm" href="/cliente/entrar">Iniciar sesión</Link>
+                <Link className="btn btn-ghost btn-sm" href="/cliente/registro">Crear cuenta</Link>
+              </div>
             </div>
-            <div className="field" style={{ marginTop: 12 }}>
-              <label>Tu comentario</label>
-              <textarea rows={3} value={nuevo.comentario} maxLength={1000} onChange={(e) => setNuevo({ ...nuevo, comentario: e.target.value })} />
-            </div>
-            {errCom && <div className="error" style={{ marginBottom: 10 }}>{errCom}</div>}
-            {okCom && <div className="ok-box" style={{ marginBottom: 10 }}>¡Gracias por tu opinión!</div>}
-            <button className="btn btn-primary" disabled={enviando}>{enviando ? 'Enviando…' : 'Publicar reseña'}</button>
-          </form>
+          )}
 
           <div style={{ marginTop: 18 }}>
             {comentarios.length === 0 && <p className="muted">Aún no hay reseñas. ¡Sé el primero en opinar!</p>}
