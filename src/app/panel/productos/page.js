@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { api, usd, enviarFormulario } from '@/lib/api';
 
@@ -16,10 +16,25 @@ const BADGE = {
   limite: { bg: '#f0edff', color: '#5b4bd6', txt: 'Límite' },
 };
 
+const POR_PAGINA = 10;
+
+// Filtros de estado (el primero es el activo por defecto).
+const FILTROS = [
+  { key: 'activo', label: 'Activos' },
+  { key: 'borrador', label: 'Borrador' },
+  { key: 'inactivo', label: 'Inactivos' },
+  { key: 'todos', label: 'Todos' },
+];
+
 export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
+
+  // Filtro / búsqueda / paginación
+  const [filtro, setFiltro] = useState('activo');
+  const [busqueda, setBusqueda] = useState('');
+  const [pagina, setPagina] = useState(1);
 
   // Importación por CSV
   const [modal, setModal] = useState(false);
@@ -39,6 +54,9 @@ export default function Productos() {
   }
   useEffect(() => { cargar(); }, []);
 
+  // Al cambiar filtro o búsqueda, vuelve a la primera página.
+  useEffect(() => { setPagina(1); }, [filtro, busqueda]);
+
   async function eliminar(e, id) {
     e.preventDefault();
     e.stopPropagation();
@@ -46,6 +64,25 @@ export default function Productos() {
     try { await api(`/api/productos/${id}`, { method: 'DELETE' }); await cargar(); }
     catch (e) { setError(e.message); }
   }
+
+  // Conteos por estado.
+  const conteo = useMemo(() => {
+    const c = { activo: 0, borrador: 0, inactivo: 0, todos: productos.length };
+    for (const p of productos) { if (c[p.estado] !== undefined) c[p.estado]++; }
+    return c;
+  }, [productos]);
+
+  // Lista filtrada por estado + búsqueda por nombre.
+  const filtrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    return productos
+      .filter((p) => filtro === 'todos' || p.estado === filtro)
+      .filter((p) => q === '' || String(p.nombre || '').toLowerCase().includes(q));
+  }, [productos, filtro, busqueda]);
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
+  const paginaSegura = Math.min(pagina, totalPaginas);
+  const visibles = filtrados.slice((paginaSegura - 1) * POR_PAGINA, paginaSegura * POR_PAGINA);
 
   function abrirImportar() {
     setModal(true);
@@ -110,7 +147,32 @@ export default function Productos() {
       </div>
       {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}
 
-      <div className="card" style={{ marginTop: 18, padding: 0 }}>
+      {/* Filtros por estado + búsqueda */}
+      <div className="prod-toolbar">
+        <div className="prod-chips">
+          {FILTROS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className={`chip ${filtro === f.key ? 'chip-on' : ''} chip-${f.key}`}
+              onClick={() => setFiltro(f.key)}
+            >
+              {f.label} <span className="chip-n">{conteo[f.key] ?? 0}</span>
+            </button>
+          ))}
+        </div>
+        <div className="prod-search">
+          <input
+            className="input"
+            type="search"
+            placeholder="Buscar por nombre…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 14, padding: 0 }}>
         <table className="table">
           <thead>
             <tr><th></th><th>Producto</th><th>Precio</th><th>Stock</th><th>Estado</th><th></th></tr>
@@ -124,7 +186,12 @@ export default function Productos() {
                 Aún no tienes productos. <Link href="/panel/productos/nuevo" style={{ color: 'var(--brand)' }}>Crea el primero</Link>.
               </td></tr>
             )}
-            {productos.map((p) => (
+            {!cargando && productos.length > 0 && visibles.length === 0 && (
+              <tr><td colSpan={6} className="muted" style={{ padding: 24 }}>
+                No hay productos que coincidan con este filtro o búsqueda.
+              </td></tr>
+            )}
+            {visibles.map((p) => (
               <tr key={p.id} className="row-link" onClick={() => { location.href = `/panel/productos/${p.id}`; }}>
                 <td style={{ width: 56 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 8, background: p.imagen ? `var(--surface-2) url(${p.imagen}) center/cover` : 'var(--surface-2)' }} />
@@ -139,7 +206,7 @@ export default function Productos() {
                 </td>
                 <td className="price">{usd(p.precio)}</td>
                 <td>{Number(p.tiene_variantes) ? '—' : (Number(p.stock) > 0 ? p.stock : '')}</td>
-                <td><span className="badge">{p.estado}</span></td>
+                <td><span className={`badge estado-${p.estado}`}>{p.estado}</span></td>
                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <Link className="btn btn-ghost btn-sm" href={`/panel/productos/${p.id}`} onClick={(e) => e.stopPropagation()}>Editar</Link>{' '}
                   <button className="btn btn-ghost btn-sm" onClick={(e) => eliminar(e, p.id)} style={{ color: 'var(--danger)' }}>Eliminar</button>
@@ -149,6 +216,19 @@ export default function Productos() {
           </tbody>
         </table>
       </div>
+
+      {/* Paginación */}
+      {filtrados.length > POR_PAGINA && (
+        <div className="prod-pag">
+          <span className="muted" style={{ fontSize: 13 }}>
+            {(paginaSegura - 1) * POR_PAGINA + 1}–{Math.min(paginaSegura * POR_PAGINA, filtrados.length)} de {filtrados.length}
+          </span>
+          <div className="spacer" />
+          <button className="btn btn-ghost btn-sm" onClick={() => setPagina((n) => Math.max(1, n - 1))} disabled={paginaSegura <= 1}>← Anterior</button>
+          <span className="muted" style={{ fontSize: 13, padding: '0 6px' }}>Página {paginaSegura} de {totalPaginas}</span>
+          <button className="btn btn-ghost btn-sm" onClick={() => setPagina((n) => Math.min(totalPaginas, n + 1))} disabled={paginaSegura >= totalPaginas}>Siguiente →</button>
+        </div>
+      )}
 
       {modal && (
         <div
@@ -220,8 +300,8 @@ export default function Productos() {
                                 <td>
                                   <div style={{ fontWeight: 600 }}>{f.nombre || <span className="muted">(sin nombre)</span>}</div>
                                   {f.mensaje && <div className="muted" style={{ fontSize: 12 }}>{f.mensaje}</div>}
-                              </td>
-                              <td><span className="badge" style={{ background: b.bg, color: b.color }}>{b.txt}</span></td>
+                                </td>
+                                <td><span className="badge" style={{ background: b.bg, color: b.color }}>{b.txt}</span></td>
                               </tr>
                             );
                           })}
@@ -252,6 +332,58 @@ export default function Productos() {
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        /* Solo mientras esta página está montada: ancho completo del panel. */
+        .content { max-width: none; }
+      `}</style>
+      <style jsx>{`
+        .prod-toolbar {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-top: 18px;
+          flex-wrap: wrap;
+        }
+        .prod-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .prod-search { margin-left: auto; min-width: 220px; flex: 1; max-width: 320px; }
+        .prod-search .input { width: 100%; }
+        .chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 7px 13px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: var(--surface);
+          color: var(--text-2);
+          font-size: 13.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background .12s, border-color .12s, color .12s;
+        }
+        .chip:hover { border-color: var(--brand); color: var(--text); }
+        .chip-n {
+          font-size: 12px;
+          font-weight: 700;
+          padding: 1px 7px;
+          border-radius: 999px;
+          background: var(--surface-2);
+          color: var(--text-2);
+        }
+        .chip-on { background: var(--brand); border-color: var(--brand); color: #fff; }
+        .chip-on .chip-n { background: rgba(255,255,255,.25); color: #fff; }
+        .prod-pag {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: 16px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 640px) {
+          .prod-search { margin-left: 0; max-width: none; }
+        }
+      `}</style>
     </>
   );
 }
