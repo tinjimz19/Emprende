@@ -79,6 +79,7 @@ export default function Pedidos() {
     L.push('*Resumen de tu pedido:*');
     (p.items || []).forEach((i) => L.push(`• ${i.nombre} × ${i.cantidad} — ${usd(i.subtotal)}`));
     if (Number(p.costo_envio) > 0) L.push(`• Envío — ${usd(p.costo_envio)}`);
+    if (Number(p.descuento) > 0) L.push(`• Descuento${p.cupon_codigo ? ` (${p.cupon_codigo})` : ''} — −${usd(p.descuento)}`);
     L.push('');
     L.push(`*Total: ${usd(p.total)}*`);
     if (p.metodo_envio) L.push(`Método de envío: ${LABEL_ENVIO[p.metodo_envio] || p.metodo_envio}`);
@@ -230,6 +231,9 @@ export default function Pedidos() {
                     <tr><td className="muted">Subtotal productos</td><td style={{ textAlign: 'right' }} className="muted">{usd(Number(sel.total) - Number(sel.costo_envio || 0))}</td></tr>
                     <tr><td className="muted">Envío · {LABEL_ENVIO[sel.metodo_envio] || sel.metodo_envio || 'Envío'}</td><td style={{ textAlign: 'right' }} className="muted">{Number(sel.costo_envio) > 0 ? usd(sel.costo_envio) : 'Gratis'}</td></tr>
                   </>
+                )}
+                {Number(sel.descuento) > 0 && (
+                  <tr><td className="muted">Descuento{sel.cupon_codigo ? ` (${sel.cupon_codigo})` : ''}</td><td style={{ textAlign: 'right', color: '#1a7f43', fontWeight: 600 }}>−{usd(sel.descuento)}</td></tr>
                 )}
                 <tr><td style={{ fontWeight: 700 }}>Total</td><td style={{ textAlign: 'right', fontWeight: 700 }}>{usd(sel.total)}</td></tr>
               </tbody>

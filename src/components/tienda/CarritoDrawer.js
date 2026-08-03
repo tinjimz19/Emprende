@@ -43,7 +43,33 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
   const metodosDisponibles = tienda?.metodos_envio || [];
   const [metodoEnvio, setMetodoEnvio] = useState(metodosDisponibles[0] || '');
   const costoEnvio = metodoEnvio === 'delivery' ? Number(tienda?.costo_delivery || 0) : 0;
-  const totalFinal = Number(total) + costoEnvio;
+
+  // Cupón de descuento
+  const [cuponInput, setCuponInput] = useState('');
+  const [cupon, setCupon] = useState(null); // { codigo, tipo, valor }
+  const [cuponError, setCuponError] = useState('');
+  const [validandoCupon, setValidandoCupon] = useState(false);
+  const descuento = cupon
+    ? Math.min(cupon.tipo === 'porcentaje' ? (Number(total) * Number(cupon.valor)) / 100 : Number(cupon.valor), Number(total))
+    : 0;
+  const totalFinal = Math.max(0, Number(total) - descuento) + costoEnvio;
+
+  async function aplicarCupon() {
+    const codigo = cuponInput.trim();
+    if (!codigo) return;
+    setValidandoCupon(true); setCuponError('');
+    try {
+      const res = await fetch(`${API_BASE}/api/publico/${slug}/cupon`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo, subtotal: Number(total) }),
+      });
+      let json; try { json = await res.json(); } catch { json = { ok: false, error: `Error ${res.status}` }; }
+      if (!res.ok || json.ok === false) throw new Error(json.error || 'Cupón inválido');
+      setCupon({ codigo: json.data.codigo, tipo: json.data.tipo, valor: Number(json.data.valor) });
+    } catch (e) { setCuponError(e.message); setCupon(null); }
+    finally { setValidandoCupon(false); }
+  }
+  function quitarCupon() { setCupon(null); setCuponInput(''); setCuponError(''); }
 
   async function confirmar() {
     if (cart.length === 0) return;
@@ -60,6 +86,7 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
       fd.append('metodo_pago', datos.metodo_pago);
       fd.append('metodo_envio', metodoEnvio || '');
       fd.append('nota', datos.nota || '');
+      fd.append('cupon', cupon?.codigo || '');
       fd.append('items', JSON.stringify(cart.map((i) => ({ producto_id: i.producto_id, variante_id: i.variante_id, cantidad: i.cantidad }))));
       if (comprobante) fd.append('comprobante', comprobante);
 
@@ -123,10 +150,35 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
                 <span className="muted">Envío (Delivery)</span><div className="spacer" /><span>{usd(costoEnvio)}</span>
               </div>
             )}
+            {descuento > 0 && (
+              <div className="row" style={{ margin: '2px 0' }}>
+                <span className="muted">Descuento ({cupon.codigo})</span><div className="spacer" /><span style={{ color: '#1a7f43', fontWeight: 600 }}>−{usd(descuento)}</span>
+              </div>
+            )}
             <div className="row" style={{ margin: '6px 0 2px' }}>
               <b style={{ fontSize: 17 }}>Total</b><div className="spacer" /><b className="price" style={{ fontSize: 19 }}>{usd(totalFinal)}</b>
             </div>
             {precioBs(totalFinal, tasa) && <div className="price-bs" style={{ textAlign: 'right' }}>{precioBs(totalFinal, tasa)}</div>}
+            <div className="field" style={{ margin: '12px 0 0' }}>
+              {!cupon ? (
+                <>
+                  <div className="row" style={{ gap: 8 }}>
+                    <input className="input" placeholder="¿Tienes un cupón?" value={cuponInput}
+                      onChange={(e) => setCuponInput(e.target.value.toUpperCase())} style={{ flex: 1 }} />
+                    <button className="btn btn-soft" type="button" disabled={validandoCupon || !cuponInput.trim()} onClick={aplicarCupon}>
+                      {validandoCupon ? '…' : 'Aplicar'}
+                    </button>
+                  </div>
+                  {cuponError && <p className="muted tiny" style={{ color: 'var(--danger)', margin: '6px 0 0' }}>{cuponError}</p>}
+                </>
+              ) : (
+                <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+                  <span className="tiny" style={{ color: '#1a7f43' }}>✓ Cupón <b>{cupon.codigo}</b> aplicado</span>
+                  <div className="spacer" />
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={quitarCupon}>Quitar</button>
+                </div>
+              )}
+            </div>
 
             {error && <div className="alert error" style={{ margin: '12px 0' }}>{error}</div>}
             <hr className="divider" />
