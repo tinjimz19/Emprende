@@ -6,6 +6,7 @@ import { getCart, addToCart, cartTotal } from '@/lib/cart';
 import TiendaNav from '@/components/tienda/TiendaNav';
 import Carrito from '@/components/tienda/CarritoDrawer';
 import BotonVolver from '@/components/BotonVolver';
+import { Stars, StarInput } from '@/components/Estrellas';
 
 export default function CatalogoClient({ slug }) {
   const [tienda, setTienda] = useState(null);
@@ -22,6 +23,10 @@ export default function CatalogoClient({ slug }) {
   const [cuenta, setCuenta] = useState(null);
   const [dueno, setDueno] = useState(null);
   const [abierto, setAbierto] = useState(false);
+  const [resenaTienda, setResenaTienda] = useState({ resumen: { promedio: 0, total: 0 }, lista: [] });
+  const [nuevaR, setNuevaR] = useState({ calificacion: 0, comentario: '' });
+  const [enviandoR, setEnviandoR] = useState(false);
+  const [msgR, setMsgR] = useState('');
 
   useEffect(() => {
     api(`/api/publico/${slug}`, { auth: false })
@@ -58,6 +63,27 @@ export default function CatalogoClient({ slug }) {
     if (typeof window === 'undefined' || !getClienteToken()) return;
     api('/api/cliente/me', { cliente: true }).then((d) => setCuenta(d.cuenta)).catch(() => {});
   }, []);
+
+  function cargarResenasTienda() {
+    api(`/api/publico/${slug}/resenas`, { auth: false })
+      .then((d) => setResenaTienda({ resumen: d.resumen || { promedio: 0, total: 0 }, lista: d.resenas || [] }))
+      .catch(() => {});
+  }
+  useEffect(() => { cargarResenasTienda(); }, [slug]);
+
+  async function enviarResenaTienda(e) {
+    e.preventDefault();
+    setMsgR('');
+    if (nuevaR.calificacion < 1) { setMsgR('Elige una calificación.'); return; }
+    setEnviandoR(true);
+    try {
+      await api(`/api/publico/${slug}/resenas`, { method: 'POST', cliente: true, body: { calificacion: nuevaR.calificacion, comentario: nuevaR.comentario } });
+      setNuevaR({ calificacion: 0, comentario: '' });
+      cargarResenasTienda();
+      setMsgR('ok');
+    } catch (err) { setMsgR(err.message); }
+    finally { setEnviandoR(false); }
+  }
 
   // Si mira como dueño/admin (sesión de panel y NO de cliente), no compra: solo ve.
   useEffect(() => {
@@ -98,6 +124,12 @@ export default function CatalogoClient({ slug }) {
           )}
           <div style={{ minWidth: 0 }}>
             <h1 style={{ margin: 0 }}>{tienda.nombre}</h1>
+            {resenaTienda.resumen.total > 0 && (
+              <div className="row" style={{ gap: 8, alignItems: 'center', margin: '4px 0 0' }}>
+                <Stars valor={resenaTienda.resumen.promedio} size={15} />
+                <span className="muted tiny">{Number(resenaTienda.resumen.promedio).toFixed(1)} · {resenaTienda.resumen.total} calificación{resenaTienda.resumen.total !== 1 ? 'es' : ''}</span>
+              </div>
+            )}
             {tienda.descripcion && <p className="muted" style={{ margin: '2px 0 0' }}>{tienda.descripcion}</p>}
           </div>
         </div>
@@ -190,6 +222,59 @@ export default function CatalogoClient({ slug }) {
             </div>
           </div>
         </div>
+
+        <section className="resenas" style={{ marginTop: 10 }}>
+          <div className="row" style={{ alignItems: 'baseline', gap: 12 }}>
+            <h2 style={{ margin: 0, fontSize: 22 }}>Calificación de la tienda</h2>
+            {resenaTienda.resumen.total > 0 && (
+              <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+                <Stars valor={resenaTienda.resumen.promedio} />
+                <span className="muted tiny">{Number(resenaTienda.resumen.promedio).toFixed(1)} de 5 · {resenaTienda.resumen.total}</span>
+              </div>
+            )}
+          </div>
+
+          {!modoDueno && (cuenta ? (
+            <form className="card" style={{ marginTop: 12 }} onSubmit={enviarResenaTienda}>
+              <h3 style={{ marginTop: 0 }}>¿Cómo fue tu experiencia con esta tienda?</h3>
+              <div className="field" style={{ marginBottom: 0 }}>
+                <label>Tu calificación</label>
+                <StarInput valor={nuevaR.calificacion} onChange={(v) => setNuevaR({ ...nuevaR, calificacion: v })} />
+              </div>
+              <div className="field" style={{ marginTop: 12 }}>
+                <label>Comentario (opcional)</label>
+                <textarea rows={3} value={nuevaR.comentario} maxLength={1000} onChange={(e) => setNuevaR({ ...nuevaR, comentario: e.target.value })} />
+              </div>
+              {msgR && msgR !== 'ok' && <div className="error" style={{ marginBottom: 10 }}>{msgR}</div>}
+              {msgR === 'ok' && <div className="ok-box" style={{ marginBottom: 10 }}>¡Gracias por calificar la tienda!</div>}
+              <button className="btn btn-primary" disabled={enviandoR}>{enviandoR ? 'Enviando…' : 'Publicar calificación'}</button>
+            </form>
+          ) : (
+            <div className="card" style={{ marginTop: 12, textAlign: 'center' }}>
+              <p className="muted" style={{ margin: '4px 0 12px' }}>Para calificar la tienda, inicia sesión con tu cuenta de comprador.</p>
+              <div className="row" style={{ justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <Link className="btn btn-primary btn-sm" href="/cliente/entrar">Iniciar sesión</Link>
+                <Link className="btn btn-ghost btn-sm" href="/cliente/registro">Crear cuenta</Link>
+              </div>
+            </div>
+          ))}
+
+          <div style={{ marginTop: 16 }}>
+            {resenaTienda.lista.length === 0 && <p className="muted">Esta tienda aún no tiene calificaciones.</p>}
+            {resenaTienda.lista.map((c, i) => (
+              <div className="card" key={i} style={{ marginBottom: 10 }}>
+                <div className="row" style={{ alignItems: 'center', gap: 10 }}>
+                  <span style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--brand-soft)', color: 'var(--brand)', display: 'grid', placeItems: 'center', fontWeight: 700, flex: 'none' }}>{(c.nombre || '?').trim().charAt(0).toUpperCase()}</span>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{c.nombre}</div>
+                    <Stars valor={Number(c.calificacion)} size={13} />
+                  </div>
+                </div>
+                {c.comentario && <p style={{ margin: '10px 0 0', lineHeight: 1.55, color: 'var(--text-2)' }}>{c.comentario}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
       {abierto && (

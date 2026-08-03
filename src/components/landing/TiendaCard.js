@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Stars } from '@/components/Estrellas';
 
 /**
  * Tarjeta de tienda para el directorio (home destacadas + página /tiendas).
@@ -16,6 +17,12 @@ export default function TiendaCard({ t }) {
         <div style={{ minWidth: 0 }}>
           <div className="tc-name">{t.nombre}</div>
           <div className="muted tiny">{n} producto{n !== 1 ? 's' : ''}</div>
+          {Number(t.resenas_n) > 0 && (
+            <div className="row" style={{ gap: 5, alignItems: 'center', marginTop: 3 }}>
+              <Stars valor={t.calificacion} size={13} />
+              <span className="muted tiny">{Number(t.calificacion).toFixed(1)}</span>
+            </div>
+          )}
         </div>
       </div>
       {t.descripcion && <p className="muted tiny tc-desc">{t.descripcion}</p>}
