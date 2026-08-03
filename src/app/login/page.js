@@ -54,6 +54,9 @@ export default function LoginPage() {
           </button>
         </form>
       </div>
+      <p className="muted tiny" style={{ textAlign: 'center', marginTop: 18 }}>
+        <Link href="/recuperar?tipo=tienda" style={{ color: 'var(--brand)', fontWeight: 600 }}>¿Olvidaste tu contraseña?</Link>
+      </p>
       <p className="muted" style={{ textAlign: 'center', marginTop: 18 }}>
         ¿No tienes tienda? <Link href="/registro" style={{ color: 'var(--brand)', fontWeight: 600 }}>Créala aquí</Link>
       </p>

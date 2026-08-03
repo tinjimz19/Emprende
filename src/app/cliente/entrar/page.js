@@ -33,6 +33,9 @@ export default function Entrar() {
         <button className="btn btn-primary btn-block" disabled={cargando}>{cargando ? 'Entrando…' : 'Ingresar'}</button>
       </form>
       <p className="muted tiny" style={{ marginTop: 16, textAlign: 'center' }}>
+        <Link href="/recuperar?tipo=cliente" style={{ color: 'var(--brand)', fontWeight: 600 }}>¿Olvidaste tu contraseña?</Link>
+      </p>
+      <p className="muted tiny" style={{ marginTop: 16, textAlign: 'center' }}>
         ¿No tienes cuenta? <Link href="/cliente/registro" style={{ color: 'var(--brand)', fontWeight: 600 }}>Regístrate</Link>
       </p>
       <p className="muted tiny" style={{ marginTop: 6, textAlign: 'center' }}>
