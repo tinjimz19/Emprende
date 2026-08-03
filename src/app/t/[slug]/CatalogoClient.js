@@ -117,20 +117,24 @@ export default function CatalogoClient({ slug }) {
       <TiendaNav slug={slug} tienda={tienda} cartCount={cantidad} onCart={() => setAbierto(true)} />
 
       <main className="container" style={{ paddingTop: 26, paddingBottom: 70 }}>
-        <div style={{ marginBottom: 14 }}><BotonVolver fallback="/marketplace" /></div>
-        <div className="tienda-hero">
-          {tienda.logo_url && (
-            <img src={tienda.logo_url} alt="" style={{ width: 52, height: 52, borderRadius: 13, objectFit: 'contain', background: 'var(--surface-2)' }} />
-          )}
-          <div style={{ minWidth: 0 }}>
-            <h1 style={{ margin: 0 }}>{tienda.nombre}</h1>
-            {resenaTienda.resumen.total > 0 && (
-              <div className="row" style={{ gap: 8, alignItems: 'center', margin: '4px 0 0' }}>
-                <Stars valor={resenaTienda.resumen.promedio} size={15} />
-                <span className="muted tiny">{Number(resenaTienda.resumen.promedio).toFixed(1)} · {resenaTienda.resumen.total} calificación{resenaTienda.resumen.total !== 1 ? 'es' : ''}</span>
-              </div>
+        <div className="tienda-head">
+          <div className="tienda-head-back">
+            <BotonVolver fallback="/marketplace" />
+          </div>
+          <div className="tienda-head-main">
+            {tienda.logo_url && (
+              <img src={tienda.logo_url} alt={tienda.nombre} className="tienda-avatar" />
             )}
-            {tienda.descripcion && <p className="muted" style={{ margin: '2px 0 0' }}>{tienda.descripcion}</p>}
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ margin: 0 }}>{tienda.nombre}</h1>
+              {resenaTienda.resumen.total > 0 && (
+                <div className="row" style={{ gap: 8, alignItems: 'center', margin: '4px 0 0' }}>
+                  <Stars valor={resenaTienda.resumen.promedio} size={15} />
+                  <span className="muted tiny">{Number(resenaTienda.resumen.promedio).toFixed(1)} · {resenaTienda.resumen.total} calificación{resenaTienda.resumen.total !== 1 ? 'es' : ''}</span>
+                </div>
+              )}
+              {tienda.descripcion && <p className="muted" style={{ margin: '2px 0 0' }}>{tienda.descripcion}</p>}
+            </div>
           </div>
         </div>
 

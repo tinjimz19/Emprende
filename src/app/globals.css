@@ -826,6 +826,10 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .tn-cart { display: inline-flex; align-items: center; gap: 6px; }
 .tn-cart-n { background: rgba(255,255,255,0.28); border-radius: 980px; padding: 0 7px; font-weight: 700; font-size: 12px; }
 .tienda-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.tienda-head { display: grid; grid-template-columns: 20% 1fr; gap: 16px; align-items: center; margin-bottom: 22px; }
+.tienda-head-main { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.tienda-avatar { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 3px solid var(--brand); flex: none; }
+@media (max-width: 640px) { .tienda-head { grid-template-columns: 1fr; gap: 12px; } .tienda-avatar { width: 64px; height: 64px; border-width: 3px; } }
 @media (max-width: 560px) { .tn-cart-txt { display: none; } .tn-name, .tn-crumb { max-width: 26vw; } }
 
 /* ============================================================

@@ -41,7 +41,9 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
 
   // Envío: la tienda ofrece ciertos métodos; el costo solo aplica a "delivery".
   const metodosDisponibles = tienda?.metodos_envio || [];
-  const [metodoEnvio, setMetodoEnvio] = useState(metodosDisponibles[0] || '');
+  const [metodoEnvio, setMetodoEnvio] = useState(
+    metodosDisponibles.includes('acordado') ? 'acordado' : (metodosDisponibles[0] || '')
+  );
   const costoEnvio = metodoEnvio === 'delivery' ? Number(tienda?.costo_delivery || 0) : 0;
 
   // Cupón de descuento
