@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api, usd } from '@/lib/api';
 
 const ESTADOS = ['pendiente', 'confirmado', 'pagado', 'entregado', 'cancelado'];
@@ -12,6 +12,18 @@ const MSG_ESTADO = {
   cancelado: 'Tu pedido fue cancelado. Si tienes alguna duda, escríbenos.',
 };
 
+// Chips de filtro (el primero muestra todos).
+const FILTROS = [
+  { key: 'todos', label: 'Todos' },
+  { key: 'pendiente', label: 'Pendientes' },
+  { key: 'confirmado', label: 'Confirmados' },
+  { key: 'pagado', label: 'Pagados' },
+  { key: 'entregado', label: 'Entregados' },
+  { key: 'cancelado', label: 'Cancelados' },
+];
+
+const POR_PAGINA = 10;
+
 export default function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [sel, setSel] = useState(null);
@@ -20,12 +32,41 @@ export default function Pedidos() {
   const [lightbox, setLightbox] = useState(null);
   const [aviso, setAviso] = useState(null); // { codigo, items: [{item, disponible, solicitado}] }
 
+  // Filtro / búsqueda / paginación
+  const [filtro, setFiltro] = useState('todos');
+  const [busqueda, setBusqueda] = useState('');
+  const [pagina, setPagina] = useState(1);
+
   async function cargar() {
     try { setPedidos((await api('/api/pedidos')).pedidos); }
     catch (e) { setError(e.message); }
   }
   useEffect(() => { cargar(); }, []);
   useEffect(() => { api('/api/tienda').then((d) => setTienda(d.tienda)).catch(() => {}); }, []);
+
+  // Al cambiar filtro o búsqueda, vuelve a la primera página.
+  useEffect(() => { setPagina(1); }, [filtro, busqueda]);
+
+  // Conteos por estado.
+  const conteo = useMemo(() => {
+    const c = { todos: pedidos.length, pendiente: 0, confirmado: 0, pagado: 0, entregado: 0, cancelado: 0 };
+    for (const p of pedidos) { if (c[p.estado] !== undefined) c[p.estado]++; }
+    return c;
+  }, [pedidos]);
+
+  // Lista filtrada por estado + búsqueda (código o cliente).
+  const filtrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    return pedidos
+      .filter((p) => filtro === 'todos' || p.estado === filtro)
+      .filter((p) => q === '' ||
+        String(p.codigo || '').toLowerCase().includes(q) ||
+        String(p.cliente_nombre || '').toLowerCase().includes(q));
+  }, [pedidos, filtro, busqueda]);
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
+  const paginaSegura = Math.min(pagina, totalPaginas);
+  const visibles = filtrados.slice((paginaSegura - 1) * POR_PAGINA, paginaSegura * POR_PAGINA);
 
   // Arma un mensaje de WhatsApp detallado con el resumen del pedido.
   function mensajePedido(p) {
@@ -92,13 +133,41 @@ export default function Pedidos() {
         </div>
       )}
 
-      <div style={{ marginTop: 12 }}>
+      {/* Filtros por estado + búsqueda */}
+      <div className="ped-toolbar">
+        <div className="ped-chips">
+          {FILTROS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className={`chip ${filtro === f.key ? 'chip-on' : ''}`}
+              onClick={() => setFiltro(f.key)}
+            >
+              {f.label} <span className="chip-n">{conteo[f.key] ?? 0}</span>
+            </button>
+          ))}
+        </div>
+        <div className="ped-search">
+          <input
+            className="input"
+            type="search"
+            placeholder="Buscar por código o cliente…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 14 }}>
         <div className="card" style={{ padding: 0 }}>
           <table className="table">
             <thead><tr><th>Código</th><th>Cliente</th><th>Estado</th><th style={{ textAlign: 'right' }}>Total</th></tr></thead>
             <tbody>
               {pedidos.length === 0 && <tr><td colSpan={4} className="muted" style={{ padding: 24 }}>Aún no hay pedidos.</td></tr>}
-              {pedidos.map((p) => (
+              {pedidos.length > 0 && visibles.length === 0 && (
+                <tr><td colSpan={4} className="muted" style={{ padding: 24 }}>No hay pedidos que coincidan con este filtro o búsqueda.</td></tr>
+              )}
+              {visibles.map((p) => (
                 <tr key={p.id} style={{ cursor: 'pointer' }} onClick={() => ver(p.id)}>
                   <td style={{ fontWeight: 600 }}>{p.codigo}</td>
                   <td>{p.cliente_nombre || '—'}<div className="muted" style={{ fontSize: 12 }}>{p.origen}</div></td>
@@ -109,6 +178,19 @@ export default function Pedidos() {
             </tbody>
           </table>
         </div>
+
+        {/* Paginación */}
+        {filtrados.length > POR_PAGINA && (
+          <div className="ped-pag">
+            <span className="muted" style={{ fontSize: 13 }}>
+              {(paginaSegura - 1) * POR_PAGINA + 1}–{Math.min(paginaSegura * POR_PAGINA, filtrados.length)} de {filtrados.length}
+            </span>
+            <div className="spacer" />
+            <button className="btn btn-ghost btn-sm" onClick={() => setPagina((n) => Math.max(1, n - 1))} disabled={paginaSegura <= 1}>← Anterior</button>
+            <span className="muted" style={{ fontSize: 13, padding: '0 6px' }}>Página {paginaSegura} de {totalPaginas}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => setPagina((n) => Math.min(totalPaginas, n + 1))} disabled={paginaSegura >= totalPaginas}>Siguiente →</button>
+          </div>
+        )}
 
         {sel && (
           <div onClick={() => setSel(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
@@ -195,6 +277,54 @@ export default function Pedidos() {
           <img src={lightbox} alt="" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 12, boxShadow: '0 10px 40px rgba(0,0,0,.5)' }} />
         </div>
       )}
+
+      <style jsx>{`
+        .ped-toolbar {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-top: 16px;
+          flex-wrap: wrap;
+        }
+        .ped-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ped-search { margin-left: auto; min-width: 220px; flex: 1; max-width: 320px; }
+        .ped-search .input { width: 100%; }
+        .chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 7px 13px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: var(--surface);
+          color: var(--text-2);
+          font-size: 13.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background .12s, border-color .12s, color .12s;
+        }
+        .chip:hover { border-color: var(--brand); color: var(--text); }
+        .chip-n {
+          font-size: 12px;
+          font-weight: 700;
+          padding: 1px 7px;
+          border-radius: 999px;
+          background: var(--surface-2);
+          color: var(--text-2);
+        }
+        .chip-on { background: var(--brand); border-color: var(--brand); color: #fff; }
+        .chip-on .chip-n { background: rgba(255,255,255,.25); color: #fff; }
+        .ped-pag {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: 16px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 640px) {
+          .ped-search { margin-left: 0; max-width: none; }
+        }
+      `}</style>
     </>
   );
 }

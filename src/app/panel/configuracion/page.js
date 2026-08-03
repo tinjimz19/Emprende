@@ -323,7 +323,7 @@ export default function Configuracion() {
       <style jsx>{`
         .cfg-grid {
           display: grid;
-          grid-template-columns: minmax(0, 580px) 320px;
+          grid-template-columns: minmax(0, 1fr) 320px;
           gap: 22px;
           align-items: start;
         }
