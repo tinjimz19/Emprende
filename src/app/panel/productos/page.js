@@ -333,10 +333,6 @@ export default function Productos() {
         </div>
       )}
 
-      <style jsx global>{`
-        /* Solo mientras esta página está montada: ancho completo del panel. */
-        .content { max-width: none; }
-      `}</style>
       <style jsx>{`
         .prod-toolbar {
           display: flex;

@@ -92,7 +92,7 @@ export default function Pedidos() {
         </div>
       )}
 
-      <div className="grid" style={{ gridTemplateColumns: sel ? '1fr 340px' : '1fr', marginTop: 12 }}>
+      <div style={{ marginTop: 12 }}>
         <div className="card" style={{ padding: 0 }}>
           <table className="table">
             <thead><tr><th>Código</th><th>Cliente</th><th>Estado</th><th style={{ textAlign: 'right' }}>Total</th></tr></thead>
@@ -111,7 +111,8 @@ export default function Pedidos() {
         </div>
 
         {sel && (
-          <div className="card">
+          <div onClick={() => setSel(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+          <div className="card" onClick={(e) => e.stopPropagation()} style={{ width: 460, maxWidth: '100%', maxHeight: '90vh', overflow: 'auto' }}>
             <div className="row">
               <h3 style={{ margin: 0 }}>{sel.codigo}</h3>
               <div className="spacer" />
@@ -142,9 +143,22 @@ export default function Pedidos() {
                     <td style={{ textAlign: 'right' }}>{usd(i.subtotal)}</td>
                   </tr>
                 ))}
+                {(sel.metodo_envio || Number(sel.costo_envio) > 0) && (
+                  <>
+                    <tr><td className="muted">Subtotal productos</td><td style={{ textAlign: 'right' }} className="muted">{usd(Number(sel.total) - Number(sel.costo_envio || 0))}</td></tr>
+                    <tr><td className="muted">Envío · {LABEL_ENVIO[sel.metodo_envio] || sel.metodo_envio || 'Envío'}</td><td style={{ textAlign: 'right' }} className="muted">{Number(sel.costo_envio) > 0 ? usd(sel.costo_envio) : 'Gratis'}</td></tr>
+                  </>
+                )}
                 <tr><td style={{ fontWeight: 700 }}>Total</td><td style={{ textAlign: 'right', fontWeight: 700 }}>{usd(sel.total)}</td></tr>
               </tbody>
             </table>
+            {(sel.metodo_envio || sel.direccion) && (
+              <div className="field" style={{ marginTop: 14 }}>
+                <label>Entrega</label>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{LABEL_ENVIO[sel.metodo_envio] || sel.metodo_envio || '—'}</div>
+                {sel.direccion && <div className="muted" style={{ fontSize: 13.5, marginTop: 4 }}>{sel.direccion}</div>}
+              </div>
+            )}
             <div className="field" style={{ marginTop: 14 }}>
               <label>Estado del pedido</label>
               <select className="input" value={sel.estado} onChange={(e) => cambiar(sel.id, e.target.value)}>
@@ -168,6 +182,7 @@ export default function Pedidos() {
                 Escribir por WhatsApp
               </a>
             )}
+          </div>
           </div>
         )}
       </div>

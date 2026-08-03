@@ -375,7 +375,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 }
 .sidebar .nav-link:hover { background: var(--surface-2); color: var(--text); }
 .sidebar .nav-link.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
-.content { padding: 30px; max-width: 1000px; }
+.content { padding: 30px; max-width: none; }
 
 .stat .n { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px; }
 .stat .label { font-size: 13px; color: var(--text-2); font-weight: 500; }
