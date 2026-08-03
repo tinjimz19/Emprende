@@ -132,7 +132,7 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
           <>
             <div style={{ marginTop: 14 }}>
               {cart.map((i, idx) => (
-                <div className="row" key={idx} style={{ borderBottom: '1px solid var(--border-soft)', padding: '12px 0' }}>
+                <div className="row" key={idx} style={{ borderBottom: '1px solid var(--border-soft)', padding: '9px 0' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{i.nombre}</div>
                     <div className="price" style={{ fontSize: 14 }}>{usd(i.precio)}</div>
@@ -185,16 +185,20 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
             {cuenta
               ? <p className="muted tiny" style={{ marginTop: 0 }}>Comprando como <b>{cuenta.nombre}</b> · este pedido se guardará en tu cuenta.</p>
               : <p className="muted tiny" style={{ marginTop: 0 }}><a href="/cliente/entrar" style={{ color: 'var(--brand)', fontWeight: 600 }}>Inicia sesión</a> para guardar tu pedido en tu cuenta (opcional).</p>}
-            <div className="field"><label>Tu nombre</label>
-              <input className="input" value={datos.cliente_nombre} onChange={(e) => setDatos({ ...datos, cliente_nombre: e.target.value })} /></div>
-            <div className="field"><label>Tu WhatsApp / teléfono</label>
-              <input className="input" value={datos.cliente_telefono} onChange={(e) => setDatos({ ...datos, cliente_telefono: e.target.value })} /></div>
+            {!cuenta && (
+              <>
+                <div className="field"><label>Tu nombre</label>
+                  <input className="input" value={datos.cliente_nombre} onChange={(e) => setDatos({ ...datos, cliente_nombre: e.target.value })} /></div>
+                <div className="field"><label>Tu WhatsApp / teléfono</label>
+                  <input className="input" value={datos.cliente_telefono} onChange={(e) => setDatos({ ...datos, cliente_telefono: e.target.value })} /></div>
+              </>
+            )}
             <div className="field"><label>Método de pago</label>
               <select className="input" value={datos.metodo_pago} onChange={(e) => setDatos({ ...datos, metodo_pago: e.target.value })}>
                 {opcionesPago.map((k) => <option key={k} value={k}>{LABEL_PAGO[k] || k}</option>)}
               </select></div>
             {pagosSel.length > 0 ? (
-              <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border-soft)', borderRadius: 12, padding: '10px 14px', margin: '4px 0 12px' }}>
+              <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border-soft)', borderRadius: 12, padding: '8px 12px', margin: '4px 0 10px' }}>
                 <div style={{ fontWeight: 700, fontSize: 13 }}>Datos para pagar por {LABEL_PAGO[datos.metodo_pago] || 'este método'}</div>
                 {pagosSel.map((m, i) => (
                   <div
@@ -240,6 +244,14 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
             </button>
           </>
         )}
+        <style jsx>{`
+          .drawer { padding: 20px; }
+          .field { margin-bottom: 10px; }
+          .field > label { margin-bottom: 4px; }
+          .input, textarea, select { padding: 9px 13px; }
+          .divider { margin: 12px 0; }
+          .btn-lg { padding: 12px 18px; }
+        `}</style>
       </div>
     </div>
   );
