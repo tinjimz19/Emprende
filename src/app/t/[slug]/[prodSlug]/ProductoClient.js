@@ -216,6 +216,12 @@ export default function ProductoClient({ slug, prodSlug }) {
               </a>
             )}
 
+            {Number(prod.vistas) > 0 && (
+              <p className="muted tiny" style={{ margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                {prod.vistas} {Number(prod.vistas) === 1 ? 'vista' : 'vistas'}
+              </p>
+            )}
             <div className="row" style={{ gap: 12, alignItems: 'baseline' }}>
               <div className="price" style={{ fontSize: 32 }}>{usd(precio)}</div>
               {enOferta && <div className="price-old" style={{ fontSize: 17 }}>{usd(prod.precio)}</div>}

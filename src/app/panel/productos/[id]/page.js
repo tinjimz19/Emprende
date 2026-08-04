@@ -72,7 +72,10 @@ export default function EditarProducto() {
           <h1 style={{ margin: '4px 0 0' }}>{prod.nombre}</h1>
         </div>
         <div className="spacer" />
-        <span className="badge">{prod.estado}</span>
+        <div className="row" style={{ gap: 10, alignItems: 'center' }}>
+          <span className="muted tiny" title="Vistas únicas (por visitante/día)">👁 {Number(prod.vistas) || 0} vistas</span>
+          <span className="badge">{prod.estado}</span>
+        </div>
       </div>
 
       {esNuevo && <div className="ok-box" style={{ marginTop: 14 }}>Producto creado. Ahora agrégale fotos y, si aplica, variantes.</div>}

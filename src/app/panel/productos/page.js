@@ -35,6 +35,7 @@ export default function Productos() {
   const [filtro, setFiltro] = useState('activo');
   const [busqueda, setBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
+  const [umbral, setUmbral] = useState(0);
 
   // Importación por CSV
   const [modal, setModal] = useState(false);
@@ -49,6 +50,7 @@ export default function Productos() {
     try {
       const p = await api('/api/productos');
       setProductos(p.productos);
+      setUmbral(p.umbral_stock || 0);
     } catch (e) { setError(e.message); }
     finally { setCargando(false); }
   }
@@ -175,23 +177,26 @@ export default function Productos() {
       <div className="card" style={{ marginTop: 14, padding: 0 }}>
         <table className="table">
           <thead>
-            <tr><th></th><th>Producto</th><th>Precio</th><th>Stock</th><th>Estado</th><th></th></tr>
+            <tr><th></th><th>Producto</th><th>Precio</th><th>Stock</th><th>Vistas</th><th>Estado</th><th></th></tr>
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan={6} className="muted" style={{ padding: 24 }}>Cargando…</td></tr>
+              <tr><td colSpan={7} className="muted" style={{ padding: 24 }}>Cargando…</td></tr>
             )}
             {!cargando && productos.length === 0 && (
-              <tr><td colSpan={6} className="muted" style={{ padding: 24 }}>
+              <tr><td colSpan={7} className="muted" style={{ padding: 24 }}>
                 Aún no tienes productos. <Link href="/panel/productos/nuevo" style={{ color: 'var(--brand)' }}>Crea el primero</Link>.
               </td></tr>
             )}
             {!cargando && productos.length > 0 && visibles.length === 0 && (
-              <tr><td colSpan={6} className="muted" style={{ padding: 24 }}>
+              <tr><td colSpan={7} className="muted" style={{ padding: 24 }}>
                 No hay productos que coincidan con este filtro o búsqueda.
               </td></tr>
             )}
-            {visibles.map((p) => (
+            {visibles.map((p) => {
+              const efectivo = Number(p.tiene_variantes) ? Number(p.stock_variantes || 0) : Number(p.stock || 0);
+              const bajo = umbral > 0 && efectivo <= umbral;
+              return (
               <tr key={p.id} className="row-link" onClick={() => { location.href = `/panel/productos/${p.id}`; }}>
                 <td style={{ width: 56 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 8, background: p.imagen ? `var(--surface-2) url(${p.imagen}) center/cover` : 'var(--surface-2)' }} />
@@ -205,14 +210,19 @@ export default function Productos() {
                   </div>
                 </td>
                 <td className="price">{usd(p.precio)}</td>
-                <td>{Number(p.tiene_variantes) ? '—' : (Number(p.stock) > 0 ? p.stock : '')}</td>
+                <td>
+                  {Number(p.tiene_variantes) ? Number(p.stock_variantes || 0) : (Number(p.stock) > 0 ? p.stock : (Number(p.stock) === 0 ? 0 : ''))}
+                  {bajo && <span className="badge badge-warn" style={{ marginLeft: 6 }}>Stock bajo</span>}
+                </td>
+                <td className="muted">{Number(p.vistas) || 0}</td>
                 <td><span className={`badge estado-${p.estado}`}>{p.estado}</span></td>
                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <Link className="btn btn-ghost btn-sm" href={`/panel/productos/${p.id}`} onClick={(e) => e.stopPropagation()}>Editar</Link>{' '}
                   <button className="btn btn-ghost btn-sm" onClick={(e) => eliminar(e, p.id)} style={{ color: 'var(--danger)' }}>Eliminar</button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

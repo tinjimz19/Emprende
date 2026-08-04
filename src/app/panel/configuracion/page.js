@@ -102,6 +102,7 @@ export default function Configuracion() {
           nombre: t.nombre, descripcion: t.descripcion, whatsapp: t.whatsapp,
           direccion: t.direccion || '', costo_delivery: Number(t.costo_delivery || 0),
           metodos_envio: metodosEnvio, tasa_bs: Number(t.tasa_bs || 0),
+          stock_min_alerta: Number(t.stock_min_alerta || 0),
         },
       });
       setT(d.tienda);
@@ -256,6 +257,11 @@ export default function Configuracion() {
             <div className="field">
               <label>Tasa del día (Bs por $1)</label>
               <input className="input" type="number" step="0.01" value={t.tasa_bs || ''} onChange={(e) => set('tasa_bs', e.target.value)} style={{ maxWidth: 200 }} />
+            </div>
+            <div className="field">
+              <label>Umbral de stock bajo</label>
+              <input className="input" type="number" min="0" step="1" value={t.stock_min_alerta ?? ''} onChange={(e) => set('stock_min_alerta', e.target.value)} style={{ maxWidth: 200 }} placeholder="3" />
+              <p className="muted tiny" style={{ margin: '6px 0 0' }}>Te avisamos por correo cuando un producto quede en esta cantidad o menos (aplica a todos tus productos). Usa 0 para desactivar las alertas.</p>
             </div>
             <button className="btn btn-primary" disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
           </form>
