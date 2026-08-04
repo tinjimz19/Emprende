@@ -43,6 +43,9 @@ export default function PanelLayout({ children }) {
   const [notis, setNotis] = useState([]);
   const [noLeidas, setNoLeidas] = useState(0);
   const [abierto, setAbierto] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [anim, setAnim] = useState(false);
+  useEffect(() => { setAnim(true); }, []);
 
   useEffect(() => {
     api('/api/auth/me')
@@ -88,7 +91,19 @@ export default function PanelLayout({ children }) {
 
   return (
     <div className="panel">
-      <aside className="sidebar">
+      <div className="panel-mobilebar">
+        <button className="panel-burger" onClick={() => setMenu(true)} aria-label="Abrir menú">
+          <Icon d="M3 6h18M3 12h18M3 18h18" />
+        </button>
+        <div className="logo" style={{ fontSize: 17 }}><img src="/hero/emprende-logo.png" alt="Emprende Cumaná" className="logo-img" /> Emprende</div>
+        <div className="spacer" />
+        <button className="noti-btn" onClick={abrirNotis} title="Notificaciones" aria-label="Notificaciones">
+          <Icon d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+          {noLeidas > 0 && <span className="noti-badge">{noLeidas > 9 ? '9+' : noLeidas}</span>}
+        </button>
+      </div>
+      {menu && <div className="panel-menu-overlay" onClick={() => setMenu(false)} />}
+      <aside className={`sidebar ${menu ? 'open' : ''} ${anim ? 'anim' : ''}`}>
         <div className="row" style={{ padding: '6px 12px 14px', alignItems: 'center' }}>
           <div className="logo" style={{ fontSize: 19 }}><img src="/hero/emprende-logo.png" alt="Emprende Cumaná" className="logo-img" /> Emprende</div>
           <div className="spacer" />
@@ -99,12 +114,12 @@ export default function PanelLayout({ children }) {
         </div>
 
         {NAV.map(([href, label, d]) => (
-          <Link key={href} href={href} className={`nav-link ${pathname === href ? 'active' : ''}`}>
+          <Link key={href} href={href} className={`nav-link ${pathname === href ? 'active' : ''}`} onClick={() => setMenu(false)}>
             <Icon d={d} /> {label}
           </Link>
         ))}
         <div className="spacer" style={{ minHeight: 12 }} />
-        <a className="nav-link" href={`/t/${sesion?.tienda?.slug}`} target="_blank" rel="noreferrer">
+        <a className="nav-link" href={`/t/${sesion?.tienda?.slug}`} target="_blank" rel="noreferrer" onClick={() => setMenu(false)}>
           <Icon d="M10 14L21 3M21 3h-6M21 3v6M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5" /> Ver mi tienda
         </a>
         <div className="row" style={{ padding: '8px 12px', gap: 8 }}>

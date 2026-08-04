@@ -19,6 +19,7 @@ export default function CatalogoClient({ slug }) {
   const [cat, setCat] = useState('');
   const [color, setColor] = useState('');
   const [q, setQ] = useState('');
+  const [filtrosAbierto, setFiltrosAbierto] = useState(false);
   const [ocultarAgotados, setOcultarAgotados] = useState(false);
   const [error, setError] = useState('');
   const [cart, setCart] = useState([]);
@@ -155,8 +156,14 @@ export default function CatalogoClient({ slug }) {
           </div>
         </div>
 
+        <div className="mkt-filtros-toggle">
+          <button className="btn btn-soft btn-sm" onClick={() => setFiltrosAbierto((v) => !v)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+            {filtrosAbierto ? 'Ocultar filtros' : 'Filtros y categorías'}
+          </button>
+        </div>
         <div className="mkt-layout">
-          <aside className="mkt-side">
+          <aside className={`mkt-side ${filtrosAbierto ? 'abierto' : ''}`}>
             <input className="input" placeholder="Buscar productos…" value={q} onChange={(e) => setQ(e.target.value)} />
             <label className="row muted tiny" style={{ gap: 8, cursor: 'pointer' }}>
               <input type="checkbox" checked={ocultarAgotados} onChange={(e) => setOcultarAgotados(e.target.checked)} />
