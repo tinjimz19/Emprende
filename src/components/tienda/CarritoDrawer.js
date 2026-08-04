@@ -126,6 +126,12 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
           <div style={{ marginTop: 18 }}>
             <div className="alert ok-box">¡Pedido <b>{pedido.codigo}</b> recibido! Confírmalo por WhatsApp con la tienda.</div>
             {waLink() && <a className="btn btn-wa btn-block" style={{ marginTop: 14 }} href={waLink()} target="_blank" rel="noreferrer">Enviar por WhatsApp</a>}
+            {!cuenta && (
+              <>
+                <a className="btn btn-soft btn-block" style={{ marginTop: 10 }} href={`/seguimiento?codigo=${encodeURIComponent(pedido.codigo)}&tel=${encodeURIComponent(datos.cliente_telefono || '')}`} target="_blank" rel="noreferrer">Seguir mi pedido</a>
+                <p className="muted tiny" style={{ margin: '8px 0 0', textAlign: 'center' }}>Guarda tu código <b>{pedido.codigo}</b> para consultarlo luego.</p>
+              </>
+            )}
             <button className="btn btn-ghost btn-block" style={{ marginTop: 10 }} onClick={onClose}>Seguir viendo</button>
           </div>
         ) : cart.length === 0 ? (

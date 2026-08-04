@@ -8,6 +8,7 @@ const LINKS = [
   ['#productos', 'Explorar'],
   ['#vender', 'Vender'],
   ['#planes', 'Planes'],
+  ['/seguimiento', 'Seguir pedido'],
 ];
 
 export default function Navbar() {
