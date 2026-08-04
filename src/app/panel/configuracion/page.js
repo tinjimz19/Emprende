@@ -103,6 +103,7 @@ export default function Configuracion() {
           direccion: t.direccion || '', costo_delivery: Number(t.costo_delivery || 0),
           metodos_envio: metodosEnvio, tasa_bs: Number(t.tasa_bs || 0),
           stock_min_alerta: Number(t.stock_min_alerta || 0),
+          color_primario: t.color_primario || '',
         },
       });
       setT(d.tienda);
@@ -257,6 +258,15 @@ export default function Configuracion() {
             <div className="field">
               <label>Tasa del día (Bs por $1)</label>
               <input className="input" type="number" step="0.01" value={t.tasa_bs || ''} onChange={(e) => set('tasa_bs', e.target.value)} style={{ maxWidth: 200 }} />
+            </div>
+            <div className="field">
+              <label>Color de tu tienda</label>
+              <div className="row" style={{ gap: 10, alignItems: 'center' }}>
+                <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(t.color_primario || '') ? t.color_primario : '#FF453A'} onChange={(e) => set('color_primario', e.target.value)} style={{ width: 48, height: 38, padding: 2, borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer' }} />
+                <input className="input" value={t.color_primario || ''} onChange={(e) => set('color_primario', e.target.value)} placeholder="#FF453A" style={{ maxWidth: 140 }} />
+                {t.color_primario && <button type="button" className="btn btn-ghost btn-sm" onClick={() => set('color_primario', '')}>Quitar</button>}
+              </div>
+              <p className="muted tiny" style={{ margin: '6px 0 0' }}>Color de marca de tu tienda; se usa por ejemplo en las tarjetas para compartir. Déjalo vacío para usar el rojo de Emprende.</p>
             </div>
             <div className="field">
               <label>Umbral de stock bajo</label>
