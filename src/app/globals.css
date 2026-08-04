@@ -826,10 +826,11 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .tn-cart { display: inline-flex; align-items: center; gap: 6px; }
 .tn-cart-n { background: rgba(255,255,255,0.28); border-radius: 980px; padding: 0 7px; font-weight: 700; font-size: 12px; }
 .tienda-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-.tienda-head { display: grid; grid-template-columns: 20% 1fr; gap: 16px; align-items: center; margin-bottom: 22px; }
+.tienda-head { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: start; margin-bottom: 22px; }
 .tienda-head-main { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .tienda-avatar { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 3px solid var(--brand); flex: none; }
-@media (max-width: 640px) { .tienda-head { grid-template-columns: 1fr; gap: 12px; } .tienda-avatar { width: 64px; height: 64px; border-width: 3px; } }
+@media (max-width: 820px) { .tienda-head { grid-template-columns: 1fr; gap: 14px; } }
+@media (max-width: 640px) { .tienda-avatar { width: 64px; height: 64px; border-width: 3px; } }
 @media (max-width: 560px) { .tn-cart-txt { display: none; } .tn-name, .tn-crumb { max-width: 26vw; } }
 
 /* ============================================================
@@ -875,4 +876,31 @@ select { appearance: none; background-image: none; cursor: pointer; }
   .hero-stats .s:first-child { border-top: 1px solid var(--border-soft); }
   .hero-stats .s .n { font-size: 19px; }
   .hero-stats .s .l { text-align: right; }
+}
+
+
+/* ---------- Favoritos (corazón) ---------- */
+.fav-btn {
+  display: inline-grid; place-items: center;
+  width: 34px; height: 34px; padding: 0; margin: 0;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--text-3); border-radius: 50%; line-height: 0;
+  transition: color .15s ease, transform .12s ease, background .15s ease;
+}
+.fav-btn:hover { color: var(--brand); transform: scale(1.08); }
+.fav-btn.on { color: var(--brand); }
+.fav-btn:active { transform: scale(0.9); }
+.fav-btn-flotante {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.20);
+  color: var(--text-2);
+}
+.fav-btn-flotante:hover { background: #fff; color: var(--brand); }
+.fav-btn-flotante.on { color: var(--brand); background: #fff; }
+
+.seguir-wrap { vertical-align: top; }
+.seguir-aviso {
+  position: absolute; top: calc(100% + 5px); left: 2px;
+  white-space: nowrap; pointer-events: none;
 }

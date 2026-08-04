@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { usd, precioBs } from '@/lib/api';
+import BotonFavorito from '@/components/BotonFavorito';
 
 /**
  * Tarjeta de producto para la vitrina global (home + marketplace).
@@ -15,6 +16,7 @@ export default function ProductoCard({ p }) {
       <Link href={prodHref}>
         <span className="thumb" style={{ backgroundImage: p.imagen ? `url(${p.imagen})` : 'none' }}>
           {Number(p.destacado) === 1 && <span className="badge badge-brand" style={{ position: 'absolute', top: 10, left: 10 }}>Top</span>}
+          <BotonFavorito id={p.id} flotante />
         </span>
       </Link>
       <div className="body">

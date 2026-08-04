@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { api, usd, precioBs, getToken, getClienteToken } from '@/lib/api';
 import { addToCart, getCart } from '@/lib/cart';
 import TiendaNav from '@/components/tienda/TiendaNav';
+import BotonFavorito from '@/components/BotonFavorito';
 
 function Stars({ valor = 0, size = 16 }) {
   const llenas = Math.round(valor);
@@ -202,7 +203,11 @@ export default function ProductoClient({ slug, prodSlug }) {
 
           {/* Info */}
           <div className="prod-info">
-            <h1 style={{ margin: '0 0 8px' }}>{prod.nombre}</h1>
+            <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
+              <h1 style={{ margin: '0 0 8px' }}>{prod.nombre}</h1>
+              <div className="spacer" />
+              <BotonFavorito id={prod.id} size={24} />
+            </div>
 
             {resumen.total > 0 && (
               <a href="#resenas" className="row" style={{ gap: 8, alignItems: 'center', marginBottom: 12, textDecoration: 'none' }}>

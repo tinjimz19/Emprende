@@ -7,6 +7,8 @@ import TiendaNav from '@/components/tienda/TiendaNav';
 import Carrito from '@/components/tienda/CarritoDrawer';
 import BotonVolver from '@/components/BotonVolver';
 import { Stars, StarInput } from '@/components/Estrellas';
+import BotonFavorito from '@/components/BotonFavorito';
+import BotonSeguir from '@/components/BotonSeguir';
 
 export default function CatalogoClient({ slug }) {
   const [tienda, setTienda] = useState(null);
@@ -134,10 +136,12 @@ export default function CatalogoClient({ slug }) {
                 </div>
               )}
               {tienda.descripcion && <p className="muted" style={{ margin: '2px 0 0' }}>{tienda.descripcion}</p>}
+              <div className="row" style={{ gap: 10, marginTop: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              {dueno?.tiendaSlug !== slug && <BotonSeguir id={tienda.id} mostrarAviso={false} />}
               {tienda.whatsapp && dueno?.tiendaSlug !== slug && (
                 <a
                   className="btn btn-wa btn-sm"
-                  style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                   target="_blank"
                   rel="noreferrer"
                   href={`https://wa.me/${tienda.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`¡Hola *${tienda.nombre}*! Vi tu tienda en Emprende Cumaná y quiero hacerte una consulta.`)}`}
@@ -146,6 +150,7 @@ export default function CatalogoClient({ slug }) {
                   Hablar con la tienda
                 </a>
               )}
+              </div>
             </div>
           </div>
         </div>
@@ -205,6 +210,7 @@ export default function CatalogoClient({ slug }) {
                     {enOferta && !agotado && Number(p.precio) > Number(p.precio_oferta) && (
                       <span className="oferta-badge">-{Math.round((1 - p.precio_oferta / p.precio) * 100)}%</span>
                     )}
+                    <BotonFavorito id={p.id} flotante />
                   </span>
                 </Link>
                 <div className="body">

@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api, getClienteToken, setClienteToken, usd } from '@/lib/api';
+import ProductoCard from '@/components/landing/ProductoCard';
+import TiendaCard from '@/components/landing/TiendaCard';
+import { cargarFavoritos, limpiarFavoritos } from '@/lib/favoritos';
+import { cargarSeguidas, limpiarSeguidas } from '@/lib/seguir';
 
 const BADGE = { pagado: 'badge-ok', entregado: 'badge-ok', cancelado: 'badge-danger', confirmado: 'badge-brand', pendiente: 'badge-warn' };
 
@@ -17,6 +21,9 @@ export default function Perfil() {
   const router = useRouter();
   const [cuenta, setCuenta] = useState(null);
   const [pedidos, setPedidos] = useState([]);
+  const [favoritos, setFavoritos] = useState([]);
+  const [seguidas, setSeguidas] = useState([]);
+  const [novedades, setNovedades] = useState([]);
   const [estado, setEstado] = useState('cargando');
 
   useEffect(() => {
@@ -26,16 +33,28 @@ export default function Perfil() {
       .catch(() => { setClienteToken(null); router.replace('/cliente/entrar'); });
   }, [router]);
 
+  // Favoritos, tiendas seguidas y novedades (no bloquean la carga del perfil).
+  useEffect(() => {
+    if (estado !== 'ok') return;
+    cargarFavoritos();
+    cargarSeguidas();
+    api('/api/cliente/favoritos', { cliente: true }).then((d) => setFavoritos(d.favoritos || [])).catch(() => {});
+    api('/api/cliente/tiendas', { cliente: true }).then((d) => setSeguidas(d.tiendas || [])).catch(() => {});
+    api('/api/cliente/novedades', { cliente: true }).then((d) => setNovedades(d.novedades || [])).catch(() => {});
+  }, [estado]);
+
   async function salir() {
     try { await api('/api/cliente/logout', { method: 'POST', cliente: true }); } catch {}
     setClienteToken(null);
+    limpiarFavoritos();
+    limpiarSeguidas();
     router.replace('/');
   }
 
   if (estado !== 'ok') return <p className="muted">Cargando…</p>;
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+    <div style={{ maxWidth: 900, margin: '0 auto' }}>
       <div className="row" style={{ alignItems: 'center' }}>
         <div>
           <h1 style={{ margin: 0 }}>Hola, {cuenta.nombre}</h1>
@@ -66,6 +85,34 @@ export default function Perfil() {
             </tbody>
           </table>
         </div>
+      )}
+
+      <h3 style={{ margin: '32px 0 12px' }}>Mis favoritos</h3>
+      {favoritos.length === 0 ? (
+        <div className="card"><p className="muted" style={{ margin: 0 }}>Aún no tienes favoritos. Toca el corazón en cualquier producto para guardarlo aquí.</p></div>
+      ) : (
+        <div className="grid grid-cards">
+          {favoritos.map((p) => <ProductoCard key={p.id} p={p} />)}
+        </div>
+      )}
+
+      <h3 style={{ margin: '32px 0 12px' }}>Tiendas que sigo</h3>
+      {seguidas.length === 0 ? (
+        <div className="card"><p className="muted" style={{ margin: 0 }}>No sigues ninguna tienda todavía. Sigue tus tiendas favoritas para enterarte de sus productos nuevos.</p></div>
+      ) : (
+        <div className="grid grid-cards">
+          {seguidas.map((t) => <TiendaCard key={t.id} t={t} />)}
+        </div>
+      )}
+
+      {novedades.length > 0 && (
+        <>
+          <h3 style={{ margin: '32px 0 4px' }}>Novedades de tiendas que sigues</h3>
+          <p className="muted tiny" style={{ margin: '0 0 12px' }}>Productos publicados recientemente por las tiendas que sigues.</p>
+          <div className="grid grid-cards">
+            {novedades.map((p) => <ProductoCard key={p.id} p={p} />)}
+          </div>
+        </>
       )}
     </div>
   );
