@@ -7,12 +7,12 @@ import TiendaNav from '@/components/tienda/TiendaNav';
 import BotonFavorito from '@/components/BotonFavorito';
 
 function Stars({ valor = 0, size = 16 }) {
-  const llenas = Math.round(valor);
+  const v = Math.max(0, Math.min(5, Number(valor) || 0));
+  const pct = (v / 5) * 100;
   return (
-    <span className="stars" style={{ fontSize: size }} aria-label={`${valor} de 5`}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={i <= llenas ? 'on' : ''}>★</span>
-      ))}
+    <span className="stars" style={{ fontSize: size, position: 'relative', display: 'inline-block' }} aria-label={`${v} de 5`}>
+      <span style={{ color: 'var(--border)' }}>★★★★★</span>
+      <span style={{ position: 'absolute', top: 0, left: 0, width: `${pct}%`, overflow: 'hidden', whiteSpace: 'nowrap', color: '#f5a623' }}>★★★★★</span>
     </span>
   );
 }

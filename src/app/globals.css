@@ -904,3 +904,17 @@ select { appearance: none; background-image: none; cursor: pointer; }
   position: absolute; top: calc(100% + 5px); left: 2px;
   white-space: nowrap; pointer-events: none;
 }
+
+/* ---------- Producto en formato lista (panel del cliente) ---------- */
+.grid-filas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .grid-filas { grid-template-columns: 1fr; } }
+.prod-fila { position: relative; display: flex; align-items: stretch; gap: 12px; padding: 0; overflow: hidden; }
+.pf-cover { position: absolute; inset: 0; z-index: 1; }
+.pf-thumb { width: 88px; align-self: stretch; background: var(--surface-2) center/cover no-repeat; flex: none; display: block; }
+.pf-body { min-width: 0; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 8px 0; }
+.pf-name { font-weight: 600; font-size: 14px; color: var(--text); letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-tienda { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-precios { display: flex; align-items: baseline; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+.pf-precios .price { font-size: 15px; }
+.pf-bs { color: var(--text-3); font-size: 12px; font-weight: 500; }
+.pf-fav { position: relative; z-index: 2; flex: none; align-self: center; padding-right: 8px; }

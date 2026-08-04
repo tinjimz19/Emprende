@@ -3,18 +3,34 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api, getClienteToken, setClienteToken, usd } from '@/lib/api';
-import ProductoCard from '@/components/landing/ProductoCard';
+import ProductoFila from '@/components/ProductoFila';
 import TiendaCard from '@/components/landing/TiendaCard';
 import { cargarFavoritos, limpiarFavoritos } from '@/lib/favoritos';
 import { cargarSeguidas, limpiarSeguidas } from '@/lib/seguir';
 
 const BADGE = { pagado: 'badge-ok', entregado: 'badge-ok', cancelado: 'badge-danger', confirmado: 'badge-brand', pendiente: 'badge-warn' };
+const POR_PAGINA = 10;
 
 function fmt(s) {
   if (!s) return '';
   const d = new Date(String(s).replace(' ', 'T'));
   if (isNaN(d)) return String(s).slice(0, 10);
   return d.toLocaleDateString('es-VE', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function Pager({ pagina, setPagina, total }) {
+  const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+  if (total <= POR_PAGINA) return null;
+  const inicio = (pagina - 1) * POR_PAGINA;
+  return (
+    <div className="row" style={{ marginTop: 12, gap: 4, alignItems: 'center' }}>
+      <span className="muted tiny">{inicio + 1}–{Math.min(inicio + POR_PAGINA, total)} de {total}</span>
+      <div className="spacer" />
+      <button className="btn btn-ghost btn-sm" onClick={() => setPagina((n) => Math.max(1, n - 1))} disabled={pagina <= 1}>← Anterior</button>
+      <span className="muted tiny" style={{ padding: '0 6px' }}>{pagina} de {totalPaginas}</span>
+      <button className="btn btn-ghost btn-sm" onClick={() => setPagina((n) => Math.min(totalPaginas, n + 1))} disabled={pagina >= totalPaginas}>Siguiente →</button>
+    </div>
+  );
 }
 
 export default function Perfil() {
@@ -25,6 +41,8 @@ export default function Perfil() {
   const [seguidas, setSeguidas] = useState([]);
   const [novedades, setNovedades] = useState([]);
   const [estado, setEstado] = useState('cargando');
+  const [pagFav, setPagFav] = useState(1);
+  const [pagNov, setPagNov] = useState(1);
 
   useEffect(() => {
     if (!getClienteToken()) { router.replace('/cliente/entrar'); return; }
@@ -52,6 +70,14 @@ export default function Perfil() {
   }
 
   if (estado !== 'ok') return <p className="muted">Cargando…</p>;
+
+  const favPaginas = Math.max(1, Math.ceil(favoritos.length / POR_PAGINA));
+  const favPag = Math.min(pagFav, favPaginas);
+  const favVisibles = favoritos.slice((favPag - 1) * POR_PAGINA, (favPag - 1) * POR_PAGINA + POR_PAGINA);
+
+  const novPaginas = Math.max(1, Math.ceil(novedades.length / POR_PAGINA));
+  const novPag = Math.min(pagNov, novPaginas);
+  const novVisibles = novedades.slice((novPag - 1) * POR_PAGINA, (novPag - 1) * POR_PAGINA + POR_PAGINA);
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -91,9 +117,12 @@ export default function Perfil() {
       {favoritos.length === 0 ? (
         <div className="card"><p className="muted" style={{ margin: 0 }}>Aún no tienes favoritos. Toca el corazón en cualquier producto para guardarlo aquí.</p></div>
       ) : (
-        <div className="grid grid-cards">
-          {favoritos.map((p) => <ProductoCard key={p.id} p={p} />)}
-        </div>
+        <>
+          <div className="grid-filas">
+            {favVisibles.map((p) => <ProductoFila key={p.id} p={p} />)}
+          </div>
+          <Pager pagina={favPag} setPagina={setPagFav} total={favoritos.length} />
+        </>
       )}
 
       <h3 style={{ margin: '32px 0 12px' }}>Tiendas que sigo</h3>
@@ -109,9 +138,10 @@ export default function Perfil() {
         <>
           <h3 style={{ margin: '32px 0 4px' }}>Novedades de tiendas que sigues</h3>
           <p className="muted tiny" style={{ margin: '0 0 12px' }}>Productos publicados recientemente por las tiendas que sigues.</p>
-          <div className="grid grid-cards">
-            {novedades.map((p) => <ProductoCard key={p.id} p={p} />)}
+          <div className="grid-filas">
+            {novVisibles.map((p) => <ProductoFila key={p.id} p={p} />)}
           </div>
+          <Pager pagina={novPag} setPagina={setPagNov} total={novedades.length} />
         </>
       )}
     </div>
