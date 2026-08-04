@@ -10,6 +10,7 @@ const NAV = [
   ['/panel', 'Resumen', 'M3 12l9-9 9 9M5 10v10h14V10'],
   ['/panel/productos', 'Productos', 'M20 7l-8-4-8 4 8 4 8-4zM4 7v10l8 4 8-4V7'],
   ['/panel/pedidos', 'Pedidos', 'M6 2l1.5 3h9L18 2M3 6h18l-1.5 14h-15L3 6z'],
+  ['/panel/top-clientes', 'Top Clientes', 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M13 7a4 4 0 11-8 0 4 4 0 018 0zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'],
   ['/panel/cupones', 'Cupones', 'M20 12a2 2 0 012-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v3a2 2 0 010 4v3a2 2 0 002 2h16a2 2 0 002-2v-3a2 2 0 01-2-2zM13 5v2M13 11v2M13 17v2'],
   ['/panel/reportes', 'Reportes', 'M3 21h18M7 21V11M12 21V4M17 21v-7'],
   ['/panel/contabilidad', 'Contabilidad', 'M4 4h16v16H4zM8 9h8M8 13h8M8 17h5'],
