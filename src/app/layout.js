@@ -1,10 +1,23 @@
 import './globals.css';
+import PWA from '@/components/PWA';
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: 'Emprende — Tu tienda online',
   description: 'Plataforma para emprendedores de Cumaná: publica tu catálogo, vende y lleva tus cuentas.',
-  icons: { icon: '/hero/emprende-logo.png' },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Emprende' },
+  icons: {
+    icon: [
+      { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+  },
+};
+
+export const viewport = {
+  themeColor: '#FF453A',
 };
 
 // Evita el parpadeo de tema: aplica data-theme antes de pintar.
@@ -16,7 +29,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: initTheme }} />
       </head>
-      <body>{children}</body>
+      <body>{children}<PWA /></body>
     </html>
   );
 }

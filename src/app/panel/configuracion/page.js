@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { api, subirArchivo } from '@/lib/api';
+import BotonNotificaciones from '@/components/BotonNotificaciones';
 
 // Métodos de pago que el comprador puede elegir en el checkout.
 const METODOS_PAGO = [
@@ -162,6 +163,12 @@ export default function Configuracion() {
 
       {error && <div className="alert error" style={{ margin: '14px 0' }}>{error}</div>}
       {ok && <div className="alert ok-box" style={{ margin: '14px 0' }}>{ok}</div>}
+
+      <div className="card" style={{ marginBottom: 4 }}>
+        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', display: 'block', marginBottom: 8 }}>Notificaciones push</label>
+        <p className="muted tiny" style={{ margin: '0 0 10px' }}>Recibe un aviso en este dispositivo cuando entre un pedido nuevo o un producto llegue a stock bajo.</p>
+        <BotonNotificaciones cliente={false} />
+      </div>
 
       <div className="cfg-grid">
         {/* Columna principal */}

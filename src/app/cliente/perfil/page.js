@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api, getClienteToken, setClienteToken, usd } from '@/lib/api';
+import BotonNotificaciones from '@/components/BotonNotificaciones';
 import ProductoFila from '@/components/ProductoFila';
 import TiendaCard from '@/components/landing/TiendaCard';
 import { cargarFavoritos, limpiarFavoritos } from '@/lib/favoritos';
@@ -88,6 +89,17 @@ export default function Perfil() {
         </div>
         <div className="spacer" />
         <button className="btn btn-soft btn-sm" onClick={salir}>Cerrar sesión</button>
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <div className="row" style={{ alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>Notificaciones</div>
+            <p className="muted tiny" style={{ margin: '2px 0 0' }}>Te avisamos en este dispositivo cuando cambie el estado de tu pedido o una tienda que sigues publique algo nuevo.</p>
+          </div>
+          <div className="spacer" />
+          <BotonNotificaciones cliente={true} />
+        </div>
       </div>
 
       <h3 style={{ margin: '28px 0 12px' }}>Mis pedidos</h3>
