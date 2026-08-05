@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '@/lib/api';
 
 function fmt(s) {
@@ -45,6 +46,11 @@ export default function SeguridadPanel() {
   const [pwOpen, setPwOpen] = useState(false);
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
+  const [dModo, setDModo] = useState('temporal');
+  const [dOpen, setDOpen] = useState(false);
+  const [dPw, setDPw] = useState('');
+  const [dBusy, setDBusy] = useState(false);
+  const [dErr, setDErr] = useState('');
 
   async function cargar() {
     try { setData(await api('/api/auth/seguridad')); } catch (e) { setError(e.message); }
@@ -75,6 +81,14 @@ export default function SeguridadPanel() {
     catch (e) { setError(e.message); } finally { setBusy(false); }
   }
 
+  async function confirmarDesactivar(e) {
+    e.preventDefault(); setDErr(''); setDBusy(true);
+    try {
+      await api('/api/tienda/desactivar', { method: 'POST', body: { modo: dModo, password: dPw } });
+      window.location.href = '/panel';
+    } catch (e) { setDErr(e.message); setDBusy(false); }
+  }
+
   if (!data) {
     return (
       <div className="card" style={{ marginTop: 18 }}>
@@ -87,6 +101,7 @@ export default function SeguridadPanel() {
   const sesiones = data.sesiones || [];
 
   return (
+    <>
     <div className="card" style={{ marginTop: 18 }}>
       <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ color: 'var(--brand)' }}><I d={P.escudo} size={18} /></span>
@@ -148,5 +163,53 @@ export default function SeguridadPanel() {
         ))}
       </div>
     </div>
+
+    <div className="card" style={{ marginTop: 18, borderColor: 'var(--danger, #dc2626)' }}>
+      <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--danger)' }}>
+        <I d={P.alerta} size={18} /> Desactivar cuenta
+      </h3>
+      <p className="muted tiny" style={{ marginTop: -2 }}>
+        Puedes desactivar tu tienda temporalmente (se oculta y la reactivas cuando quieras) o solicitar su eliminación permanente.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+        <label className="row" style={{ gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
+          <input type="radio" name="modo-desact" checked={dModo === 'temporal'} onChange={() => setDModo('temporal')} style={{ marginTop: 3 }} />
+          <span className="tiny"><b>Temporal</b> — se oculta al público. Podrás reactivarla tú mismo cuando quieras. Nada se borra.</span>
+        </label>
+        <label className="row" style={{ gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
+          <input type="radio" name="modo-desact" checked={dModo === 'permanente'} onChange={() => setDModo('permanente')} style={{ marginTop: 3 }} />
+          <span className="tiny"><b style={{ color: 'var(--danger)' }}>Permanente</b> — se programa la eliminación total (tienda, productos, pedidos, tu cuenta y tus documentos) en 15 días. Puedes cancelar antes de esa fecha.</span>
+        </label>
+      </div>
+      <button className="btn btn-sm" style={{ marginTop: 14, background: 'var(--danger)', borderColor: 'var(--danger)', color: '#fff' }} onClick={() => { setDErr(''); setDPw(''); setDOpen(true); }}>
+        Desactivar cuenta
+      </button>
+    </div>
+
+    {dOpen && typeof document !== 'undefined' && createPortal(
+      <div onClick={() => !dBusy && setDOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2100, padding: 16 }}>
+        <form onClick={(e) => e.stopPropagation()} onSubmit={confirmarDesactivar} className="card" style={{ width: 450, maxWidth: '100%' }}>
+          <h3 style={{ marginTop: 0, color: 'var(--danger)' }}>{dModo === 'permanente' ? 'Eliminar cuenta permanentemente' : 'Desactivar tu tienda'}</h3>
+          <p className="muted" style={{ marginTop: 0, fontSize: 13.5, lineHeight: 1.55 }}>
+            {dModo === 'permanente'
+              ? 'Se programará la eliminación total de tu tienda, productos, pedidos, tu cuenta y tus documentos (cédula/selfie) en 15 días. Podrás cancelarla antes de esa fecha. Confirma con tu contraseña.'
+              : 'Tu tienda quedará oculta al público. Podrás reactivarla cuando quieras. Confirma con tu contraseña.'}
+          </p>
+          {dErr && <Alerta tipo="err">{dErr}</Alerta>}
+          <div className="field">
+            <label>Contraseña</label>
+            <input className="input" type="password" value={dPw} onChange={(e) => setDPw(e.target.value)} required autoFocus />
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+            <button type="button" className="btn btn-soft" style={{ flex: 1 }} onClick={() => setDOpen(false)} disabled={dBusy}>Cancelar</button>
+            <button className="btn" style={{ flex: 1, background: 'var(--danger)', borderColor: 'var(--danger)', color: '#fff' }} disabled={dBusy || !dPw}>
+              {dBusy ? 'Procesando…' : (dModo === 'permanente' ? 'Sí, eliminar' : 'Desactivar')}
+            </button>
+          </div>
+        </form>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }

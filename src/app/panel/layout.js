@@ -87,6 +87,11 @@ export default function PanelLayout({ children }) {
     router.replace('/login');
   }
 
+  async function reactivar() {
+    try { await api('/api/tienda/reactivar', { method: 'POST' }); window.location.reload(); }
+    catch (e) { alert(e.message); }
+  }
+
   if (estado !== 'ok') {
     return <div className="container muted" style={{ paddingTop: 80 }}>Cargando…</div>;
   }
@@ -151,7 +156,21 @@ export default function PanelLayout({ children }) {
         </>
       )}
 
-      <main className="content">{children}</main>
+      <main className="content">
+        {sesion?.tienda?.estado === 'inactiva' && (
+          <div style={{ marginBottom: 18, padding: '12px 16px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+            border: `1px solid ${sesion.tienda.eliminar_at ? 'var(--danger)' : 'var(--warn)'}`,
+            background: sesion.tienda.eliminar_at ? 'var(--danger-soft, rgba(220,38,38,.1))' : 'var(--warn-soft, rgba(234,179,8,.12))' }}>
+            <div style={{ flex: 1, minWidth: 200, fontSize: 14 }}>
+              {sesion.tienda.eliminar_at
+                ? <><b style={{ color: 'var(--danger)' }}>Eliminación programada.</b> Tu tienda se eliminará permanentemente el {String(sesion.tienda.eliminar_at).slice(0, 10)}. Cancela antes de esa fecha para conservarla.</>
+                : <><b>Tu tienda está desactivada.</b> Está oculta al público. Reactívala cuando quieras.</>}
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={reactivar}>{sesion.tienda.eliminar_at ? 'Cancelar eliminación' : 'Reactivar tienda'}</button>
+          </div>
+        )}
+        {children}
+      </main>
       <SoporteFlotante />
     </div>
   );

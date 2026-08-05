@@ -22,6 +22,7 @@ export default function AdminHome() {
   const [tiendas, setTiendas] = useState([]);
   const [pagos, setPagos] = useState([]);
   const [verifs, setVerifs] = useState([]);
+  const [elims, setElims] = useState([]);
   const [visor, setVisor] = useState(null);
   const [cfgPago, setCfgPago] = useState(null);
   const [guardandoCfg, setGuardandoCfg] = useState(false);
@@ -50,18 +51,20 @@ export default function AdminHome() {
 
   async function cargar() {
     try {
-      const [m, t, s, c, pl, v] = await Promise.all([
+      const [m, t, s, c, pl, v, el] = await Promise.all([
         api('/api/admin/metricas'),
         api(`/api/admin/tiendas${filtro ? `?estado=${filtro}` : ''}`),
         api('/api/admin/suscripciones?estado=pendiente'),
         api('/api/config-pago', { auth: false }),
         api('/api/admin/planes'),
         api('/api/admin/verificaciones?estado=pendiente'),
+        api('/api/admin/eliminaciones'),
       ]);
       setMetricas(m);
       setTiendas(t.tiendas);
       setPagos(s.pagos);
       setVerifs(v.verificaciones);
+      setElims(el.eliminaciones);
       setCfgPago((prev) => prev ?? c.pago);
       setPlanes(pl.planes);
     } catch (e) { setError(e.message); }
@@ -132,6 +135,12 @@ export default function AdminHome() {
   function cerrarVisor() {
     if (visor?.url) URL.revokeObjectURL(visor.url);
     setVisor(null);
+  }
+
+  async function purgar(id, nombre) {
+    if (!confirm(`¿Eliminar permanentemente la tienda "${nombre}"? Esto borra todo y NO se puede deshacer.`)) return;
+    try { await api(`/api/admin/eliminaciones/${id}/purgar`, { method: 'POST' }); await cargar(); }
+    catch (e) { setError(e.message); }
   }
 
   async function revisarVerif(v, estado) {
@@ -236,6 +245,38 @@ export default function AdminHome() {
                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <button className="btn btn-primary btn-sm" onClick={() => revisarVerif(v, 'verificada')}>Verificar</button>{' '}
                   <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarVerif(v, 'rechazada')}>Rechazar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="row" style={{ margin: '26px 0 12px' }}>
+        <h3 style={{ margin: 0 }}>Solicitudes de eliminación</h3>
+        {elims.length > 0 && <span className="badge badge-danger" style={{ marginLeft: 10 }}>{elims.length}</span>}
+      </div>
+      <div className="card card-flush">
+        <table className="table">
+          <thead>
+            <tr><th>Tienda</th><th>Productos</th><th>Pedidos</th><th>Se elimina</th><th></th></tr>
+          </thead>
+          <tbody>
+            {elims.length === 0 && <tr><td colSpan={5} className="muted" style={{ padding: 22 }}>No hay solicitudes de eliminación.</td></tr>}
+            {elims.map((e) => (
+              <tr key={e.id}>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{e.nombre}</div>
+                  <a className="muted tiny" href={`/t/${e.slug}`} target="_blank" rel="noreferrer">/t/{e.slug} ↗</a>
+                </td>
+                <td>{e.productos}</td>
+                <td>{e.pedidos}</td>
+                <td className="tiny">
+                  {(e.eliminar_at || '').slice(0, 10)}{' '}
+                  {Number(e.vencida) ? <span className="badge badge-danger">Vencida</span> : <span className="badge">En espera</span>}
+                </td>
+                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => purgar(e.id, e.nombre)}>Eliminar ahora</button>
                 </td>
               </tr>
             ))}

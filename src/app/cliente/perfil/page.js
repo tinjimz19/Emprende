@@ -110,10 +110,10 @@ export default function Perfil() {
           <table className="table">
             <thead><tr><th>Código</th><th>Tienda</th><th>Fecha</th><th>Ítems</th><th style={{ textAlign: 'right' }}>Total</th><th>Estado</th></tr></thead>
             <tbody>
-              {pedidos.map((p) => (
-                <tr key={p.id}>
+              {pedidos.map((p, i) => (
+                <tr key={p.id || `arch-${p.codigo}-${i}`}>
                   <td style={{ fontWeight: 600 }}>{p.codigo}</td>
-                  <td><Link href={`/t/${p.tienda_slug}`} style={{ color: 'var(--brand)' }}>{p.tienda_nombre}</Link></td>
+                  <td>{p.tienda_slug ? <Link href={`/t/${p.tienda_slug}`} style={{ color: 'var(--brand)' }}>{p.tienda_nombre}</Link> : <span className="muted">{p.tienda_nombre}</span>}</td>
                   <td className="tiny">{fmt(p.created_at)}</td>
                   <td>{p.num_items}</td>
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>{usd(p.total)}</td>
