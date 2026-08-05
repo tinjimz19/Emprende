@@ -46,7 +46,7 @@ export function setClienteToken(t) {
   else localStorage.removeItem('emprende_cliente_token');
 }
 
-export async function api(path, { method = 'GET', body, auth = true, isForm = false, cliente = false } = {}) {
+export async function api(path, { method = 'GET', body, auth = true, isForm = false, cliente = false, redirigir401 = true } = {}) {
   const headers = {};
   if (!isForm) headers['Content-Type'] = 'application/json';
   // cliente:true usa el token del comprador; si no, el del panel (cuando auth).
@@ -64,6 +64,11 @@ export async function api(path, { method = 'GET', body, auth = true, isForm = fa
     json = await res.json();
   } catch {
     json = { ok: false, error: `Error ${res.status}` };
+  }
+  // Sesión del panel vencida/cerrada: limpia el token y manda al login.
+  if (res.status === 401 && redirigir401 && !cliente && auth && typeof window !== 'undefined') {
+    setToken(null);
+    if (!window.location.pathname.startsWith('/login')) window.location.href = '/login';
   }
   if (!res.ok || json.ok === false) {
     const err = new Error(json.error || `Error ${res.status}`);

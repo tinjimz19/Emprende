@@ -99,7 +99,11 @@ export default function SeguridadPanel() {
               <div className="muted tiny">{s.ip || 'IP desconocida'} · {fmt(s.ultima_actividad || s.created_at)}</div>
             </div>
             <div className="spacer" />
-            {!Number(s.actual) && <button className="btn btn-ghost btn-sm" onClick={() => cerrar(s.id)} disabled={busy} style={{ color: 'var(--danger)' }}>Cerrar</button>}
+            {!Number(s.actual) && (
+              (Number(s.es_confiable) && !permanente)
+                ? <span className="muted tiny" title="Solo un dispositivo permanente puede cerrarla" style={{ whiteSpace: 'nowrap' }}>Protegida</span>
+                : <button className="btn btn-ghost btn-sm" onClick={() => cerrar(s.id)} disabled={busy} style={{ color: 'var(--danger)' }}>Cerrar</button>
+            )}
           </div>
         ))}
       </div>

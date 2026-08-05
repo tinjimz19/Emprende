@@ -79,7 +79,7 @@ export default function ProductoClient({ slug, prodSlug }) {
   // Si mira como dueño/admin (sesión de panel y NO de cliente), no compra: solo ve.
   useEffect(() => {
     if (typeof window === 'undefined' || getClienteToken() || !getToken()) return;
-    api('/api/auth/me').then((d) => setDueno({ rol: d.usuario?.rol, tiendaSlug: d.tienda?.slug })).catch(() => {});
+    api('/api/auth/me', { redirigir401: false }).then((d) => setDueno({ rol: d.usuario?.rol, tiendaSlug: d.tienda?.slug })).catch(() => {});
   }, []);
 
   // ¿Hay sesión de comprador? Solo esos pueden dejar reseña.

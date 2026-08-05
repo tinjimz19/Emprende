@@ -93,7 +93,7 @@ export default function CatalogoClient({ slug }) {
   // Si mira como dueño/admin (sesión de panel y NO de cliente), no compra: solo ve.
   useEffect(() => {
     if (typeof window === 'undefined' || getClienteToken() || !getToken()) return;
-    api('/api/auth/me').then((d) => setDueno({ rol: d.usuario?.rol, tiendaSlug: d.tienda?.slug })).catch(() => {});
+    api('/api/auth/me', { redirigir401: false }).then((d) => setDueno({ rol: d.usuario?.rol, tiendaSlug: d.tienda?.slug })).catch(() => {});
   }, []);
 
   const modoDueno = !!dueno;
