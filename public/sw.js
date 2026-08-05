@@ -12,7 +12,7 @@ self.addEventListener('push', (e) => {
   const options = {
     body: data.body || '',
     icon: data.icon || '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    badge: '/icons/badge.png',
     data: { url: data.url || '/' },
     tag: data.tag || undefined,
     renotify: !!data.tag,
