@@ -101,7 +101,7 @@ export default function PlanPage() {
           </div>
         )}
 
-        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 18, marginTop: 16 }}>
+        <div className="grid col-2-phone-1" style={{ gridTemplateColumns: '1fr 1fr', gap: 18, marginTop: 16 }}>
           <div>
             <div className="row" style={{ fontSize: 13, marginBottom: 4 }}>
               <span>Productos</span><div className="spacer" />
@@ -171,7 +171,7 @@ export default function PlanPage() {
         </div>
 
         <form onSubmit={reportar}>
-          <div className="row" style={{ alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
+          <div className="row form-inline" style={{ alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
             <div className="field" style={{ flex: '1 1 160px', marginBottom: 0 }}>
               <label>Plan</label>
               <select className="input" value={form.plan_id} required onChange={(e) => setForm({ ...form, plan_id: e.target.value === '' ? '' : Number(e.target.value) })}>
@@ -213,7 +213,7 @@ export default function PlanPage() {
       </div>
 
       {/* Historial */}
-      <div className="card" style={{ marginTop: 22, marginBottom: 40, padding: 0 }}>
+      <div className="card prod-tabla-desktop" style={{ marginTop: 22, marginBottom: 40, padding: 0 }}>
         <h3 style={{ margin: 0, padding: '18px 22px 4px' }}>Historial de pagos</h3>
         <table className="table">
           <thead><tr><th>Fecha</th><th>Plan</th><th>Meses</th><th>Método</th><th>Ref.</th><th>Comprob.</th><th style={{ textAlign: 'right' }}>Monto</th><th>Estado</th></tr></thead>
@@ -233,6 +233,31 @@ export default function PlanPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="prod-movil" style={{ marginBottom: 40 }}>
+        <h3 style={{ margin: '2px 0 0' }}>Historial de pagos</h3>
+        {pagos.length === 0 && <div className="card"><p className="muted" style={{ margin: 0 }}>Aún no has reportado pagos.</p></div>}
+        {pagos.map((p) => (
+          <div className="pm-card" key={p.id}>
+            <div className="pm-body">
+              <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+                <span className="pm-name" style={{ fontWeight: 600 }}>{p.plan_nombre || p.plan_codigo}</span>
+                <div className="spacer" />
+                {estadoPago(p.estado)}
+                <span className="price" style={{ whiteSpace: 'nowrap' }}>{usd(p.monto)}</span>
+              </div>
+              <span className="pm-meta">
+                {(p.created_at || '').slice(0, 10)} · {p.meses} mes(es)
+                {p.metodo_pago ? ` · ${p.metodo_pago}` : ''}
+                {p.referencia ? ` · Ref. ${p.referencia}` : ''}
+              </span>
+              {p.comprobante_url && (
+                <a href={p.comprobante_url} target="_blank" rel="noreferrer" className="tiny" style={{ color: 'var(--brand)', marginTop: 4 }}>Ver comprobante</a>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </>
   );

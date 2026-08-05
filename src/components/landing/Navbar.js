@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getToken, getClienteToken } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
+import BotonTiendasCerca from '@/components/BotonTiendasCerca';
 
 const LINKS = [
-  ['#productos', 'Explorar'],
-  ['#vender', 'Vender'],
-  ['#planes', 'Planes'],
+  ['/marketplace', 'Explorar'],
+  ['/#vender', 'Vender'],
+  ['/#planes', 'Planes'],
   ['/seguimiento', 'Seguir pedido'],
 ];
 
@@ -45,6 +46,7 @@ export default function Navbar() {
         <div className="spacer" />
 
         <div className="nav-actions">
+          <BotonTiendasCerca className="btn btn-ghost btn-sm" />
           <ThemeToggle />
           <AuthBtns />
         </div>
@@ -63,6 +65,7 @@ export default function Navbar() {
               <a key={h} href={h} className="lp-mobile-link" onClick={() => setAbierto(false)}>{l}</a>
             ))}
             <div className="lp-mobile-actions">
+              <BotonTiendasCerca className="btn btn-soft btn-sm btn-block" />
               <AuthBtns block />
               <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
                 <span className="muted tiny">Tema claro / oscuro</span>

@@ -41,7 +41,7 @@ export default function Contabilidad() {
       {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}
 
       {resumen && (
-        <div className="grid grid-cards" style={{ marginTop: 18 }}>
+        <div className="grid grid-stats" style={{ marginTop: 18 }}>
           <div className="card stat"><div className="muted" style={{ fontSize: 13 }}>Ingresos</div><div className="n" style={{ color: 'var(--ok)' }}>{usd(resumen.ingresos)}</div></div>
           <div className="card stat"><div className="muted" style={{ fontSize: 13 }}>Gastos</div><div className="n" style={{ color: 'var(--danger)' }}>{usd(resumen.gastos)}</div></div>
           <div className="card stat"><div className="muted" style={{ fontSize: 13 }}>Ganancia</div><div className="n">{usd(resumen.ganancia)}</div></div>
@@ -51,7 +51,7 @@ export default function Contabilidad() {
       <div className="card" style={{ marginTop: 18 }}>
         <h3 style={{ marginTop: 0 }}>Registrar movimiento</h3>
         <form onSubmit={agregar}>
-          <div className="row" style={{ alignItems: 'flex-end' }}>
+          <div className="row form-inline" style={{ alignItems: 'flex-end' }}>
             <div className="field" style={{ flex: '0 0 130px', marginBottom: 0 }}>
               <label>Tipo</label>
               <select className="input" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })}>
@@ -76,7 +76,7 @@ export default function Contabilidad() {
         </form>
       </div>
 
-      <div className="card" style={{ marginTop: 18, padding: 0 }}>
+      <div className="card prod-tabla-desktop" style={{ marginTop: 18, padding: 0 }}>
         <table className="table">
           <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th style={{ textAlign: 'right' }}>Monto</th></tr></thead>
           <tbody>
@@ -92,6 +92,23 @@ export default function Contabilidad() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="prod-movil">
+        {movs.length === 0 && <div className="card"><p className="muted" style={{ margin: 0 }}>Sin movimientos este mes.</p></div>}
+        {movs.map((m) => (
+          <div className="pm-card" key={m.id}>
+            <div className="pm-body">
+              <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+                <span className={`badge ${m.tipo === 'ingreso' ? 'badge-ok' : 'badge-danger'}`}>{m.tipo}</span>
+                <span className="pm-name" style={{ fontWeight: 600 }}>{m.categoria || '—'}</span>
+                <div className="spacer" />
+                <span className="price" style={{ whiteSpace: 'nowrap', color: m.tipo === 'ingreso' ? 'var(--ok)' : 'var(--danger)' }}>{usd(m.monto)}</span>
+              </div>
+              <span className="pm-meta">{m.fecha}{m.descripcion ? ` · ${m.descripcion}` : ''}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </>
   );

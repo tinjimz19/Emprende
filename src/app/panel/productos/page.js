@@ -174,7 +174,7 @@ export default function Productos() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: 14, padding: 0 }}>
+      <div className="card prod-tabla-desktop" style={{ marginTop: 14, padding: 0 }}>
         <table className="table">
           <thead>
             <tr><th></th><th>Producto</th><th>Precio</th><th>Stock</th><th>Vistas</th><th>Estado</th><th></th></tr>
@@ -225,6 +225,46 @@ export default function Productos() {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div className="prod-movil">
+        {cargando && <div className="muted" style={{ padding: 14 }}>Cargando…</div>}
+        {!cargando && productos.length === 0 && (
+          <div className="muted" style={{ padding: 14 }}>Aún no tienes productos. <Link href="/panel/productos/nuevo" style={{ color: 'var(--brand)' }}>Crea el primero</Link>.</div>
+        )}
+        {!cargando && productos.length > 0 && visibles.length === 0 && (
+          <div className="muted" style={{ padding: 14 }}>No hay productos que coincidan.</div>
+        )}
+        {visibles.map((p) => {
+          const conVar = Number(p.tiene_variantes);
+          const efectivo = conVar ? Number(p.stock_variantes || 0) : Number(p.stock || 0);
+          const bajo = umbral > 0 && efectivo <= umbral;
+          return (
+            <div className="pm-card" key={p.id}>
+              <div className="pm-main" onClick={() => { location.href = `/panel/productos/${p.id}`; }}>
+                <span className="pm-thumb" style={{ backgroundImage: p.imagen ? `url(${p.imagen})` : 'none' }} />
+                <div className="pm-body">
+                  <div className="pm-name">{p.nombre}</div>
+                  <div className="pm-meta">
+                    {p.categoria_nombre || 'Sin categoría'}
+                    {conVar ? ` · ${p.num_variantes} var.` : ''}
+                    {Number(p.num_imagenes) > 0 ? ` · ${p.num_imagenes} fotos` : ''}
+                  </div>
+                  <div className="pm-row2">
+                    <span className="price">{usd(p.precio)}</span>
+                    <span className={`badge estado-${p.estado}`}>{p.estado}</span>
+                    {!conVar && <span className="muted tiny">Stock {efectivo}</span>}
+                    {bajo && <span className="badge badge-warn">Stock bajo</span>}
+                    <span className="muted tiny">{Number(p.vistas) || 0} vistas</span>
+                  </div>
+                </div>
+              </div>
+              <button className="pm-del" onClick={(e) => eliminar(e, p.id)} aria-label="Eliminar producto">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {/* Paginación */}

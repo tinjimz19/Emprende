@@ -9,6 +9,8 @@ import BotonVolver from '@/components/BotonVolver';
 import { Stars, StarInput } from '@/components/Estrellas';
 import BotonFavorito from '@/components/BotonFavorito';
 import BotonSeguir from '@/components/BotonSeguir';
+import Verificado from '@/components/Verificado';
+import BotonUbicacion from '@/components/BotonUbicacion';
 
 export default function CatalogoClient({ slug }) {
   const [tienda, setTienda] = useState(null);
@@ -129,7 +131,7 @@ export default function CatalogoClient({ slug }) {
               <img src={tienda.logo_url} alt={tienda.nombre} className="tienda-avatar" />
             )}
             <div style={{ minWidth: 0 }}>
-              <h1 style={{ margin: 0 }}>{tienda.nombre}</h1>
+              <h1 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>{tienda.nombre}{tienda.verificada && <Verificado size={20} />}</h1>
               {resenaTienda.resumen.total > 0 && (
                 <div className="row" style={{ gap: 8, alignItems: 'center', margin: '4px 0 0' }}>
                   <Stars valor={resenaTienda.resumen.promedio} size={15} />
@@ -151,6 +153,7 @@ export default function CatalogoClient({ slug }) {
                   Hablar con la tienda
                 </a>
               )}
+              <BotonUbicacion direccion={tienda.direccion} ubicacion={tienda.ubicacion_maps} className="btn btn-soft btn-sm" nombre="Ubicación" />
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { usd, precioBs } from '@/lib/api';
 import BotonFavorito from '@/components/BotonFavorito';
+import Verificado from '@/components/Verificado';
 
 /**
  * Tarjeta de producto para la vitrina global (home + marketplace).
@@ -21,7 +22,7 @@ export default function ProductoCard({ p }) {
       </Link>
       <div className="body">
         <Link href={prodHref}><p className="name">{p.nombre}</p></Link>
-        <Link className="muted tiny prod-tienda" href={`/t/${p.tienda_slug}`}>{p.tienda_nombre}</Link>
+        <Link className="muted tiny prod-tienda" href={`/t/${p.tienda_slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{p.tienda_nombre}{Number(p.tienda_verificada) ? <Verificado size={13} /> : null}</Link>
         <div className="row" style={{ gap: 8, alignItems: 'baseline', marginTop: 2 }}>
           <span className="price">{usd(precio)}</span>
           {enOferta && <span className="price-old">{usd(p.precio)}</span>}

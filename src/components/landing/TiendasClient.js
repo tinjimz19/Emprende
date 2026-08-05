@@ -27,6 +27,7 @@ export default function TiendasClient({ inicial, rubros = [] }) {
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(false);
   const topRef = useRef(null);
+  const [filtrosAbierto, setFiltrosAbierto] = useState(false);
 
   const totalPaginas = Math.max(1, Math.ceil(total / LIMIT));
 
@@ -58,9 +59,16 @@ export default function TiendasClient({ inicial, rubros = [] }) {
   }
 
   return (
-    <div className="mkt-layout" ref={topRef}>
+    <>
+      <div className="mkt-filtros-toggle">
+        <button className="btn btn-soft btn-sm" onClick={() => setFiltrosAbierto((v) => !v)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+          {filtrosAbierto ? 'Ocultar filtros' : 'Filtros y rubros'}
+        </button>
+      </div>
+      <div className="mkt-layout" ref={topRef}>
       {/* Barra lateral: buscador + rubros */}
-      <aside className="mkt-side">
+      <aside className={`mkt-side ${filtrosAbierto ? 'abierto' : ''}`}>
         <input className="input" placeholder="Buscar tienda…" value={q} onChange={(e) => buscar(e.target.value)} />
         <div>
           <div className="mkt-side-title">Rubros</div>
@@ -101,6 +109,7 @@ export default function TiendasClient({ inicial, rubros = [] }) {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

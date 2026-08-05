@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { getToken, getClienteToken } from '@/lib/api';
 
 const SLIDES = [
   {
@@ -26,10 +27,27 @@ const SLIDES = [
   },
 ];
 
+const AUTH_ROUTES = ['/cliente/registro', '/cliente/entrar', '/registro', '/login'];
+
+// Si el usuario ya inició sesión, cambia los CTA de registro/entrar por destinos útiles.
+function ctaResuelto([label, href], sesion) {
+  if (AUTH_ROUTES.includes(href)) {
+    if (sesion === 'panel') return ['Ir a mi panel', '/panel'];
+    if (sesion === 'cliente') return ['Mi cuenta', '/cliente/perfil'];
+  }
+  return [label, href];
+}
+
 export default function HeroSlider() {
   const [i, setI] = useState(0);
   const timer = useRef(null);
   const n = SLIDES.length;
+  const [sesion, setSesion] = useState('invitado');
+  useEffect(() => {
+    if (getToken()) setSesion('panel');
+    else if (getClienteToken()) setSesion('cliente');
+    else setSesion('invitado');
+  }, []);
 
   function go(next) { setI((prev) => (next + n) % n); }
 
@@ -63,8 +81,16 @@ export default function HeroSlider() {
                 <h1 style={{ marginTop: 14 }}>{s.titulo}</h1>
                 <p>{s.texto}</p>
                 <div className="row slide-cta" style={{ marginTop: 28 }}>
-                  <Link className="btn btn-primary btn-lg" href={s.cta1[1]}>{s.cta1[0]}</Link>
-                  <Link className="btn btn-ghost btn-lg" href={s.cta2[1]}>{s.cta2[0]}</Link>
+                  {(() => {
+                    const c1 = ctaResuelto(s.cta1, sesion);
+                    const c2 = ctaResuelto(s.cta2, sesion);
+                    return (
+                      <>
+                        <Link className="btn btn-primary btn-lg" href={c1[1]}>{c1[0]}</Link>
+                        <Link className="btn btn-ghost btn-lg" href={c2[1]}>{c2[0]}</Link>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

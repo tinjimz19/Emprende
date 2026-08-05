@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Navbar from '@/components/landing/Navbar';
 import HeroSlider from '@/components/landing/HeroSlider';
+import AuthCTA from '@/components/landing/AuthCTA';
 import TopProducts from '@/components/landing/TopProducts';
 import TiendaCard from '@/components/landing/TiendaCard';
 
@@ -149,8 +150,17 @@ export default async function Home() {
             ))}
           </div>
           <div className="row" style={{ justifyContent: 'center', gap: 12, marginTop: 30, flexWrap: 'wrap' }}>
-            <Link className="btn btn-primary btn-lg" href="/registro">Crear mi tienda</Link>
-            <Link className="btn btn-ghost btn-lg" href="/login">Ya tengo tienda, entrar</Link>
+            <AuthCTA
+              invitado={<>
+                <Link className="btn btn-primary btn-lg" href="/registro">Crear mi tienda</Link>
+                <Link className="btn btn-ghost btn-lg" href="/login">Ya tengo tienda, entrar</Link>
+              </>}
+              tienda={<Link className="btn btn-primary btn-lg" href="/panel">Ir a mi panel</Link>}
+              cliente={<>
+                <Link className="btn btn-primary btn-lg" href="/registro">Crear mi tienda</Link>
+                <Link className="btn btn-ghost btn-lg" href="/marketplace">Explorar productos</Link>
+              </>}
+            />
           </div>
         </div>
       </section>
@@ -175,7 +185,11 @@ export default async function Home() {
                     <li key={f}><Check /> {f}</li>
                   ))}
                 </ul>
-                <Link className={`btn ${p.destacado ? 'btn-primary' : 'btn-ghost'} btn-block cta`} href="/registro">{p.cta}</Link>
+                <AuthCTA
+                  invitado={<Link className={`btn ${p.destacado ? 'btn-primary' : 'btn-ghost'} btn-block cta`} href="/registro">{p.cta}</Link>}
+                  cliente={<Link className={`btn ${p.destacado ? 'btn-primary' : 'btn-ghost'} btn-block cta`} href="/registro">{p.cta}</Link>}
+                  tienda={<Link className={`btn ${p.destacado ? 'btn-primary' : 'btn-ghost'} btn-block cta`} href="/panel/plan">Ver en mi panel</Link>}
+                />
               </div>
             ))}
           </div>
@@ -193,8 +207,20 @@ export default async function Home() {
             Crea tu cuenta gratis para comprar a las tiendas de Cumaná, o monta la tuya y empieza a vender hoy.
           </p>
           <div className="row" style={{ justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <Link className="btn btn-primary btn-lg" href="/cliente/registro">Crear cuenta para comprar</Link>
-            <Link className="btn btn-ghost btn-lg" href="/registro">Crear mi tienda</Link>
+            <AuthCTA
+              invitado={<>
+                <Link className="btn btn-primary btn-lg" href="/cliente/registro">Crear cuenta para comprar</Link>
+                <Link className="btn btn-ghost btn-lg" href="/registro">Crear mi tienda</Link>
+              </>}
+              tienda={<>
+                <Link className="btn btn-primary btn-lg" href="/panel">Ir a mi panel</Link>
+                <Link className="btn btn-ghost btn-lg" href="/marketplace">Explorar productos</Link>
+              </>}
+              cliente={<>
+                <Link className="btn btn-primary btn-lg" href="/marketplace">Explorar productos</Link>
+                <Link className="btn btn-ghost btn-lg" href="/cliente/perfil">Mi cuenta</Link>
+              </>}
+            />
           </div>
         </div>
       </section>

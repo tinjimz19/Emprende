@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api, usd, API_BASE, getToken } from '@/lib/api';
+import Verificado from '@/components/Verificado';
 
 const ESTADO_BADGE = {
   activa: 'badge-ok',
@@ -20,6 +21,8 @@ export default function AdminHome() {
   const [metricas, setMetricas] = useState(null);
   const [tiendas, setTiendas] = useState([]);
   const [pagos, setPagos] = useState([]);
+  const [verifs, setVerifs] = useState([]);
+  const [visor, setVisor] = useState(null);
   const [cfgPago, setCfgPago] = useState(null);
   const [guardandoCfg, setGuardandoCfg] = useState(false);
   const [okCfg, setOkCfg] = useState('');
@@ -47,16 +50,18 @@ export default function AdminHome() {
 
   async function cargar() {
     try {
-      const [m, t, s, c, pl] = await Promise.all([
+      const [m, t, s, c, pl, v] = await Promise.all([
         api('/api/admin/metricas'),
         api(`/api/admin/tiendas${filtro ? `?estado=${filtro}` : ''}`),
         api('/api/admin/suscripciones?estado=pendiente'),
         api('/api/config-pago', { auth: false }),
         api('/api/admin/planes'),
+        api('/api/admin/verificaciones?estado=pendiente'),
       ]);
       setMetricas(m);
       setTiendas(t.tiendas);
       setPagos(s.pagos);
+      setVerifs(v.verificaciones);
       setCfgPago((prev) => prev ?? c.pago);
       setPlanes(pl.planes);
     } catch (e) { setError(e.message); }
@@ -110,6 +115,35 @@ export default function AdminHome() {
     if (estado === 'rechazado') nota = prompt('Motivo del rechazo (opcional):') || '';
     try {
       await api(`/api/admin/suscripciones/${id}`, { method: 'PATCH', body: { estado, nota_admin: nota } });
+      await cargar();
+    } catch (e) { setError(e.message); }
+  }
+
+  async function verArchivo(id, tipo) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/verificaciones/${id}/archivo?tipo=${tipo}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (!res.ok) throw new Error('No se pudo abrir el archivo');
+      const blob = await res.blob();
+      setVisor({ url: URL.createObjectURL(blob), titulo: tipo === 'selfie' ? 'Selfie' : 'Cédula' });
+    } catch (e) { setError(e.message); }
+  }
+  function cerrarVisor() {
+    if (visor?.url) URL.revokeObjectURL(visor.url);
+    setVisor(null);
+  }
+
+  async function revisarVerif(v, estado) {
+    let motivo = '';
+    if (estado === 'verificada') {
+      if (!confirm(`¿Verificar la identidad de "${v.tienda_nombre}"? La tienda podrá publicar sus productos y mostrará la insignia de verificado.`)) return;
+    } else {
+      motivo = prompt('Motivo del rechazo (el dueño lo verá):') || '';
+      if (!motivo.trim()) return;
+    }
+    try {
+      await api(`/api/admin/verificaciones/${v.id}`, { method: 'PATCH', body: { estado, motivo } });
       await cargar();
     } catch (e) { setError(e.message); }
   }
@@ -169,6 +203,39 @@ export default function AdminHome() {
                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <button className="btn btn-primary btn-sm" onClick={() => revisarPago(p.id, 'confirmado')}>Confirmar</button>{' '}
                   <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarPago(p.id, 'rechazado')}>Rechazar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="row" style={{ margin: '26px 0 12px' }}>
+        <h3 style={{ margin: 0 }}>Verificaciones pendientes</h3>
+        {verifs.length > 0 && <span className="badge badge-warn" style={{ marginLeft: 10 }}>{verifs.length}</span>}
+      </div>
+      <div className="card card-flush">
+        <table className="table">
+          <thead>
+            <tr><th>Tienda</th><th>Cédula #</th><th>Documentos</th><th>Enviada</th><th></th></tr>
+          </thead>
+          <tbody>
+            {verifs.length === 0 && <tr><td colSpan={5} className="muted" style={{ padding: 22 }}>No hay verificaciones pendientes.</td></tr>}
+            {verifs.map((v) => (
+              <tr key={v.id}>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{v.tienda_nombre}</div>
+                  <a className="muted tiny" href={`/t/${v.tienda_slug}`} target="_blank" rel="noreferrer">/t/{v.tienda_slug} ↗</a>
+                </td>
+                <td className="tiny">{v.numero_cedula || '—'}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => verArchivo(v.id, 'documento')}>Ver cédula</button>{' '}
+                  <button className="btn btn-ghost btn-sm" onClick={() => verArchivo(v.id, 'selfie')}>Ver selfie</button>
+                </td>
+                <td className="tiny">{(v.created_at || '').slice(0, 16)}</td>
+                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <button className="btn btn-primary btn-sm" onClick={() => revisarVerif(v, 'verificada')}>Verificar</button>{' '}
+                  <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarVerif(v, 'rechazada')}>Rechazar</button>
                 </td>
               </tr>
             ))}
@@ -251,7 +318,7 @@ export default function AdminHome() {
             {tiendas.map((t) => (
               <tr key={t.id}>
                 <td>
-                  <div style={{ fontWeight: 600 }}>{t.nombre}</div>
+                  <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>{t.nombre}{t.verificacion_estado === 'verificada' && <Verificado size={15} />}</div>
                   <a className="muted tiny" href={`/t/${t.slug}`} target="_blank" rel="noreferrer">/t/{t.slug} ↗</a>
                 </td>
                 <td>
@@ -276,6 +343,19 @@ export default function AdminHome() {
           </tbody>
         </table>
       </div>
+
+      {visor && (
+        <div onClick={cerrarVisor} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ maxWidth: 560, width: '100%' }}>
+            <div className="row" style={{ alignItems: 'center', marginBottom: 10 }}>
+              <h3 style={{ margin: 0 }}>{visor.titulo}</h3>
+              <div className="spacer" />
+              <button className="btn btn-ghost btn-sm" onClick={cerrarVisor}>✕</button>
+            </div>
+            <img src={visor.url} alt={visor.titulo} style={{ width: '100%', borderRadius: 10, display: 'block' }} />
+          </div>
+        </div>
+      )}
     </>
   );
 }

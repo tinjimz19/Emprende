@@ -47,16 +47,37 @@ export default function TerminosPage() {
         mayor de edad o contar con autorización de tu representante legal para usar la plataforma.
       </p>
 
-      <h2>4. Responsabilidades de las tiendas</h2>
+      <h2>4. Verificación de identidad de las tiendas</h2>
+      <p>
+        Para publicar sus productos y que su tienda aparezca al público, la tienda debe completar un
+        proceso de <b>verificación de identidad</b>, que consiste en enviar una foto de la cédula de
+        identidad del responsable y una selfie. Al usar esta función aceptas lo siguiente:
+      </p>
+      <ul>
+        <li>Los documentos deben ser <b>verdaderos, legibles y corresponder</b> a la persona responsable de la tienda.</li>
+        <li>Está prohibido enviar documentos falsos, alterados o de terceros sin su autorización; hacerlo puede conllevar el rechazo y la <b>suspensión</b> de la cuenta.</li>
+        <li>Emprende revisa las solicitudes de forma <b>manual</b> y puede aprobarlas, rechazarlas indicando un motivo, o pedir que se reenvíen.</li>
+        <li>Mientras la tienda <b>no esté verificada</b>, puede preparar su catálogo, pero sus productos <b>no se muestran al público</b>.</li>
+        <li>El tratamiento de estos documentos se rige por nuestra <Link href="/legal/privacidad">Política de Privacidad</Link>. Al enviarlos, el responsable declara ser mayor de edad y consiente su revisión con fines de verificación.</li>
+      </ul>
+      <p>
+        La verificación confirma la identidad declarada por el responsable, pero <b>no constituye un
+        aval, garantía ni respaldo</b> de Emprende sobre la calidad, legalidad o cumplimiento de la
+        tienda.
+      </p>
+
+      <h2>5. Responsabilidades de las tiendas</h2>
       <ul>
         <li>Publicar información veraz sobre sus productos: descripción, precio, existencias y fotos reales.</li>
+        <li>Completar la verificación de identidad con documentos verdaderos para poder publicar.</li>
+        <li>Mantener su dirección y ubicación actualizadas si decide publicarlas, y contar con el derecho de hacerlo.</li>
         <li>Cumplir con los pedidos aceptados, los precios publicados y los tiempos y condiciones de entrega acordados.</li>
         <li>Ofrecer y despachar únicamente productos lícitos y de su legítima propiedad o representación.</li>
         <li>Atender y resolver los reclamos de sus compradores.</li>
         <li>Cumplir con las obligaciones legales, tributarias y sanitarias que apliquen a su actividad.</li>
       </ul>
 
-      <h2>5. Responsabilidades del comprador</h2>
+      <h2>6. Responsabilidades del comprador</h2>
       <ul>
         <li>Revisar la información del producto y de la tienda antes de pagar.</li>
         <li>Confirmar con la tienda los detalles de pago, envío y entrega antes de concretar la compra.</li>
@@ -67,7 +88,7 @@ export default function TerminosPage() {
         respaldo de tu pedido.
       </p>
 
-      <h2>6. Pagos y transacciones</h2>
+      <h2>7. Pagos y transacciones</h2>
       <p>
         Los pagos se realizan <b>directamente entre el comprador y la tienda</b> por los medios que la
         tienda indique (pago móvil, transferencia, divisas, USDT, efectivo al retirar, etc.). Emprende
@@ -75,7 +96,7 @@ export default function TerminosPage() {
         sirve como respaldo de la operación entre las partes.
       </p>
 
-      <h2>7. Envíos y entregas</h2>
+      <h2>8. Envíos y entregas</h2>
       <p>
         Cada tienda define los métodos de entrega que ofrece (delivery, entrega en su tienda física,
         MRW, ZOOM, o entrega acordada) y sus costos. El delivery, cuando aplica, tiene un costo fijo
@@ -83,7 +104,21 @@ export default function TerminosPage() {
         producto recae en la tienda y, cuando corresponda, en la empresa de encomiendas contratada.
       </p>
 
-      <h2>8. Planes y membresías</h2>
+      <h2>9. Ubicación, mapas y servicios de terceros</h2>
+      <p>
+        Las tiendas pueden publicar su dirección y ubicación, que se muestran en un mapa dentro de la
+        plataforma y sirven para que los compradores puedan ubicarlas. La tienda es responsable de la
+        exactitud de esa información y de tener derecho a publicarla.
+      </p>
+      <p>
+        Para mostrar y ubicar las tiendas usamos servicios de mapas y geocodificación de terceros
+        (<b>Google Maps</b> y <b>OpenStreetMap</b>); su uso está sujeto además a los términos de dichos
+        proveedores. La función “Tiendas cerca” puede usar, con tu permiso, la ubicación de tu
+        dispositivo para ordenar las tiendas por cercanía. Las ubicaciones, mapas y distancias son
+        <b> aproximados y referenciales</b>; no garantizamos su exactitud.
+      </p>
+
+      <h2>10. Planes y membresías</h2>
       <p>
         Las tiendas pueden usar un plan gratuito o contratar planes pagos que amplían sus límites
         (más productos, fotos y destacados). La activación de los planes pagos puede realizarse de
@@ -93,7 +128,7 @@ export default function TerminosPage() {
         servicio digital ya prestado no son reembolsables, salvo lo que exija la ley.
       </p>
 
-      <h2>9. Contenido, reseñas y conducta</h2>
+      <h2>11. Contenido, reseñas y conducta</h2>
       <p>
         Eres responsable del contenido que publicas (nombres, descripciones, fotos, reseñas y
         comentarios). Las reseñas deben ser honestas y basadas en una experiencia real. Nos reservamos
@@ -101,16 +136,17 @@ export default function TerminosPage() {
         infrinja derechos de terceros o que incumpla estos términos.
       </p>
 
-      <h2>10. Productos y actividades prohibidas</h2>
+      <h2>12. Productos y actividades prohibidas</h2>
       <p>Queda prohibido publicar, ofrecer o solicitar a través de la plataforma:</p>
       <ul>
         <li>Productos ilegales, robados, falsificados o que infrinjan derechos de terceros.</li>
         <li>Armas, sustancias controladas, medicamentos de venta restringida y similares.</li>
         <li>Contenido fraudulento, engañoso o que suplante la identidad de otra persona o marca.</li>
+        <li>Documentos de identidad falsos o de terceros en el proceso de verificación.</li>
         <li>Cualquier uso que dañe, sobrecargue o vulnere la seguridad de la plataforma.</li>
       </ul>
 
-      <h2>11. Propiedad intelectual</h2>
+      <h2>13. Propiedad intelectual</h2>
       <p>
         La marca “Emprende Cumaná”, el logo, el diseño y el software de la plataforma son de su
         titular. El contenido que cada tienda o usuario carga sigue siendo de su titular, quien nos
@@ -118,36 +154,38 @@ export default function TerminosPage() {
         servicio.
       </p>
 
-      <h2>12. Suspensión y cancelación de cuentas</h2>
+      <h2>14. Suspensión y cancelación de cuentas</h2>
       <p>
         Podemos suspender o cancelar cuentas que incumplan estos términos, que realicen actividades
-        fraudulentas o que afecten a otros usuarios o a la plataforma. También puedes solicitar la
-        eliminación de tu cuenta cuando lo desees.
+        fraudulentas, que presenten documentos de verificación falsos o de terceros, o que afecten a
+        otros usuarios o a la plataforma. También puedes solicitar la eliminación de tu cuenta cuando
+        lo desees.
       </p>
 
-      <h2>13. Limitación de responsabilidad</h2>
+      <h2>15. Limitación de responsabilidad</h2>
       <p>
         Emprende se ofrece “tal cual”, como un servicio de vitrina e intermediación. No garantizamos la
-        disponibilidad ininterrumpida del servicio ni la veracidad, calidad, legalidad o cumplimiento
-        de las tiendas o compradores. <b>No somos responsables por las transacciones, pagos, entregas,
-        daños o desacuerdos que ocurran entre tiendas y compradores.</b> Cada usuario asume los riesgos
-        propios de operar con terceros.
+        disponibilidad ininterrumpida del servicio, la veracidad, calidad, legalidad o cumplimiento de
+        las tiendas o compradores, ni la exactitud de las ubicaciones, mapas o distancias mostradas, que
+        son referenciales. <b>No somos responsables por las transacciones, pagos, entregas, daños o
+        desacuerdos que ocurran entre tiendas y compradores.</b> Cada usuario asume los riesgos propios
+        de operar con terceros.
       </p>
 
-      <h2>14. Cambios en estos términos</h2>
+      <h2>16. Cambios en estos términos</h2>
       <p>
         Podemos actualizar estos Términos y Condiciones cuando sea necesario. Publicaremos la versión
         vigente en esta página con su fecha de actualización. El uso continuado de la plataforma
         implica la aceptación de los cambios.
       </p>
 
-      <h2>15. Ley aplicable</h2>
+      <h2>17. Ley aplicable</h2>
       <p>
         Estos términos se rigen por las leyes de la República Bolivariana de Venezuela. Cualquier
         controversia se procurará resolver de buena fe entre las partes.
       </p>
 
-      <h2>16. Contacto</h2>
+      <h2>18. Contacto</h2>
       <p>
         Para dudas sobre estos términos puedes escribirnos por WhatsApp al{' '}
         <a href="https://wa.me/584121890090" target="_blank" rel="noreferrer">+58 412-189-0090</a>.

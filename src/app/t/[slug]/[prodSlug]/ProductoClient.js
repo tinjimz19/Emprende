@@ -5,6 +5,7 @@ import { api, usd, precioBs, getToken, getClienteToken } from '@/lib/api';
 import { addToCart, getCart } from '@/lib/cart';
 import TiendaNav from '@/components/tienda/TiendaNav';
 import BotonFavorito from '@/components/BotonFavorito';
+import BotonUbicacion from '@/components/BotonUbicacion';
 
 function Stars({ valor = 0, size = 16 }) {
   const v = Math.max(0, Math.min(5, Number(valor) || 0));
@@ -204,20 +205,20 @@ export default function ProductoClient({ slug, prodSlug }) {
           {/* Info */}
           <div className="prod-info">
             <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
-              <h1 style={{ margin: '0 0 8px' }}>{prod.nombre}</h1>
+              <h1 style={{ margin: '0 0 10px' }}>{prod.nombre}</h1>
               <div className="spacer" />
               <BotonFavorito id={prod.id} size={24} />
             </div>
 
             {resumen.total > 0 && (
-              <a href="#resenas" className="row" style={{ gap: 8, alignItems: 'center', marginBottom: 12, textDecoration: 'none' }}>
+              <a href="#resenas" className="row" style={{ gap: 8, alignItems: 'center', marginBottom: 10, textDecoration: 'none' }}>
                 <Stars valor={resumen.promedio} />
                 <span className="muted tiny">{resumen.promedio.toFixed(1)} · {resumen.total} reseña{resumen.total !== 1 ? 's' : ''}</span>
               </a>
             )}
 
             {Number(prod.vistas) > 0 && (
-              <p className="muted tiny" style={{ margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <p className="muted tiny" style={{ margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 5 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 {prod.vistas} {Number(prod.vistas) === 1 ? 'vista' : 'vistas'}
               </p>
@@ -228,7 +229,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             </div>
             {precioBs(precio, tasa) && <div className="price-bs" style={{ fontSize: 16, marginTop: 2 }}>{precioBs(precio, tasa)}</div>}
 
-            {prod.descripcion && <p style={{ lineHeight: 1.65, marginTop: 18, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
+            {prod.descripcion && <p style={{ lineHeight: 1.65, marginTop: 16, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
 
             {tieneVar && Object.entries(atributos).map(([attr, valores]) => (
               <div className="field" key={attr} style={{ marginTop: 16 }}>
@@ -256,12 +257,12 @@ export default function ProductoClient({ slug, prodSlug }) {
 
             {modoDueno ? (
               esMiTienda ? (
-                <div className="row" style={{ marginTop: 18, gap: 10 }}>
+                <div className="row" style={{ marginTop: 16, gap: 10 }}>
                   <Link className="btn btn-primary btn-lg" href={`/panel/productos/${prod.id}`}>Editar producto</Link>
                   <Link className="btn btn-soft btn-lg" href="/panel/productos">Mis productos</Link>
                 </div>
               ) : (
-                <div className="warn-box" style={{ marginTop: 18 }}>
+                <div className="warn-box" style={{ marginTop: 16 }}>
                   Estás navegando como <b>tienda</b>, no como comprador. Para comprar necesitas una{' '}
                   <a href="/cliente/registro" style={{ color: 'var(--warn)', fontWeight: 700, textDecoration: 'underline' }}>cuenta de cliente</a>.
                 </div>
@@ -269,12 +270,12 @@ export default function ProductoClient({ slug, prodSlug }) {
             ) : (
               <>
                 {agregado && <div className="ok-box" style={{ marginTop: 12 }}>Agregado al carrito ✓</div>}
-                <div className="row" style={{ marginTop: 18, gap: 10 }}>
-                  <button className="btn btn-primary btn-lg" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
+                <div className="row" style={{ marginTop: 16, gap: 10 }}>
+                  <button className="btn btn-primary btn-sm" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}
                   </button>
                   {waProducto() && (
-                    <a className="btn btn-wa btn-lg" href={waProducto()} target="_blank" rel="noreferrer">
+                    <a className="btn btn-wa btn-sm" href={waProducto()} target="_blank" rel="noreferrer">
                       <span className="wa-full">Consultar por WhatsApp</span>
                       <span className="wa-corta">WhatsApp</span>
                     </a>
@@ -282,6 +283,9 @@ export default function ProductoClient({ slug, prodSlug }) {
                 </div>
               </>
             )}
+            <div style={{ marginTop: 12 }}>
+              <BotonUbicacion direccion={tienda?.direccion} ubicacion={tienda?.ubicacion_maps} nombre="Ubicación" />
+            </div>
           </div>
         </div>
 
@@ -322,7 +326,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             </div>
           )}
 
-          <div style={{ marginTop: 18 }}>
+          <div style={{ marginTop: 16 }}>
             {comentarios.length === 0 && <p className="muted">Aún no hay reseñas. ¡Sé el primero en opinar!</p>}
             {comentarios.map((c, i) => (
               <div className="resena-card" key={i}>

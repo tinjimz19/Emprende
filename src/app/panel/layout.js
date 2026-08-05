@@ -16,6 +16,7 @@ const NAV = [
   ['/panel/reportes', 'Reportes', 'M3 21h18M7 21V11M12 21V4M17 21v-7'],
   ['/panel/contabilidad', 'Contabilidad', 'M4 4h16v16H4zM8 9h8M8 13h8M8 17h5'],
   ['/panel/plan', 'Plan', 'M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6 2.3-7.4-6-4.6h7.6z'],
+  ['/panel/verificacion', 'Verificación', 'M12 3l7 3v5c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V6l7-3z M9 12l2 2 4-4'],
   ['/panel/configuracion', 'Configuración', 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2 1-2 4-2-1M5 12L3 13l2 4 2-1'],
 ];
 

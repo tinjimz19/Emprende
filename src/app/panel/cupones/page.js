@@ -108,7 +108,7 @@ export default function Cupones() {
       </p>
       {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}
 
-      <div className="card" style={{ marginTop: 14, padding: 0 }}>
+      <div className="card prod-tabla-desktop" style={{ marginTop: 14, padding: 0 }}>
         <table className="table">
           <thead>
             <tr><th>Código</th><th>Descuento</th><th>Mínimo</th><th>Usos</th><th>Vence</th><th>Estado</th><th></th></tr>
@@ -143,6 +143,41 @@ export default function Cupones() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="prod-movil">
+        {cargando && <div className="card"><p className="muted" style={{ margin: 0 }}>Cargando…</p></div>}
+        {!cargando && cupones.length === 0 && (
+          <div className="card"><p className="muted" style={{ margin: 0 }}>
+            Aún no tienes cupones. <button className="btn btn-ghost btn-sm" onClick={abrirNuevo}>Crea el primero</button>
+          </p></div>
+        )}
+        {cupones.map((c) => (
+          <div className="pm-card" key={c.id}>
+            <div className="pm-body">
+              <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+                <span className="pm-name" style={{ letterSpacing: '.02em' }}>{c.codigo}</span>
+                <span className="badge" style={Number(c.activo)
+                  ? { background: '#e7f6ec', color: '#1a7f43' }
+                  : { background: 'var(--surface-2)', color: 'var(--text-2)' }}>
+                  {Number(c.activo) ? 'Activo' : 'Inactivo'}
+                </span>
+                <div className="spacer" />
+                <span className="price">{descTxt(c)}</span>
+              </div>
+              <span className="pm-meta">
+                {Number(c.minimo_compra) > 0 ? `Mín. ${usd(c.minimo_compra)} · ` : ''}
+                Usos {c.usos}/{c.usos_maximos == null ? '∞' : c.usos_maximos}
+                {c.vence ? ` · Vence ${fmtFecha(c.vence)}` : ''}
+              </span>
+              <div className="pm-acciones">
+                <button className="btn btn-ghost btn-sm" onClick={() => abrirEditar(c)}>Editar</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => toggle(c)}>{Number(c.activo) ? 'Desactivar' : 'Activar'}</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => eliminar(c)} style={{ color: 'var(--danger)' }}>Eliminar</button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {modal && (

@@ -1,6 +1,7 @@
 import Navbar from '@/components/landing/Navbar';
 import MarketplaceClient from '@/components/landing/MarketplaceClient';
 import BotonVolver from '@/components/BotonVolver';
+import BotonTiendasCerca from '@/components/BotonTiendasCerca';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/emprende-back';
 
@@ -33,6 +34,7 @@ export default async function Marketplace({ searchParams }) {
               <h2 style={{ margin: '4px 0 0' }}>Todos los productos</h2>
             </div>
             <p className="muted" style={{ margin: 0 }}>Explora el catálogo completo de las tiendas de Cumaná. Filtra por categoría o busca lo que necesitas.</p>
+            <div style={{ marginTop: 10 }}><BotonTiendasCerca className="btn btn-soft btn-sm" /></div>
           </div>
           <MarketplaceClient inicial={inicial} categoriaInicial={cat} />
         </div>

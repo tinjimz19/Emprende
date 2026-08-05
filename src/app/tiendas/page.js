@@ -1,6 +1,7 @@
 import Navbar from '@/components/landing/Navbar';
 import BotonVolver from '@/components/BotonVolver';
 import TiendasClient from '@/components/landing/TiendasClient';
+import BotonTiendasCerca from '@/components/BotonTiendasCerca';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/emprende-back';
 
@@ -40,6 +41,7 @@ export default async function Tiendas() {
               <span className="eyebrow">Directorio</span>
               <h2 style={{ margin: '4px 0 0' }}>Todas las tiendas</h2>
               <p className="muted" style={{ margin: '6px 0 0' }}>Explora las tiendas de los emprendedores de Cumaná y entra a la que quieras.</p>
+              <div style={{ marginTop: 12 }}><BotonTiendasCerca className="btn btn-soft btn-sm" /></div>
             </div>
           </div>
           <TiendasClient inicial={inicial} rubros={rubros} />

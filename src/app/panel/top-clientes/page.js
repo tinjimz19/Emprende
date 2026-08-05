@@ -40,7 +40,7 @@ export default function TopClientes() {
       </p>
       {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}
 
-      <div className="card" style={{ marginTop: 14, padding: 0 }}>
+      <div className="card prod-tabla-desktop" style={{ marginTop: 14, padding: 0 }}>
         <table className="table">
           <thead>
             <tr>
@@ -85,6 +85,31 @@ export default function TopClientes() {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div className="prod-movil" style={{ marginTop: 14 }}>
+        {cargando && <div className="muted" style={{ padding: 14 }}>Cargando…</div>}
+        {!cargando && clientes.length === 0 && <div className="muted" style={{ padding: 14 }}>Aún no tienes clientes con compras completadas.</div>}
+        {visibles.map((c, i) => {
+          const pos = inicio + i + 1;
+          const top = pos <= 3;
+          return (
+            <div className="pm-card" key={pos}>
+              <span className="badge" style={top
+                ? { background: '#FF453A', color: '#fff', fontWeight: 800, flex: 'none' }
+                : { background: 'var(--surface-2)', color: 'var(--text-2)', fontWeight: 700, flex: 'none' }}>{pos}</span>
+              <div className="pm-body">
+                <div className="pm-name">{c.nombre || 'Sin nombre'}</div>
+                <div className="pm-meta">{c.telefono || c.email || 'Sin contacto'}{c.cuenta_id ? ' · cuenta' : ''}</div>
+                <div className="pm-row2">
+                  <span className="muted tiny">{c.completadas} compras</span>
+                  <span className="price">{usd(c.total_gastado)}</span>
+                  <span className="muted tiny">Últ.: {fmtFecha(c.ultimo)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {clientes.length > POR_PAGINA && (

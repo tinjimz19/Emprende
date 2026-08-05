@@ -19,7 +19,7 @@ export default function LegalLayout({ children }) {
         </div>
       </header>
 
-      <main className="container narrow" style={{ paddingTop: 30, paddingBottom: 60 }}>
+      <main className="container" style={{ paddingTop: 30, paddingBottom: 60 }}>
         <style>{`
           .legal-doc{line-height:1.72}
           .legal-doc h1{font-size:28px;margin:0 0 4px}
@@ -37,9 +37,36 @@ export default function LegalLayout({ children }) {
 
       <footer className="lp-footer">
         <div className="container">
+          <div className="cols">
+            <div>
+              <div className="logo" style={{ marginBottom: 12 }}><img src="/hero/emprende-logo.png" alt="Emprende Cumaná" className="logo-img" /> Emprende</div>
+              <p className="muted tiny" style={{ maxWidth: 280 }}>
+                La plataforma para que los emprendedores de Cumaná publiquen, vendan y lleven sus cuentas.
+              </p>
+            </div>
+            <div>
+              <h4>Comprar</h4>
+              <Link href="/#productos">Explorar productos</Link>
+              <Link href="/cliente/registro">Crear cuenta</Link>
+              <Link href="/cliente/entrar">Entrar</Link>
+              <Link href="/t/la-tiendita">Tienda demo</Link>
+            </div>
+            <div>
+              <h4>Vender</h4>
+              <Link href="/registro">Crear tienda</Link>
+              <Link href="/login">Entrar</Link>
+              <Link href="/#planes">Planes</Link>
+            </div>
+            <div>
+              <h4>Legal</h4>
+              <Link href="/legal/terminos">Términos</Link>
+              <Link href="/legal/privacidad">Privacidad</Link>
+              <a href="https://wa.me/584121890090" target="_blank" rel="noreferrer">Contacto</a>
+            </div>
+          </div>
           <div className="bottom">
-            <span>© {new Date().getFullYear()} Emprende Cumaná · Cumaná, Venezuela</span>
-            <Link href="/">Volver al inicio</Link>
+            <span>© {new Date().getFullYear()} Emprende · Cumaná, Venezuela</span>
+            <span>Hecho con ❤ para emprendedores</span>
           </div>
         </div>
       </footer>

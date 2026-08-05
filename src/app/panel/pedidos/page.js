@@ -160,7 +160,7 @@ export default function Pedidos() {
       </div>
 
       <div style={{ marginTop: 14 }}>
-        <div className="card" style={{ padding: 0 }}>
+        <div className="card prod-tabla-desktop" style={{ padding: 0 }}>
           <table className="table">
             <thead><tr><th>Código</th><th>Cliente</th><th>Estado</th><th style={{ textAlign: 'right' }}>Total</th></tr></thead>
             <tbody>
@@ -178,6 +178,23 @@ export default function Pedidos() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="prod-movil">
+          {pedidos.length === 0 && <div className="muted" style={{ padding: 14 }}>Aún no hay pedidos.</div>}
+          {pedidos.length > 0 && visibles.length === 0 && <div className="muted" style={{ padding: 14 }}>No hay pedidos que coincidan.</div>}
+          {visibles.map((p) => (
+            <div className="pm-card pm-tap" key={p.id} onClick={() => ver(p.id)}>
+              <div className="pm-body">
+                <div className="pm-name">{p.codigo}</div>
+                <div className="pm-meta">{p.cliente_nombre || 'Sin nombre'} · {p.origen}</div>
+                <div className="pm-row2">
+                  <span className="price">{usd(p.total)}</span>
+                  <span className="badge">{p.estado}</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Paginación */}

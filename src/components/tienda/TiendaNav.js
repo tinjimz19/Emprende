@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api, getClienteToken, getToken } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
+import Verificado from '@/components/Verificado';
 
 function Icon({ d, size = 17 }) {
   return (
@@ -54,7 +55,7 @@ export default function TiendaNav({ slug, tienda, crumb, cartCount = 0, onCart, 
           <span className="tn-sep">›</span>
           <Link href={`/t/${slug}`} className="tn-brand" title={tienda?.nombre || 'Tienda'}>
             {tienda?.logo_url && <img src={tienda.logo_url} alt="" />}
-            <span className="tn-name">{tienda?.nombre || 'Tienda'}</span>
+            <span className="tn-name">{tienda?.nombre || 'Tienda'}</span>{tienda?.verificada && <Verificado size={15} />}
           </Link>
           {crumb && <><span className="tn-sep">›</span><span className="tn-crumb">{crumb}</span></>}
         </nav>

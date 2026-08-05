@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, subirArchivo } from '@/lib/api';
 import BotonNotificaciones from '@/components/BotonNotificaciones';
+import MapaTienda from '@/components/MapaTienda';
 
 // Métodos de pago que el comprador puede elegir en el checkout.
 const METODOS_PAGO = [
@@ -101,7 +102,7 @@ export default function Configuracion() {
         method: 'PUT',
         body: {
           nombre: t.nombre, descripcion: t.descripcion, whatsapp: t.whatsapp,
-          direccion: t.direccion || '', costo_delivery: Number(t.costo_delivery || 0),
+          direccion: t.direccion || '', ubicacion_maps: t.ubicacion_maps || '', costo_delivery: Number(t.costo_delivery || 0),
           metodos_envio: metodosEnvio, tasa_bs: Number(t.tasa_bs || 0),
           stock_min_alerta: Number(t.stock_min_alerta || 0),
           color_primario: t.color_primario || '',
@@ -243,6 +244,17 @@ export default function Configuracion() {
               <input className="input" value={t.direccion || ''} onChange={(e) => set('direccion', e.target.value)} placeholder="Calle, sector, punto de referencia…" />
               <p className="muted tiny" style={{ margin: '6px 0 0' }}>Se le muestra al comprador cuando elige “Entrega en origen” (retiro en tu tienda física).</p>
             </div>
+            <div className="field">
+              <label>Enlace de Google Maps o coordenadas (opcional)</label>
+              <input className="input" value={t.ubicacion_maps || ''} onChange={(e) => set('ubicacion_maps', e.target.value)} placeholder="https://maps.app.goo.gl/…  o  10.4536, -64.1740" />
+              <p className="muted tiny" style={{ margin: '6px 0 0' }}>Para un pin exacto: abre tu local en Google Maps, toca “Compartir” y pega aquí el enlace, o pega tus coordenadas (latitud, longitud). Si lo dejas vacío, el mapa ubica la dirección de arriba.</p>
+            </div>
+            {(t.direccion || t.ubicacion_maps) && (
+              <div className="field">
+                <label>Vista previa del mapa</label>
+                <MapaTienda direccion={t.direccion} ubicacion={t.ubicacion_maps} mostrarTitulo={false} altura={220} />
+              </div>
+            )}
             <div className="field">
               <label>Métodos de envío que ofreces</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>

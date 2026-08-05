@@ -191,6 +191,8 @@ export default function Tarjetas() {
   const [error, setError] = useState('');
   const [exp, setExp] = useState(null); // 'png' mientras exporta
   const cardRef = useRef(null);
+  const stageRef = useRef(null);
+  const [escala, setEscala] = useState(1);
 
   const [plantilla, setPlantilla] = useState('bloque');
   const [temaTienda, setTemaTienda] = useState(false);
@@ -215,6 +217,24 @@ export default function Tarjetas() {
   useEffect(() => {
     if (!cuponCodigo && cuponesActivos.length) setCuponCodigo(cuponesActivos[0].codigo);
   }, [cuponesActivos, cuponCodigo]);
+
+  // Ajusta la vista previa (tarjeta de 340px fija) para que quepa en pantallas
+  // angostas sin desbordar. La exportación usa cardRef a tamaño real, así que
+  // el PNG mantiene su calidad.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const calc = () => {
+      const cs = getComputedStyle(el);
+      const pad = parseFloat(cs.paddingLeft || 0) + parseFloat(cs.paddingRight || 0);
+      const avail = el.clientWidth - pad;
+      if (avail > 0) setEscala(Math.min(1, avail / 340));
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [tienda]);
 
   if (error) return <div className="error" style={{ marginTop: 14 }}>{error}</div>;
   if (!tienda) return <p className="muted">Cargando…</p>;
@@ -332,8 +352,12 @@ export default function Tarjetas() {
 
         {/* Vista previa */}
         <div className="tarj-preview">
-          <div className="tarj-stage">
-            <div ref={cardRef}><Tarjeta d={data} /></div>
+          <div className="tarj-stage" ref={stageRef}>
+            <div className="tarj-scaler" style={{ width: 340 * escala, height: 480 * escala }}>
+              <div style={{ transform: `scale(${escala})`, transformOrigin: 'top left' }}>
+                <div ref={cardRef}><Tarjeta d={data} /></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -353,9 +377,10 @@ export default function Tarjetas() {
         .tarj-chips { display: flex; gap: 8px; flex-wrap: wrap; }
         .tarj-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
         .tarj-check { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-top: 10px; cursor: pointer; }
-        .tarj-preview { position: sticky; top: 20px; }
-        .tarj-stage { background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: 16px; padding: 24px; display: grid; place-items: center; }
-        @media (max-width: 900px) { .tarj-grid { grid-template-columns: 1fr; } .tarj-preview { position: static; } }
+        .tarj-preview { position: sticky; top: 20px; min-width: 0; }
+        .tarj-stage { background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; display: grid; place-items: center; min-width: 0; overflow: hidden; }
+        .tarj-scaler { position: relative; }
+        @media (max-width: 900px) { .tarj-grid { grid-template-columns: 1fr; } .tarj-preview { position: static; } .tarj-stage { padding: 12px; } }
       `}</style>
 
       <style jsx global>{`

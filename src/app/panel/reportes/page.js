@@ -108,9 +108,9 @@ export default function Reportes() {
         ) : <p className="muted" style={{ marginTop: 16 }}>Sin ventas en este período.</p>)}
       </div>
 
-      <div className="grid" style={{ gridTemplateColumns: '1.4fr 1fr', marginTop: 18, alignItems: 'start' }}>
+      <div className="grid col-2-phone-1" style={{ gridTemplateColumns: '1.4fr 1fr', marginTop: 18, alignItems: 'start' }}>
         {/* Top productos */}
-        <div className="card" style={{ padding: 0 }}>
+        <div className="card prod-tabla-desktop" style={{ padding: 0 }}>
           <h3 style={{ margin: 0, padding: '18px 22px 4px' }}>Productos más vendidos</h3>
           <table className="table">
             <thead><tr><th>Producto</th><th style={{ width: 130 }}>Vendidos</th><th style={{ textAlign: 'right' }}>Ingreso</th></tr></thead>
@@ -130,6 +130,26 @@ export default function Reportes() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="prod-movil">
+          <h3 style={{ margin: '2px 0 0' }}>Productos más vendidos</h3>
+          {(!data?.top_productos?.length) && <div className="card"><p className="muted" style={{ margin: 0 }}>Sin datos en este período.</p></div>}
+          {data?.top_productos?.map((t, i) => (
+            <div className="pm-card" key={i}>
+              <div className="pm-body">
+                <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+                  <span className="pm-name">{t.nombre}</span>
+                  <div className="spacer" />
+                  <span className="price" style={{ whiteSpace: 'nowrap' }}>{usd(t.ingreso)}</span>
+                </div>
+                <div className="row" style={{ gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'nowrap' }}>
+                  <div className="rep-minibar" style={{ flex: 1 }}><div style={{ width: `${(t.cantidad / maxTop) * 100}%` }} /></div>
+                  <span className="muted tiny" style={{ whiteSpace: 'nowrap' }}>{t.cantidad} vendidos</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Métodos de pago + estados */}
