@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, subirArchivo } from '@/lib/api';
 import BotonNotificaciones from '@/components/BotonNotificaciones';
 import MapaTienda from '@/components/MapaTienda';
+import { comprimirImagen } from '@/lib/imagen';
 
 // Métodos de pago que el comprador puede elegir en el checkout.
 const METODOS_PAGO = [
@@ -116,10 +117,11 @@ export default function Configuracion() {
 
   async function subirLogo(file) {
     if (!file) return;
-    if (file.type !== 'image/png') { setError('El logo debe ser un archivo PNG.'); return; }
+    if (!file.type.startsWith('image/')) { setError('El logo debe ser una imagen.'); return; }
     setError(''); setOk(''); setSubiendo(true);
     try {
-      const d = await subirArchivo('/api/tienda/logo', file, 'logo');
+      const optim = await comprimirImagen(file, { maxLado: 512, calidad: 0.85, tipo: 'image/webp', alfa: true });
+      const d = await subirArchivo('/api/tienda/logo', optim, 'logo');
       setT(d.tienda);
       setOk('Logo actualizado ✓');
     } catch (e) { setError(e.message); }
@@ -204,7 +206,7 @@ export default function Configuracion() {
           </div>
 
           <div className="card" style={{ marginTop: 18 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', display: 'block', marginBottom: 10 }}>Logo de la tienda (PNG)</label>
+            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', display: 'block', marginBottom: 10 }}>Logo de la tienda</label>
             <div className="row">
               <div style={{
                 width: 84, height: 84, borderRadius: 18, flexShrink: 0,
@@ -215,11 +217,11 @@ export default function Configuracion() {
                 {!t.logo_url && 'Sin logo'}
               </div>
               <div>
-                <input ref={fileRef} type="file" accept="image/png" hidden onChange={(e) => subirLogo(e.target.files[0])} />
+                <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => subirLogo(e.target.files[0])} />
                 <button className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()} disabled={subiendo}>
-                  {subiendo ? 'Subiendo…' : (t.logo_url ? 'Cambiar logo' : 'Subir logo PNG')}
+                  {subiendo ? 'Subiendo…' : (t.logo_url ? 'Cambiar logo' : 'Subir logo')}
                 </button>
-                <p className="muted tiny" style={{ margin: '8px 0 0' }}>Formato PNG, se ajusta automáticamente. Ideal con fondo transparente.</p>
+                <p className="muted tiny" style={{ margin: '8px 0 0' }}>Acepta PNG, JPG o WebP; se optimiza y ajusta automáticamente. Para fondo transparente usa PNG o WebP.</p>
               </div>
             </div>
           </div>

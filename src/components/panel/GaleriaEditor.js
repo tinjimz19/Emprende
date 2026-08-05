@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { api, subirArchivo } from '@/lib/api';
+import { comprimirImagen } from '@/lib/imagen';
 
 export default function GaleriaEditor({ productoId, imagenes, onChange, onError }) {
   const [imgs, setImgs] = useState(imagenes || []);
@@ -21,7 +22,8 @@ export default function GaleriaEditor({ productoId, imagenes, onChange, onError 
     const acumuladas = [...imgs];
     try {
       for (const file of files) {
-        const r = await subirArchivo(`/api/productos/${productoId}/imagenes`, file, 'imagen');
+        const optim = await comprimirImagen(file, { maxLado: 1600, calidad: 0.82, tipo: 'image/webp', alfa: true });
+        const r = await subirArchivo(`/api/productos/${productoId}/imagenes`, optim, 'imagen');
         if (r?.imagen) acumuladas.push(r.imagen);
         actualizar([...acumuladas]);
       }
