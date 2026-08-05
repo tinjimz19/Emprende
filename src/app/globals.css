@@ -855,6 +855,11 @@ select { appearance: none; background-image: none; cursor: pointer; }
   pointer-events: none;
 }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
+.confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 2100; padding: 16px; }
+.confirm-card { width: 410px; max-width: 100%; text-align: center; padding: 26px 24px; }
+.confirm-ic { width: 54px; height: 54px; border-radius: 50%; background: var(--danger-soft); color: var(--danger); display: grid; place-items: center; margin: 0 auto 14px; }
+.confirm-actions { display: flex; gap: 10px; margin-top: 22px; }
+.confirm-actions .btn { flex: 1; }
 .toast .toast-ic { color: var(--ok); display: inline-flex; flex: none; }
 .tc-mapwrap { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
 .tc-map { height: min(560px, 64vh); min-height: 300px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface-2); }

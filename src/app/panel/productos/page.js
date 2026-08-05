@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import Link from 'next/link';
 import { api, usd, enviarFormulario } from '@/lib/api';
 
@@ -59,12 +60,24 @@ export default function Productos() {
   // Al cambiar filtro o búsqueda, vuelve a la primera página.
   useEffect(() => { setPagina(1); }, [filtro, busqueda]);
 
-  async function eliminar(e, id) {
+  const [aEliminar, setAeliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
+
+  function pedirEliminar(e, p) {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm('¿Eliminar este producto? Se borran también sus imágenes y variantes.')) return;
-    try { await api(`/api/productos/${id}`, { method: 'DELETE' }); await cargar(); }
-    catch (e) { setError(e.message); }
+    setAeliminar(p);
+  }
+
+  async function confirmarEliminar() {
+    if (!aEliminar) return;
+    setEliminando(true);
+    try {
+      await api(`/api/productos/${aEliminar.id}`, { method: 'DELETE' });
+      setAeliminar(null);
+      await cargar();
+    } catch (e) { setError(e.message); }
+    finally { setEliminando(false); }
   }
 
   // Conteos por estado.
@@ -218,7 +231,7 @@ export default function Productos() {
                 <td><span className={`badge estado-${p.estado}`}>{p.estado}</span></td>
                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <Link className="btn btn-ghost btn-sm" href={`/panel/productos/${p.id}`} onClick={(e) => e.stopPropagation()}>Editar</Link>{' '}
-                  <button className="btn btn-ghost btn-sm" onClick={(e) => eliminar(e, p.id)} style={{ color: 'var(--danger)' }}>Eliminar</button>
+                  <button className="btn btn-ghost btn-sm" onClick={(e) => pedirEliminar(e, p)} style={{ color: 'var(--danger)' }}>Eliminar</button>
                 </td>
               </tr>
               );
@@ -259,7 +272,7 @@ export default function Productos() {
                   </div>
                 </div>
               </div>
-              <button className="pm-del" onClick={(e) => eliminar(e, p.id)} aria-label="Eliminar producto">
+              <button className="pm-del" onClick={(e) => pedirEliminar(e, p)} aria-label="Eliminar producto">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
               </button>
             </div>
@@ -430,6 +443,14 @@ export default function Productos() {
           .prod-search { margin-left: 0; max-width: none; }
         }
       `}</style>
-    </>
+          <ConfirmDialog
+        abierto={!!aEliminar}
+        titulo="Eliminar producto"
+        mensaje={aEliminar ? `¿Seguro que quieres eliminar "${aEliminar.nombre}"? Se borran también sus imágenes y variantes. Esta acción no se puede deshacer.` : ''}
+        cargando={eliminando}
+        onConfirmar={confirmarEliminar}
+        onCancelar={() => setAeliminar(null)}
+      />
+      </>
   );
 }

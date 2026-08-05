@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { api, usd } from '@/lib/api';
 
 const VACIO = { codigo: '', tipo: 'porcentaje', valor: '', minimo_compra: '', usos_maximos: '', vence: '', activo: 1 };
@@ -86,10 +87,22 @@ export default function Cupones() {
     } catch (e) { setError(e.message); }
   }
 
-  async function eliminar(c) {
-    if (!confirm(`¿Eliminar el cupón ${c.codigo}?`)) return;
-    try { await api(`/api/cupones/${c.id}`, { method: 'DELETE' }); await cargar(); }
-    catch (e) { setError(e.message); }
+  const [aEliminar, setAeliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
+
+  function pedirEliminar(c) {
+    setAeliminar(c);
+  }
+
+  async function confirmarEliminar() {
+    if (!aEliminar) return;
+    setEliminando(true);
+    try {
+      await api(`/api/cupones/${aEliminar.id}`, { method: 'DELETE' });
+      setAeliminar(null);
+      await cargar();
+    } catch (e) { setError(e.message); }
+    finally { setEliminando(false); }
   }
 
   function descTxt(c) {
@@ -137,7 +150,7 @@ export default function Cupones() {
                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <button className="btn btn-ghost btn-sm" onClick={() => abrirEditar(c)}>Editar</button>{' '}
                   <button className="btn btn-ghost btn-sm" onClick={() => toggle(c)}>{Number(c.activo) ? 'Desactivar' : 'Activar'}</button>{' '}
-                  <button className="btn btn-ghost btn-sm" onClick={() => eliminar(c)} style={{ color: 'var(--danger)' }}>Eliminar</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => pedirEliminar(c)} style={{ color: 'var(--danger)' }}>Eliminar</button>
                 </td>
               </tr>
             ))}
@@ -173,7 +186,7 @@ export default function Cupones() {
               <div className="pm-acciones">
                 <button className="btn btn-ghost btn-sm" onClick={() => abrirEditar(c)}>Editar</button>
                 <button className="btn btn-ghost btn-sm" onClick={() => toggle(c)}>{Number(c.activo) ? 'Desactivar' : 'Activar'}</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => eliminar(c)} style={{ color: 'var(--danger)' }}>Eliminar</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => pedirEliminar(c)} style={{ color: 'var(--danger)' }}>Eliminar</button>
               </div>
             </div>
           </div>
@@ -248,6 +261,14 @@ export default function Cupones() {
           </div>
         </div>
       )}
-    </>
+          <ConfirmDialog
+        abierto={!!aEliminar}
+        titulo="Eliminar cupón"
+        mensaje={aEliminar ? `¿Seguro que quieres eliminar el cupón "${aEliminar.codigo}"? Esta acción no se puede deshacer.` : ''}
+        cargando={eliminando}
+        onConfirmar={confirmarEliminar}
+        onCancelar={() => setAeliminar(null)}
+      />
+      </>
   );
 }
