@@ -6,6 +6,7 @@ import { addToCart, getCart } from '@/lib/cart';
 import TiendaNav from '@/components/tienda/TiendaNav';
 import BotonFavorito from '@/components/BotonFavorito';
 import BotonUbicacion from '@/components/BotonUbicacion';
+import Toast from '@/components/Toast';
 
 function Stars({ valor = 0, size = 16 }) {
   const v = Math.max(0, Math.min(5, Number(valor) || 0));
@@ -142,7 +143,6 @@ export default function ProductoClient({ slug, prodSlug }) {
     if (variante) nombre += ` (${Object.values(seleccion).join(' / ')})`;
     addToCart(slug, { producto_id: prod.id, variante_id: variante ? variante.id : null, nombre, precio, cantidad: 1 });
     setAgregado(true);
-    setTimeout(() => setAgregado(false), 2500);
   }
 
   function waProducto() {
@@ -179,6 +179,7 @@ export default function ProductoClient({ slug, prodSlug }) {
   return (
     <>
       <TiendaNav slug={slug} tienda={tienda} crumb={prod.nombre} cartCount={cartCount} cartHref={`/t/${slug}?cart=1`} />
+      <Toast visible={agregado} mensaje="Agregado al carrito" onHide={() => setAgregado(false)} />
 
       <main className="container" style={{ paddingTop: 28, paddingBottom: 80 }}>
         <div className="prod-detail">
@@ -269,7 +270,7 @@ export default function ProductoClient({ slug, prodSlug }) {
               )
             ) : (
               <>
-                {agregado && <div className="ok-box" style={{ marginTop: 12 }}>Agregado al carrito ✓</div>}
+
                 <div className="row" style={{ marginTop: 16, gap: 10 }}>
                   <button className="btn btn-primary btn-sm" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}

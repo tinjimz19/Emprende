@@ -843,6 +843,19 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .tienda-head { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: start; margin-bottom: 22px; }
 .tienda-head h1 { font-size: 30px; }
 .mapa-frame { border-radius: 12px; overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface-2); }
+.toast {
+  position: fixed; top: 18px; left: 50%; z-index: 2000;
+  transform: translate(-50%, -160%); opacity: 0;
+  display: inline-flex; align-items: center; gap: 10px; max-width: 90vw;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border-soft); border-radius: 12px;
+  padding: 12px 18px; font-weight: 600; font-size: 14.5px;
+  box-shadow: 0 12px 34px rgba(0,0,0,.20);
+  transition: transform .34s cubic-bezier(.2,.8,.2,1), opacity .3s ease;
+  pointer-events: none;
+}
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+.toast .toast-ic { color: var(--ok); display: inline-flex; flex: none; }
 .tc-mapwrap { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
 .tc-map { height: min(560px, 64vh); min-height: 300px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface-2); }
 .tc-map .leaflet-container { height: 100%; width: 100%; }
