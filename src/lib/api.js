@@ -15,6 +15,20 @@ export function getToken() {
   return localStorage.getItem('emprende_token');
 }
 
+// Identificador estable de este navegador/dispositivo (para reconocer dispositivos de confianza).
+export function getDeviceId() {
+  if (typeof window === 'undefined') return '';
+  let id = localStorage.getItem('emprende_device');
+  if (!id) {
+    const rnd = (window.crypto && window.crypto.randomUUID)
+      ? window.crypto.randomUUID().replace(/-/g, '')
+      : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
+    id = rnd.slice(0, 32);
+    localStorage.setItem('emprende_device', id);
+  }
+  return id;
+}
+
 export function setToken(t) {
   if (typeof window === 'undefined') return;
   if (t) localStorage.setItem('emprende_token', t);

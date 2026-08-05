@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, setToken } from '@/lib/api';
+import { api, setToken, getDeviceId } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function LoginPage() {
@@ -10,15 +10,42 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [paso, setPaso] = useState('login');
+  const [codigo, setCodigo] = useState('');
+  const [emailOtp, setEmailOtp] = useState('');
+
+  function entrar(data) {
+    setToken(data.token);
+    router.push(data.usuario?.rol === 'superadmin' ? '/admin' : '/panel');
+  }
 
   async function enviar(e) {
     e.preventDefault();
     setError('');
     setCargando(true);
     try {
-      const data = await api('/api/auth/login', { method: 'POST', body: form, auth: false });
-      setToken(data.token);
-      router.push(data.usuario?.rol === 'superadmin' ? '/admin' : '/panel');
+      const data = await api('/api/auth/login', { method: 'POST', auth: false, body: { ...form, device_id: getDeviceId() } });
+      if (data.otp_required) {
+        setEmailOtp(data.email || form.email);
+        setCodigo('');
+        setPaso('otp');
+      } else {
+        entrar(data);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  async function verificar(e) {
+    e.preventDefault();
+    setError('');
+    setCargando(true);
+    try {
+      const data = await api('/api/auth/otp', { method: 'POST', auth: false, body: { email: emailOtp, codigo, device_id: getDeviceId() } });
+      entrar(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -38,21 +65,42 @@ export default function LoginPage() {
         <h1 style={{ marginTop: 0, fontSize: 24 }}>Entrar</h1>
         <p className="muted tiny" style={{ marginTop: -4 }}>Accede al panel de tu tienda.</p>
         {error && <div className="alert error" style={{ margin: '14px 0' }}>{error}</div>}
-        <form onSubmit={enviar} style={{ marginTop: 18 }}>
-          <div className="field">
-            <label>Correo</label>
-            <input className="input" type="email" value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })} required autoFocus />
-          </div>
-          <div className="field">
-            <label>Contraseña</label>
-            <input className="input" type="password" value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-          </div>
-          <button className="btn btn-primary btn-block btn-lg" disabled={cargando}>
-            {cargando ? 'Entrando…' : 'Entrar'}
-          </button>
-        </form>
+        {paso === 'login' ? (
+          <form onSubmit={enviar} style={{ marginTop: 18 }}>
+            <div className="field">
+              <label>Correo</label>
+              <input className="input" type="email" value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })} required autoFocus />
+            </div>
+            <div className="field">
+              <label>Contraseña</label>
+              <input className="input" type="password" value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            </div>
+            <button className="btn btn-primary btn-block btn-lg" disabled={cargando}>
+              {cargando ? 'Entrando…' : 'Entrar'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={verificar} style={{ marginTop: 18 }}>
+            <p className="muted tiny" style={{ marginTop: 0 }}>
+              Es un dispositivo nuevo. Te enviamos un código de 6 dígitos a <b>{emailOtp}</b>. Ingrésalo para continuar.
+            </p>
+            <div className="field">
+              <label>Código de acceso</label>
+              <input className="input" inputMode="numeric" autoComplete="one-time-code" maxLength={6}
+                value={codigo} onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))} required autoFocus
+                style={{ letterSpacing: '6px', fontSize: 20, textAlign: 'center' }} />
+            </div>
+            <button className="btn btn-primary btn-block btn-lg" disabled={cargando || codigo.length < 6}>
+              {cargando ? 'Verificando…' : 'Verificar y entrar'}
+            </button>
+            <button type="button" className="btn btn-ghost btn-block btn-sm" style={{ marginTop: 8 }}
+              onClick={() => { setPaso('login'); setError(''); }}>
+              Volver
+            </button>
+          </form>
+        )}
       </div>
       <p className="muted tiny" style={{ textAlign: 'center', marginTop: 18 }}>
         <Link href="/recuperar?tipo=tienda" style={{ color: 'var(--brand)', fontWeight: 600 }}>¿Olvidaste tu contraseña?</Link>
