@@ -17,6 +17,30 @@ const PAGO_CAMPOS = [
   ['pago_nota', 'Nota', 'Instrucción adicional para el dueño'],
 ];
 
+// Sección plegable. En móvil se colapsa (mostrando el contador en el encabezado)
+// para acortar el scroll; en escritorio se muestra siempre abierta.
+function Colapsable({ titulo, badge, derecha, esMovil, children }) {
+  const [abierto, setAbierto] = useState(true);
+  useEffect(() => { setAbierto(!esMovil); }, [esMovil]);
+  const toggle = () => { if (esMovil) setAbierto((a) => !a); };
+  return (
+    <>
+      <div className="row" style={{ margin: '26px 0 12px', alignItems: 'center', gap: 8 }}>
+        <div onClick={toggle}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 auto', cursor: esMovil ? 'pointer' : 'default', userSelect: 'none' }}>
+          {esMovil && (
+            <span aria-hidden style={{ display: 'inline-block', transition: 'transform .15s ease', transform: abierto ? 'rotate(90deg)' : 'none', color: 'var(--text-2)', fontSize: 13 }}>▶</span>
+          )}
+          <h3 style={{ margin: 0 }}>{titulo}</h3>
+          {badge}
+        </div>
+        {derecha}
+      </div>
+      {(!esMovil || abierto) && children}
+    </>
+  );
+}
+
 export default function AdminHome() {
   const [metricas, setMetricas] = useState(null);
   const [tiendas, setTiendas] = useState([]);
@@ -32,6 +56,15 @@ export default function AdminHome() {
   const [filtro, setFiltro] = useState('');
   const [error, setError] = useState('');
   const [respaldando, setRespaldando] = useState(false);
+  const [esMovil, setEsMovil] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 720px)');
+    const set = () => setEsMovil(mq.matches);
+    set();
+    mq.addEventListener?.('change', set);
+    return () => mq.removeEventListener?.('change', set);
+  }, []);
 
   async function respaldar() {
     setRespaldando(true);
@@ -49,25 +82,28 @@ export default function AdminHome() {
     finally { setRespaldando(false); }
   }
 
+  // Carga resiliente: si un endpoint secundario falla, los demás igual se
+  // actualizan (no se cae toda la vista). Así aprobar/rechazar refresca
+  // "Verificaciones" y "Tiendas" a la vez de forma confiable.
   async function cargar() {
-    try {
-      const [m, t, s, c, pl, v, el] = await Promise.all([
-        api('/api/admin/metricas'),
-        api(`/api/admin/tiendas${filtro ? `?estado=${filtro}` : ''}`),
-        api('/api/admin/suscripciones?estado=pendiente'),
-        api('/api/config-pago', { auth: false }),
-        api('/api/admin/planes'),
-        api('/api/admin/verificaciones?estado=pendiente'),
-        api('/api/admin/eliminaciones'),
-      ]);
-      setMetricas(m);
-      setTiendas(t.tiendas);
-      setPagos(s.pagos);
-      setVerifs(v.verificaciones);
-      setElims(el.eliminaciones);
-      setCfgPago((prev) => prev ?? c.pago);
-      setPlanes(pl.planes);
-    } catch (e) { setError(e.message); }
+    const [m, t, s, c, pl, v, el] = await Promise.allSettled([
+      api('/api/admin/metricas'),
+      api(`/api/admin/tiendas${filtro ? `?estado=${filtro}` : ''}`),
+      api('/api/admin/suscripciones?estado=pendiente'),
+      api('/api/config-pago', { auth: false }),
+      api('/api/admin/planes'),
+      api('/api/admin/verificaciones?estado=pendiente'),
+      api('/api/admin/eliminaciones'),
+    ]);
+    if (m.status === 'fulfilled') setMetricas(m.value);
+    if (t.status === 'fulfilled') setTiendas(t.value.tiendas);
+    if (s.status === 'fulfilled') setPagos(s.value.pagos);
+    if (c.status === 'fulfilled') setCfgPago((prev) => prev ?? c.value.pago);
+    if (pl.status === 'fulfilled') setPlanes(pl.value.planes);
+    if (v.status === 'fulfilled') setVerifs(v.value.verificaciones);
+    if (el.status === 'fulfilled') setElims(el.value.eliminaciones);
+    const fallo = [m, t, s, c, pl, v, el].find((r) => r.status === 'rejected');
+    setError(fallo ? (fallo.reason?.message || 'No se pudieron cargar algunos datos.') : '');
   }
   useEffect(() => { cargar(); }, [filtro]);
 
@@ -157,8 +193,6 @@ export default function AdminHome() {
     } catch (e) { setError(e.message); }
   }
 
-  if (error) return <div className="alert error">{error}</div>;
-
   const cards = metricas ? [
     ['Tiendas activas', metricas.tiendas.activas, 'var(--ok)'],
     ['Pendientes', metricas.tiendas.pendientes, 'var(--warn)'],
@@ -171,6 +205,9 @@ export default function AdminHome() {
     <>
       <h1 style={{ marginTop: 0 }}>Plataforma</h1>
       <p className="muted tiny" style={{ marginTop: -4 }}>Aprueba, suspende y supervisa las tiendas.</p>
+
+      {error && <div className="alert error" style={{ margin: '10px 0' }}>{error}</div>}
+
       <div className="row" style={{ margin: '10px 0 0' }}>
         <button className="btn btn-soft btn-sm" onClick={respaldar} disabled={respaldando} title="Descargar un respaldo .sql de toda la base de datos">
           {respaldando ? 'Generando…' : '⬇ Respaldar base de datos'}
@@ -186,204 +223,200 @@ export default function AdminHome() {
         ))}
       </div>
 
-      <div className="row" style={{ margin: '26px 0 12px' }}>
-        <h3 style={{ margin: 0 }}>Pagos de suscripción pendientes</h3>
-        {pagos.length > 0 && <span className="badge badge-warn" style={{ marginLeft: 10 }}>{pagos.length}</span>}
-      </div>
-      <div className="card card-flush">
-        <table className="table">
-          <thead>
-            <tr><th>Tienda</th><th>Plan</th><th>Meses</th><th>Método</th><th>Ref.</th><th>Comprob.</th><th style={{ textAlign: 'right' }}>Monto</th><th></th></tr>
-          </thead>
-          <tbody>
-            {pagos.length === 0 && <tr><td colSpan={8} className="muted" style={{ padding: 22 }}>No hay pagos pendientes de verificar.</td></tr>}
-            {pagos.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <div style={{ fontWeight: 600 }}>{p.tienda_nombre}</div>
-                  <div className="muted tiny">actual: {p.plan_actual}{p.vence_at ? ` · vence ${p.vence_at}` : ''}</div>
-                </td>
-                <td><span className="badge badge-brand">{p.plan_nombre || p.plan_codigo}</span></td>
-                <td>{p.meses}</td>
-                <td className="tiny">{p.metodo_pago || '—'}</td>
-                <td className="tiny">{p.referencia || '—'}</td>
-                <td className="tiny">{p.comprobante_url ? <a href={p.comprobante_url} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)' }}>ver</a> : '—'}</td>
-                <td style={{ textAlign: 'right', fontWeight: 600 }}>{usd(p.monto)}</td>
-                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                  <button className="btn btn-primary btn-sm" onClick={() => revisarPago(p.id, 'confirmado')}>Confirmar</button>{' '}
-                  <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarPago(p.id, 'rechazado')}>Rechazar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="row" style={{ margin: '26px 0 12px' }}>
-        <h3 style={{ margin: 0 }}>Verificaciones pendientes</h3>
-        {verifs.length > 0 && <span className="badge badge-warn" style={{ marginLeft: 10 }}>{verifs.length}</span>}
-      </div>
-      <div className="card card-flush">
-        <table className="table">
-          <thead>
-            <tr><th>Tienda</th><th>Cédula #</th><th>Documentos</th><th>Enviada</th><th></th></tr>
-          </thead>
-          <tbody>
-            {verifs.length === 0 && <tr><td colSpan={5} className="muted" style={{ padding: 22 }}>No hay verificaciones pendientes.</td></tr>}
-            {verifs.map((v) => (
-              <tr key={v.id}>
-                <td>
-                  <div style={{ fontWeight: 600 }}>{v.tienda_nombre}</div>
-                  <a className="muted tiny" href={`/t/${v.tienda_slug}`} target="_blank" rel="noreferrer">/t/{v.tienda_slug} ↗</a>
-                </td>
-                <td className="tiny">{v.numero_cedula || '—'}</td>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  <button className="btn btn-ghost btn-sm" onClick={() => verArchivo(v.id, 'documento')}>Ver cédula</button>{' '}
-                  <button className="btn btn-ghost btn-sm" onClick={() => verArchivo(v.id, 'selfie')}>Ver selfie</button>
-                </td>
-                <td className="tiny">{(v.created_at || '').slice(0, 16)}</td>
-                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                  <button className="btn btn-primary btn-sm" onClick={() => revisarVerif(v, 'verificada')}>Verificar</button>{' '}
-                  <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarVerif(v, 'rechazada')}>Rechazar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="row" style={{ margin: '26px 0 12px' }}>
-        <h3 style={{ margin: 0 }}>Solicitudes de eliminación</h3>
-        {elims.length > 0 && <span className="badge badge-danger" style={{ marginLeft: 10 }}>{elims.length}</span>}
-      </div>
-      <div className="card card-flush">
-        <table className="table">
-          <thead>
-            <tr><th>Tienda</th><th>Productos</th><th>Pedidos</th><th>Se elimina</th><th></th></tr>
-          </thead>
-          <tbody>
-            {elims.length === 0 && <tr><td colSpan={5} className="muted" style={{ padding: 22 }}>No hay solicitudes de eliminación.</td></tr>}
-            {elims.map((e) => (
-              <tr key={e.id}>
-                <td>
-                  <div style={{ fontWeight: 600 }}>{e.nombre}</div>
-                  <a className="muted tiny" href={`/t/${e.slug}`} target="_blank" rel="noreferrer">/t/{e.slug} ↗</a>
-                </td>
-                <td>{e.productos}</td>
-                <td>{e.pedidos}</td>
-                <td className="tiny">
-                  {(e.eliminar_at || '').slice(0, 10)}{' '}
-                  {Number(e.vencida) ? <span className="badge badge-danger">Vencida</span> : <span className="badge">En espera</span>}
-                </td>
-                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                  <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => purgar(e.id, e.nombre)}>Eliminar ahora</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="card" style={{ marginTop: 24 }}>
-        <div className="row" style={{ alignItems: 'center' }}>
-          <h3 style={{ margin: 0 }}>Datos de cobro de la plataforma</h3>
-          <div className="spacer" />
-          {okCfg && <span className="muted" style={{ color: 'var(--ok)', fontSize: 13 }}>{okCfg}</span>}
+      <Colapsable esMovil={esMovil} titulo="Pagos de suscripción pendientes"
+        badge={pagos.length > 0 ? <span className="badge badge-warn">{pagos.length}</span> : null}>
+        <div className="card card-flush">
+          <table className="table">
+            <thead>
+              <tr><th>Tienda</th><th>Plan</th><th>Meses</th><th>Método</th><th>Ref.</th><th>Comprob.</th><th style={{ textAlign: 'right' }}>Monto</th><th></th></tr>
+            </thead>
+            <tbody>
+              {pagos.length === 0 && <tr><td colSpan={8} className="muted" style={{ padding: 22 }}>No hay pagos pendientes de verificar.</td></tr>}
+              {pagos.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{p.tienda_nombre}</div>
+                    <div className="muted tiny">actual: {p.plan_actual}{p.vence_at ? ` · vence ${p.vence_at}` : ''}</div>
+                  </td>
+                  <td><span className="badge badge-brand">{p.plan_nombre || p.plan_codigo}</span></td>
+                  <td>{p.meses}</td>
+                  <td className="tiny">{p.metodo_pago || '—'}</td>
+                  <td className="tiny">{p.referencia || '—'}</td>
+                  <td className="tiny">{p.comprobante_url ? <a href={p.comprobante_url} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)' }}>ver</a> : '—'}</td>
+                  <td style={{ textAlign: 'right', fontWeight: 600 }}>{usd(p.monto)}</td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <button className="btn btn-primary btn-sm" onClick={() => revisarPago(p.id, 'confirmado')}>Confirmar</button>{' '}
+                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarPago(p.id, 'rechazado')}>Rechazar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <p className="muted tiny" style={{ marginTop: 4 }}>Estos datos ve el dueño para pagar su suscripción. Deja en blanco lo que no uses.</p>
-        {cfgPago && (
-          <form onSubmit={guardarCfgPago} style={{ marginTop: 8 }}>
-            {PAGO_CAMPOS.map(([k, label, ph]) => (
-              <div className="field" key={k} style={{ marginBottom: 10 }}>
-                <label>{label}</label>
-                <input className="input" value={cfgPago[k] || ''} placeholder={ph}
-                  onChange={(e) => setCfgPago({ ...cfgPago, [k]: e.target.value })} />
+      </Colapsable>
+
+      <Colapsable esMovil={esMovil} titulo="Verificaciones pendientes"
+        badge={verifs.length > 0 ? <span className="badge badge-warn">{verifs.length}</span> : null}>
+        <div className="card card-flush">
+          <table className="table">
+            <thead>
+              <tr><th>Tienda</th><th>Cédula #</th><th>Documentos</th><th>Enviada</th><th></th></tr>
+            </thead>
+            <tbody>
+              {verifs.length === 0 && <tr><td colSpan={5} className="muted" style={{ padding: 22 }}>No hay verificaciones pendientes.</td></tr>}
+              {verifs.map((v) => (
+                <tr key={v.id}>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{v.tienda_nombre}</div>
+                    {v.tienda_slug
+                      ? <a className="muted tiny" href={`/t/${v.tienda_slug}`} target="_blank" rel="noreferrer">/t/{v.tienda_slug} ↗</a>
+                      : <span className="muted tiny">tienda #{v.tienda_id}</span>}
+                  </td>
+                  <td className="tiny">{v.numero_cedula || '—'}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button className="btn btn-ghost btn-sm" onClick={() => verArchivo(v.id, 'documento')}>Ver cédula</button>{' '}
+                    <button className="btn btn-ghost btn-sm" onClick={() => verArchivo(v.id, 'selfie')}>Ver selfie</button>
+                  </td>
+                  <td className="tiny">{(v.created_at || '').slice(0, 16)}</td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <button className="btn btn-primary btn-sm" onClick={() => revisarVerif(v, 'verificada')}>Verificar</button>{' '}
+                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => revisarVerif(v, 'rechazada')}>Rechazar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Colapsable>
+
+      <Colapsable esMovil={esMovil} titulo="Solicitudes de eliminación"
+        badge={elims.length > 0 ? <span className="badge badge-danger">{elims.length}</span> : null}>
+        <div className="card card-flush">
+          <table className="table">
+            <thead>
+              <tr><th>Tienda</th><th>Productos</th><th>Pedidos</th><th>Se elimina</th><th></th></tr>
+            </thead>
+            <tbody>
+              {elims.length === 0 && <tr><td colSpan={5} className="muted" style={{ padding: 22 }}>No hay solicitudes de eliminación.</td></tr>}
+              {elims.map((e) => (
+                <tr key={e.id}>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{e.nombre}</div>
+                    <a className="muted tiny" href={`/t/${e.slug}`} target="_blank" rel="noreferrer">/t/{e.slug} ↗</a>
+                  </td>
+                  <td>{e.productos}</td>
+                  <td>{e.pedidos}</td>
+                  <td className="tiny">
+                    {(e.eliminar_at || '').slice(0, 10)}{' '}
+                    {Number(e.vencida) ? <span className="badge badge-danger">Vencida</span> : <span className="badge">En espera</span>}
+                  </td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => purgar(e.id, e.nombre)}>Eliminar ahora</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Colapsable>
+
+      <Colapsable esMovil={esMovil} titulo="Datos de cobro de la plataforma"
+        derecha={okCfg ? <span className="muted" style={{ color: 'var(--ok)', fontSize: 13 }}>{okCfg}</span> : null}>
+        <div className="card">
+          <p className="muted tiny" style={{ marginTop: 0 }}>Estos datos ve el dueño para pagar su suscripción. Deja en blanco lo que no uses.</p>
+          {cfgPago && (
+            <form onSubmit={guardarCfgPago} style={{ marginTop: 8 }}>
+              {PAGO_CAMPOS.map(([k, label, ph]) => (
+                <div className="field" key={k} style={{ marginBottom: 10 }}>
+                  <label>{label}</label>
+                  <input className="input" value={cfgPago[k] || ''} placeholder={ph}
+                    onChange={(e) => setCfgPago({ ...cfgPago, [k]: e.target.value })} />
+                </div>
+              ))}
+              <button className="btn btn-primary" disabled={guardandoCfg}>{guardandoCfg ? 'Guardando…' : 'Guardar datos de cobro'}</button>
+            </form>
+          )}
+        </div>
+      </Colapsable>
+
+      <Colapsable esMovil={esMovil} titulo="Planes de membresía"
+        derecha={okPlan ? <span className="muted" style={{ color: 'var(--ok)', fontSize: 13 }}>{okPlan}</span> : null}>
+        <div className="card">
+          <p className="muted tiny" style={{ marginTop: 0 }}>Edita nombre, precio y límites de cada plan. Deja vacío "Máx. productos" o "Máx. destacados" para <b>ilimitado</b>.</p>
+          <div className="grid grid-cards" style={{ marginTop: 12 }}>
+            {planes.map((p) => (
+              <div className="card" key={p.codigo} style={{ background: 'var(--surface-2)' }}>
+                <div className="row" style={{ alignItems: 'center', marginBottom: 8 }}>
+                  <span className="badge badge-brand">{p.codigo}</span>
+                  <div className="spacer" />
+                  <label className="row muted tiny" style={{ gap: 6, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={Number(p.activo) === 1} onChange={(e) => setPlanCampo(p.codigo, 'activo', e.target.checked ? 1 : 0)} />
+                    Activo
+                  </label>
+                </div>
+                <div className="field" style={{ marginBottom: 8 }}><label>Nombre</label>
+                  <input className="input" value={p.nombre || ''} onChange={(e) => setPlanCampo(p.codigo, 'nombre', e.target.value)} /></div>
+                <div className="field" style={{ marginBottom: 8 }}><label>Precio mensual ($)</label>
+                  <input className="input" type="number" min="0" step="0.01" value={p.precio_mensual ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'precio_mensual', e.target.value)} /></div>
+                <div className="field" style={{ marginBottom: 8 }}><label>Máx. productos</label>
+                  <input className="input" type="number" min="0" placeholder="Ilimitado" value={p.max_productos ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'max_productos', e.target.value)} /></div>
+                <div className="field" style={{ marginBottom: 8 }}><label>Máx. fotos por producto</label>
+                  <input className="input" type="number" min="1" value={p.max_fotos ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'max_fotos', e.target.value)} /></div>
+                <div className="field" style={{ marginBottom: 12 }}><label>Máx. destacados</label>
+                  <input className="input" type="number" min="0" placeholder="Ilimitado" value={p.max_destacados ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'max_destacados', e.target.value)} /></div>
+                <button className="btn btn-primary btn-block btn-sm" onClick={() => guardarPlan(p)}>Guardar</button>
               </div>
             ))}
-            <button className="btn btn-primary" disabled={guardandoCfg}>{guardandoCfg ? 'Guardando…' : 'Guardar datos de cobro'}</button>
-          </form>
-        )}
-      </div>
-
-      <div className="card" style={{ marginTop: 24 }}>
-        <div className="row" style={{ alignItems: 'center' }}>
-          <h3 style={{ margin: 0 }}>Planes de membresía</h3>
-          <div className="spacer" />
-          {okPlan && <span className="muted" style={{ color: 'var(--ok)', fontSize: 13 }}>{okPlan}</span>}
+          </div>
         </div>
-        <p className="muted tiny" style={{ marginTop: 4 }}>Edita nombre, precio y límites de cada plan. Deja vacío "Máx. productos" o "Máx. destacados" para <b>ilimitado</b>.</p>
-        <div className="grid grid-cards" style={{ marginTop: 12 }}>
-          {planes.map((p) => (
-            <div className="card" key={p.codigo} style={{ background: 'var(--surface-2)' }}>
-              <div className="row" style={{ alignItems: 'center', marginBottom: 8 }}>
-                <span className="badge badge-brand">{p.codigo}</span>
-                <div className="spacer" />
-                <label className="row muted tiny" style={{ gap: 6, cursor: 'pointer' }}>
-                  <input type="checkbox" checked={Number(p.activo) === 1} onChange={(e) => setPlanCampo(p.codigo, 'activo', e.target.checked ? 1 : 0)} />
-                  Activo
-                </label>
-              </div>
-              <div className="field" style={{ marginBottom: 8 }}><label>Nombre</label>
-                <input className="input" value={p.nombre || ''} onChange={(e) => setPlanCampo(p.codigo, 'nombre', e.target.value)} /></div>
-              <div className="field" style={{ marginBottom: 8 }}><label>Precio mensual ($)</label>
-                <input className="input" type="number" min="0" step="0.01" value={p.precio_mensual ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'precio_mensual', e.target.value)} /></div>
-              <div className="field" style={{ marginBottom: 8 }}><label>Máx. productos</label>
-                <input className="input" type="number" min="0" placeholder="Ilimitado" value={p.max_productos ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'max_productos', e.target.value)} /></div>
-              <div className="field" style={{ marginBottom: 8 }}><label>Máx. fotos por producto</label>
-                <input className="input" type="number" min="1" value={p.max_fotos ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'max_fotos', e.target.value)} /></div>
-              <div className="field" style={{ marginBottom: 12 }}><label>Máx. destacados</label>
-                <input className="input" type="number" min="0" placeholder="Ilimitado" value={p.max_destacados ?? ''} onChange={(e) => setPlanCampo(p.codigo, 'max_destacados', e.target.value)} /></div>
-              <button className="btn btn-primary btn-block btn-sm" onClick={() => guardarPlan(p)}>Guardar</button>
-            </div>
-          ))}
-        </div>
-      </div>
+      </Colapsable>
 
-      <div className="row" style={{ margin: '26px 0 16px' }}>
-        <h3 style={{ margin: 0 }}>Tiendas</h3>
-        <div className="spacer" />
-        {['', 'pendiente', 'activa', 'suspendida'].map((f) => (
-          <button key={f || 'todas'} className={`chip ${filtro === f ? 'active' : ''}`} onClick={() => setFiltro(f)}>
-            {f === '' ? 'Todas' : f}
-          </button>
-        ))}
-      </div>
-
-      <div className="card card-flush">
-        <table className="table">
-          <thead>
-            <tr><th>Tienda</th><th>Dueño</th><th>Productos</th><th>Pedidos</th><th>Estado</th><th></th></tr>
-          </thead>
-          <tbody>
-            {tiendas.length === 0 && <tr><td colSpan={6} className="muted" style={{ padding: 26 }}>No hay tiendas para este filtro.</td></tr>}
-            {tiendas.map((t) => (
-              <tr key={t.id}>
-                <td>
-                  <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>{t.nombre}{t.verificacion_estado === 'verificada' && <Verificado size={15} />}</div>
-                  <a className="muted tiny" href={`/t/${t.slug}`} target="_blank" rel="noreferrer">/t/{t.slug} ↗</a>
-                </td>
-                <td>
-                  <div>{t.dueno_nombre || '—'}</div>
-                  <div className="muted tiny">{t.dueno_email || ''}</div>
-                </td>
-                <td>{t.productos}</td>
-                <td>{t.pedidos}</td>
-                <td><span className={`badge ${ESTADO_BADGE[t.estado] || ''}`}>{t.estado}</span></td>
-                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                  {t.estado !== 'activa' && (
-                    <button className="btn btn-primary btn-sm" onClick={() => cambiar(t.id, 'activa')}>Aprobar</button>
-                  )}{' '}
-                  {t.estado !== 'suspendida' ? (
-                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => cambiar(t.id, 'suspendida')}>Suspender</button>
-                  ) : (
-                    <button className="btn btn-ghost btn-sm" onClick={() => cambiar(t.id, 'activa')}>Reactivar</button>
-                  )}
-                </td>
-              </tr>
+      <Colapsable esMovil={esMovil} titulo="Tiendas"
+        derecha={
+          <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+            {['', 'pendiente', 'activa', 'suspendida'].map((f) => (
+              <button key={f || 'todas'} className={`chip ${filtro === f ? 'active' : ''}`} onClick={() => setFiltro(f)}>
+                {f === '' ? 'Todas' : f}
+              </button>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        }>
+        <div className="card card-flush">
+          <table className="table">
+            <thead>
+              <tr><th>Tienda</th><th>Dueño</th><th>Productos</th><th>Pedidos</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+              {tiendas.length === 0 && <tr><td colSpan={6} className="muted" style={{ padding: 26 }}>No hay tiendas para este filtro.</td></tr>}
+              {tiendas.map((t) => (
+                <tr key={t.id}>
+                  <td>
+                    <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>{t.nombre}{t.verificacion_estado === 'verificada' && <Verificado size={15} />}</div>
+                    <a className="muted tiny" href={`/t/${t.slug}`} target="_blank" rel="noreferrer">/t/{t.slug} ↗</a>
+                  </td>
+                  <td>
+                    <div>{t.dueno_nombre || '—'}</div>
+                    <div className="muted tiny">{t.dueno_email || ''}</div>
+                  </td>
+                  <td>{t.productos}</td>
+                  <td>{t.pedidos}</td>
+                  <td><span className={`badge ${ESTADO_BADGE[t.estado] || ''}`}>{t.estado}</span></td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    {t.estado !== 'activa' && (
+                      <button className="btn btn-primary btn-sm" onClick={() => cambiar(t.id, 'activa')}>Aprobar</button>
+                    )}{' '}
+                    {t.estado !== 'suspendida' ? (
+                      <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => cambiar(t.id, 'suspendida')}>Suspender</button>
+                    ) : (
+                      <button className="btn btn-ghost btn-sm" onClick={() => cambiar(t.id, 'activa')}>Reactivar</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Colapsable>
 
       {visor && (
         <div onClick={cerrarVisor} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
