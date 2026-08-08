@@ -57,7 +57,6 @@ export default function AdminHome() {
   const [error, setError] = useState('');
   const [respaldando, setRespaldando] = useState(false);
   const [esMovil, setEsMovil] = useState(false);
-  const [recargando, setRecargando] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 720px)');
@@ -66,11 +65,6 @@ export default function AdminHome() {
     mq.addEventListener?.('change', set);
     return () => mq.removeEventListener?.('change', set);
   }, []);
-
-  async function recargarTodo() {
-    setRecargando(true);
-    try { await cargar(); } finally { setRecargando(false); }
-  }
 
   async function respaldar() {
     setRespaldando(true);
@@ -209,14 +203,7 @@ export default function AdminHome() {
 
   return (
     <>
-      <div className="row" style={{ alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0 }}>Plataforma</h1>
-        <button className="btn btn-soft btn-sm" onClick={recargarTodo} disabled={recargando}
-          title="Recargar todos los datos del panel">
-          <span aria-hidden style={{ display: 'inline-block', transition: 'transform .5s ease', transform: recargando ? 'rotate(360deg)' : 'none' }}>⟳</span>{' '}
-          {recargando ? 'Recargando…' : 'Recargar'}
-        </button>
-      </div>
+      <h1 style={{ marginTop: 0 }}>Plataforma</h1>
       <p className="muted tiny" style={{ marginTop: -4 }}>Aprueba, suspende y supervisa las tiendas.</p>
 
       {error && <div className="alert error" style={{ margin: '10px 0' }}>{error}</div>}
