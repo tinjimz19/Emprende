@@ -58,6 +58,8 @@ export default function AdminHome() {
   const [respaldando, setRespaldando] = useState(false);
   const [esMovil, setEsMovil] = useState(false);
   const [recargando, setRecargando] = useState(false);
+  const [borrar, setBorrar] = useState(null);
+  const [borrando, setBorrando] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 720px)');
@@ -183,6 +185,17 @@ export default function AdminHome() {
     if (!confirm(`¿Eliminar permanentemente la tienda "${nombre}"? Esto borra todo y NO se puede deshacer.`)) return;
     try { await api(`/api/admin/eliminaciones/${id}/purgar`, { method: 'POST' }); await cargar(); }
     catch (e) { setError(e.message); }
+  }
+
+  async function eliminarTienda() {
+    if (!borrar) return;
+    setBorrando(true);
+    try {
+      await api(`/api/admin/tiendas/${borrar.id}`, { method: 'DELETE' });
+      setBorrar(null);
+      await cargar();
+    } catch (e) { setError(e.message); }
+    finally { setBorrando(false); }
   }
 
   async function revisarVerif(v, estado) {
@@ -422,7 +435,8 @@ export default function AdminHome() {
                       <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => cambiar(t.id, 'suspendida')}>Suspender</button>
                     ) : (
                       <button className="btn btn-ghost btn-sm" onClick={() => cambiar(t.id, 'activa')}>Reactivar</button>
-                    )}
+                    )}{' '}
+                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)', fontWeight: 600 }} onClick={() => setBorrar({ id: t.id, nombre: t.nombre })}>Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -430,6 +444,24 @@ export default function AdminHome() {
           </table>
         </div>
       </Colapsable>
+
+      {borrar && (
+        <div onClick={() => !borrando && setBorrar(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ maxWidth: 460, width: '100%' }}>
+            <h3 style={{ margin: '0 0 8px', color: 'var(--danger)' }}>Eliminar tienda</h3>
+            <p style={{ marginTop: 0 }}>
+              Vas a eliminar <b>{borrar.nombre}</b> de forma <b>permanente</b>. Se borrarán todos sus
+              productos, pedidos y fotos. Esta acción <b>no se puede deshacer</b>.
+            </p>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setBorrar(null)} disabled={borrando}>Cancelar</button>
+              <button className="btn btn-sm" style={{ background: 'var(--danger)', color: '#fff' }} onClick={eliminarTienda} disabled={borrando}>
+                {borrando ? 'Eliminando…' : 'Eliminar definitivamente'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {visor && (
         <div onClick={cerrarVisor} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
