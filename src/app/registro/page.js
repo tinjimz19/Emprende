@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, setToken } from '@/lib/api';
+import { api, setToken, getDeviceId } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function RegistroPage() {
@@ -29,7 +29,7 @@ export default function RegistroPage() {
     if (!acepta) { setError('Debes aceptar los Términos y Condiciones y la Política de Privacidad.'); return; }
     setCargando(true);
     try {
-      const data = await api('/api/auth/registro', { method: 'POST', body: { ...form, rubro_ids: rubroIds }, auth: false });
+      const data = await api('/api/auth/registro', { method: 'POST', body: { ...form, rubro_ids: rubroIds, device_id: getDeviceId() }, auth: false });
       setToken(data.token);
       router.push('/panel');
     } catch (err) {
