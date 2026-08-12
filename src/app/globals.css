@@ -271,23 +271,22 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .tn-home .tn-logo-img { height: 22px; width: auto; display: block; object-fit: contain; }
 
 /* ---------- Tarjeta de tienda (home destacadas + /tiendas) ---------- */
-.tienda-card { display: flex; flex-direction: column; gap: 10px; padding: 18px; text-decoration: none; }
-.tienda-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.tienda-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 28px 18px; text-decoration: none; }
+.tienda-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+.tienda-card:hover .tc-logo { border-color: var(--brand); }
 .tc-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.tc-logo {
-  width: 46px; height: 46px; border-radius: 12px; flex: none;
+.tienda-card .tc-logo {
+  width: 78px; height: 78px; border-radius: 50%; flex: none; margin-bottom: 4px;
   background: var(--surface-2) center / cover no-repeat;
-  display: grid; place-items: center; font-weight: 800; font-size: 18px;
-  color: var(--brand); border: 1px solid var(--border-soft);
+  display: grid; place-items: center; font-weight: 800; font-size: 28px;
+  color: var(--brand); border: 2px solid var(--border-soft);
+  transition: border-color .2s ease;
 }
-.tc-name {
-  font-weight: 700; font-size: 15.5px; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.tienda-card .tc-name {
+  font-weight: 700; font-size: 16px; color: var(--text);
+  display: flex; align-items: center; justify-content: center; gap: 6px; white-space: normal;
 }
-.tc-desc {
-  margin: 0; display: -webkit-box; -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
+.tc-desc { display: none; }
 
 /* ---------- Encabezado y layout de dos columnas (/tiendas y /marketplace) ---------- */
 .mkt-head {
@@ -470,39 +469,35 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .lp-hero { position: relative; padding: 104px 0 84px; overflow: hidden; min-height: 560px; display: flex; align-items: center; }
 .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .hero-bg-img {
-  position: absolute; inset: 0; background-size: cover; background-position: center;
+  position: absolute; inset: 0; background-size: cover; background-position: center right;
   opacity: 0; transform: scale(1.06);
   transition: opacity 1s ease, transform 8s ease;
 }
 .hero-bg-img.on { opacity: 1; transform: scale(1); }
+/* Velo claro: sólido a la izquierda (para el texto) que se abre hacia la imagen a la derecha.
+   Usa var(--surface) para adaptarse a claro/oscuro. */
 .hero-scrim {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(8,8,12,.60), rgba(8,8,12,.42) 42%, rgba(8,8,12,.80)),
-    linear-gradient(90deg, rgba(8,8,12,.58), rgba(8,8,12,0) 58%);
+    linear-gradient(90deg,
+      var(--surface) 0%,
+      color-mix(in srgb, var(--surface) 86%, transparent) 34%,
+      color-mix(in srgb, var(--surface) 34%, transparent) 60%,
+      transparent 82%),
+    linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--surface) 60%, transparent));
 }
 .lp-hero .inner { position: relative; z-index: 1; width: 100%; }
-
-/* Texto del hero en claro sobre la imagen */
-.lp-hero .eyebrow { color: #fff; opacity: .95; }
-.lp-hero .slide h1 { color: #fff; text-shadow: 0 2px 22px rgba(0,0,0,.4); }
-.lp-hero .slide h1 .grad {
-  background: linear-gradient(100deg, #fff, #ffd7cc 55%, #fff);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+.lp-hero .slide { max-width: 620px; }
+.lp-hero .slide h1 { text-shadow: none; }
+.lp-hero .hero-stats { border-top: 1px solid var(--border); padding-top: 28px; }
+@media (max-width: 720px) {
+  .hero-scrim {
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--surface) 80%, transparent),
+      color-mix(in srgb, var(--surface) 93%, transparent));
+  }
+  .lp-hero { min-height: 500px; padding: 84px 0 64px; }
 }
-.lp-hero .slide p { color: rgba(255,255,255,.92); text-shadow: 0 1px 14px rgba(0,0,0,.35); }
-.lp-hero .btn-ghost { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.55); color: #fff; }
-.lp-hero .btn-ghost:hover { background: rgba(255,255,255,.22); }
-.lp-hero .slider-arrow {
-  background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.3); color: #fff;
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-}
-.lp-hero .slider-arrow:hover { background: rgba(255,255,255,.3); }
-.lp-hero .slider-dots button { background: rgba(255,255,255,.4); }
-.lp-hero .slider-dots button.on { background: #fff; }
-.lp-hero .hero-stats { border-top: 1px solid rgba(255,255,255,.2); padding-top: 28px; }
-.lp-hero .hero-stats .s .n { color: #fff; }
-.lp-hero .hero-stats .s .l { color: rgba(255,255,255,.82); }
 
 /* Eyebrow como pill para que resalte en las secciones */
 .section-head .eyebrow {
