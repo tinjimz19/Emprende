@@ -36,11 +36,11 @@
   --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.14);
 
   /* Radios */
-  --r-xs: 8px;
-  --r-sm: 10px;
-  --r: 14px;
-  --r-lg: 20px;
-  --r-xl: 28px;
+  --r-xs: 0px;
+  --r-sm: 0px;
+  --r: 0px;
+  --r-lg: 0px;
+  --r-xl: 0px;
 
   /* Tipografía tipo Apple */
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
@@ -169,7 +169,7 @@ p { margin: 0 0 1em; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border: 1px solid transparent; cursor: pointer; font-family: inherit;
   font-weight: 600; font-size: 15px; line-height: 1; white-space: nowrap;
-  padding: 12px 20px; border-radius: 980px;
+  padding: 9px 20px; border-radius: 980px;
   transition: transform 0.06s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 .btn:active { transform: scale(0.97); }
@@ -197,7 +197,7 @@ p { margin: 0 0 1em; }
 
 .btn-block { width: 100%; }
 .btn-sm { padding: 8px 14px; font-size: 13.5px; }
-.btn-lg { padding: 15px 26px; font-size: 16px; }
+.btn-lg { padding: 11px 26px; font-size: 16px; }
 .btn-icon { padding: 9px; border-radius: 50%; width: 40px; height: 40px; }
 
 /* ---------- Formularios ---------- */
@@ -307,7 +307,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 }
 .mkt-cats { display: flex; flex-direction: column; gap: 6px; }
 .mkt-cat {
-  text-align: left; padding: 8px 12px; border-radius: 10px;
+  text-align: left; padding: 8px 12px; border-radius: 0;
   background: transparent; border: 1px solid transparent; color: var(--text-2);
   font-size: 14px; font-family: inherit; cursor: pointer; width: 100%;
   transition: all .15s ease;
@@ -320,7 +320,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
   .mkt-layout { grid-template-columns: 1fr; gap: 18px; }
   .mkt-side { position: static; }
   .mkt-cats { flex-direction: row; flex-wrap: wrap; }
-  .mkt-cat { width: auto; border: 1px solid var(--border); border-radius: 980px; }
+  .mkt-cat { width: auto; border: 1px solid var(--border); border-radius: 0; }
 }
 
 /* Paginado numerado */
@@ -412,7 +412,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 
 /* ---------- Chips ---------- */
 .chip {
-  padding: 8px 15px; border-radius: 980px; font-size: 13.5px; font-weight: 500;
+  padding: 8px 15px; border-radius: 0; font-size: 13.5px; font-weight: 500;
   background: var(--surface); border: 1px solid var(--border); color: var(--text-2);
   cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
 }
