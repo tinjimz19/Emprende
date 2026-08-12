@@ -1089,3 +1089,42 @@ select { appearance: none; background-image: none; cursor: pointer; }
   .prod-card .body .btn-block { margin-top: 8px !important; }
   .prod-card .body .row:has(.swatch) { display: none; }
 }
+
+/* ---- Patrocinados: sección bajo el hero ---- */
+.spon-section { padding: 42px 0; }
+.spon-lead { margin-bottom: 16px; }
+.spon-card img { aspect-ratio: 16 / 10; }
+
+/* ---- Modal de banners (masonry) ---- */
+.admodal-ov {
+  position: fixed; inset: 0; z-index: 1200;
+  background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center;
+  padding: 20px; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  animation: admodal-fade .2s ease;
+}
+@keyframes admodal-fade { from { opacity: 0; } to { opacity: 1; } }
+.admodal {
+  position: relative; width: 100%; max-width: 900px; max-height: 86vh; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); padding: 24px;
+}
+.admodal-x {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; z-index: 3;
+  background: var(--surface-2); border: 1px solid var(--border-soft); color: var(--text);
+}
+.admodal-x:hover { background: var(--border); }
+.admodal-head { text-align: center; margin-bottom: 18px; }
+.admodal-head h3 { margin: 4px 0 0; font-size: clamp(20px, 3vw, 26px); letter-spacing: -.02em; }
+.ad-masonry { column-count: 3; column-gap: 12px; }
+.ad-mitem {
+  display: inline-block; width: 100%; margin: 0 0 12px; break-inside: avoid;
+  border-radius: var(--r-sm); overflow: hidden; border: 1px solid var(--border-soft);
+  text-decoration: none; background: var(--surface); box-shadow: var(--shadow);
+  transition: transform .15s ease;
+}
+.ad-mitem:hover { transform: translateY(-3px); }
+.ad-mitem img { width: 100%; height: auto; display: block; }
+.ad-mcap { display: block; padding: 8px 11px; font-size: 13px; font-weight: 600; color: var(--text); }
+@media (max-width: 760px) { .ad-masonry { column-count: 2; } }
+@media (max-width: 460px) { .ad-masonry { column-count: 1; } }

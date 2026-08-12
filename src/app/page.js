@@ -4,6 +4,7 @@ import HeroSlider from '@/components/landing/HeroSlider';
 import AuthCTA from '@/components/landing/AuthCTA';
 import TopProducts from '@/components/landing/TopProducts';
 import TiendaCard from '@/components/landing/TiendaCard';
+import BannerModal from '@/components/landing/BannerModal';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/emprende-back';
 
@@ -105,18 +106,6 @@ function planParaHome(p, i, total) {
   };
 }
 
-function BannerAd({ b }) {
-  const inner = (
-    <div className="ad-banner">
-      <span className="ad-tag">Publicidad</span>
-      <img src={b.imagen_url} alt={b.titulo || 'Anuncio'} />
-    </div>
-  );
-  return b.enlace
-    ? <a href={b.enlace} target="_blank" rel="noreferrer" style={{ display: 'block' }}>{inner}</a>
-    : inner;
-}
-
 function SponCard({ a }) {
   const href = a.enlace || (a.tienda_slug ? `/t/${a.tienda_slug}` : null);
   const inner = (
@@ -142,24 +131,23 @@ export default async function Home() {
       <Navbar />
       <HeroSlider />
 
-      {/* Banner publicitario */}
-      <section className="ad-wrap">
-        <div className="container">
-          {banners.length > 0 ? (
-            <div className="ad-stack">
-              {banners.map((b) => <BannerAd key={b.id} b={b} />)}
-            </div>
-          ) : (
-            <div className="ad-empty">
-              <div><b>Tu marca aquí.</b> Llega a los compradores de Cumaná.</div>
-              <a className="btn btn-primary btn-sm" href="https://wa.me/584121890090" target="_blank" rel="noreferrer">Anúnciate con nosotros</a>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Modal de bienvenida con banners (masonry), una vez por sesión */}
+      <BannerModal banners={banners} />
 
-      {/* Tiendas destacadas + patrocinados */}
-      {(tiendas.length > 0 || patrocinados.length > 0) && (
+      {/* Patrocinados (pagos asignados) — destacados arriba de las tiendas */}
+      {patrocinados.length > 0 && (
+        <section className="lp-section alt spon-section">
+          <div className="container">
+            <div className="spon-lead"><span className="eyebrow">Patrocinados</span></div>
+            <div className="spon-grid">
+              {patrocinados.map((a) => <SponCard key={a.id} a={a} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Tiendas destacadas */}
+      {tiendas.length > 0 && (
         <section className="lp-section" id="tiendas">
           <div className="container">
             <div className="section-head">
@@ -167,26 +155,12 @@ export default async function Home() {
               <h2>Tiendas destacadas</h2>
               <p>Conoce a los emprendedores de Cumaná y entra a la tienda que quieras.</p>
             </div>
-
-            {patrocinados.length > 0 && (
-              <div style={{ marginBottom: tiendas.length > 0 ? 34 : 0 }}>
-                <div className="spon-head"><span className="eyebrow">Patrocinados</span></div>
-                <div className="spon-grid">
-                  {patrocinados.map((a) => <SponCard key={a.id} a={a} />)}
-                </div>
-              </div>
-            )}
-
-            {tiendas.length > 0 && (
-              <>
-                <div className="grid grid-cards">
-                  {tiendas.map((t) => <TiendaCard key={t.slug} t={t} />)}
-                </div>
-                <div className="row" style={{ justifyContent: 'center', marginTop: 28 }}>
-                  <Link className="btn btn-primary btn-lg" href="/tiendas">Ver todas las tiendas</Link>
-                </div>
-              </>
-            )}
+            <div className="grid grid-cards">
+              {tiendas.map((t) => <TiendaCard key={t.slug} t={t} />)}
+            </div>
+            <div className="row" style={{ justifyContent: 'center', marginTop: 28 }}>
+              <Link className="btn btn-primary btn-lg" href="/tiendas">Ver todas las tiendas</Link>
+            </div>
           </div>
         </section>
       )}

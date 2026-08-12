@@ -494,7 +494,7 @@ export default function AdminHome() {
         badge={anuncios.length > 0 ? <span className="badge badge-brand">{anuncios.length}</span> : null}>
         <div className="card" style={{ marginBottom: 14 }}>
           <p className="muted tiny" style={{ marginTop: 0 }}>
-            Sube el banner del anunciante. <b>Banner</b> = franja grande bajo el hero. <b>Patrocinado</b> = tarjeta entre las tiendas. Lo puedes activar u ocultar cuando quieras.
+            Sube el anuncio. <b>Banner</b> = aparece en el modal de bienvenida (masonry). <b>Patrocinado</b> = tarjeta destacada arriba de las tiendas. Lo puedes activar u ocultar cuando quieras.
           </p>
           <form onSubmit={crearAnuncio}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
@@ -508,8 +508,8 @@ export default function AdminHome() {
                   onChange={(e) => setNvAnuncio({ ...nvAnuncio, enlace: e.target.value })} /></div>
               <div className="field"><label>Ubicación</label>
                 <select className="input" value={nvAnuncio.ubicacion} onChange={(e) => setNvAnuncio({ ...nvAnuncio, ubicacion: e.target.value })}>
-                  <option value="banner">Banner (bajo el hero)</option>
-                  <option value="patrocinado">Patrocinado (entre tiendas)</option>
+                  <option value="banner">Banner (modal de bienvenida)</option>
+                  <option value="patrocinado">Patrocinado (arriba de las tiendas)</option>
                 </select></div>
               <div className="field"><label>Tienda anunciante (opcional)</label>
                 <select className="input" value={nvAnuncio.tienda_id} onChange={(e) => setNvAnuncio({ ...nvAnuncio, tienda_id: e.target.value })}>
