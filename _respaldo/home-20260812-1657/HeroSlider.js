@@ -5,7 +5,6 @@ import { getToken, getClienteToken } from '@/lib/api';
 
 const SLIDES = [
   {
-    img: '/hero/1.jpg',
     eyebrow: 'Mercado de Cumaná 🇻🇪',
     titulo: <>Compra a los <span className="grad">emprendedores de tu ciudad.</span></>,
     texto: 'Explora productos de muchas tiendas locales y cierra por WhatsApp. Precios en dólares con su equivalente en bolívares, siempre al día.',
@@ -13,7 +12,6 @@ const SLIDES = [
     cta2: ['Crear mi cuenta', '/cliente/registro'],
   },
   {
-    img: '/hero/2.jpg',
     eyebrow: '¿Tienes un negocio?',
     titulo: <>Vende online, <span className="grad">sin complicarte.</span></>,
     texto: 'Publica tu catálogo, recibe pedidos y lleva tus cuentas. Monta tu tienda en minutos, sin código ni tarjetas.',
@@ -21,7 +19,6 @@ const SLIDES = [
     cta2: ['Ver los planes', '#planes'],
   },
   {
-    img: '/hero/3.jpg',
     eyebrow: 'Comprar y vender, fácil',
     titulo: <>Variantes, stock y <span className="grad">cierre por WhatsApp.</span></>,
     texto: 'Tallas, colores y existencias por combinación. Cada producto lleva directo al chat entre el cliente y la tienda.',
@@ -52,6 +49,8 @@ export default function HeroSlider() {
     else setSesion('invitado');
   }, []);
 
+  function go(next) { setI((prev) => (next + n) % n); }
+
   useEffect(() => {
     timer.current = setInterval(() => setI((p) => (p + 1) % n), 6000);
     return () => clearInterval(timer.current);
@@ -65,13 +64,7 @@ export default function HeroSlider() {
 
   return (
     <section className="lp-hero">
-      <div className="hero-bg">
-        {SLIDES.map((s, idx) => (
-          <div key={idx} className={`hero-bg-img ${idx === i ? 'on' : ''}`} style={{ backgroundImage: `url(${s.img})` }} />
-        ))}
-        <div className="hero-scrim" />
-      </div>
-
+      <div className="mesh" />
       <div className="container inner">
         <div className="slider">
           <button className="slider-arrow prev" aria-label="Anterior" onClick={() => manual(i - 1)}>

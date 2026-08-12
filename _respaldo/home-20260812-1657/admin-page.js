@@ -60,10 +60,6 @@ export default function AdminHome() {
   const [recargando, setRecargando] = useState(false);
   const [borrar, setBorrar] = useState(null);
   const [borrando, setBorrando] = useState(false);
-  const [anuncios, setAnuncios] = useState([]);
-  const [nvAnuncio, setNvAnuncio] = useState({ titulo: '', enlace: '', ubicacion: 'banner', tienda_id: '' });
-  const [nvArchivo, setNvArchivo] = useState(null);
-  const [subiendoAnuncio, setSubiendoAnuncio] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 720px)');
@@ -76,45 +72,6 @@ export default function AdminHome() {
   async function recargarTodo() {
     setRecargando(true);
     try { await cargar(); } finally { setRecargando(false); }
-  }
-
-  async function cargarAnuncios() {
-    try { const d = await api('/api/admin/anuncios'); setAnuncios(d.anuncios); }
-    catch (e) { setError(e.message); }
-  }
-
-  async function crearAnuncio(e) {
-    e.preventDefault();
-    if (!nvArchivo) { setError('Elige una imagen para el anuncio.'); return; }
-    setSubiendoAnuncio(true); setError('');
-    try {
-      const fd = new FormData();
-      fd.append('imagen', nvArchivo);
-      if (nvAnuncio.titulo) fd.append('titulo', nvAnuncio.titulo);
-      if (nvAnuncio.enlace) fd.append('enlace', nvAnuncio.enlace);
-      fd.append('ubicacion', nvAnuncio.ubicacion);
-      if (nvAnuncio.tienda_id) fd.append('tienda_id', nvAnuncio.tienda_id);
-      const res = await fetch(`${API_BASE}/api/admin/anuncios`, {
-        method: 'POST', headers: { Authorization: `Bearer ${getToken()}` }, body: fd,
-      });
-      const json = await res.json();
-      if (!res.ok || json.ok === false) throw new Error(json.error || 'No se pudo crear el anuncio');
-      setNvAnuncio((p) => ({ titulo: '', enlace: '', ubicacion: p.ubicacion, tienda_id: '' }));
-      setNvArchivo(null);
-      await cargarAnuncios();
-    } catch (e) { setError(e.message); }
-    finally { setSubiendoAnuncio(false); }
-  }
-
-  async function toggleAnuncio(a) {
-    try { await api(`/api/admin/anuncios/${a.id}`, { method: 'PATCH', body: { activo: Number(a.activo) === 1 ? 0 : 1 } }); await cargarAnuncios(); }
-    catch (e) { setError(e.message); }
-  }
-
-  async function borrarAnuncio(id) {
-    if (!confirm('¿Eliminar este anuncio?')) return;
-    try { await api(`/api/admin/anuncios/${id}`, { method: 'DELETE' }); await cargarAnuncios(); }
-    catch (e) { setError(e.message); }
   }
 
   async function respaldar() {
@@ -137,7 +94,7 @@ export default function AdminHome() {
   // actualizan (no se cae toda la vista). Así aprobar/rechazar refresca
   // "Verificaciones" y "Tiendas" a la vez de forma confiable.
   async function cargar() {
-    const [m, t, s, c, pl, v, el, an] = await Promise.allSettled([
+    const [m, t, s, c, pl, v, el] = await Promise.allSettled([
       api('/api/admin/metricas'),
       api(`/api/admin/tiendas${filtro ? `?estado=${filtro}` : ''}`),
       api('/api/admin/suscripciones?estado=pendiente'),
@@ -145,7 +102,6 @@ export default function AdminHome() {
       api('/api/admin/planes'),
       api('/api/admin/verificaciones?estado=pendiente'),
       api('/api/admin/eliminaciones'),
-      api('/api/admin/anuncios'),
     ]);
     if (m.status === 'fulfilled') setMetricas(m.value);
     if (t.status === 'fulfilled') setTiendas(t.value.tiendas);
@@ -154,8 +110,7 @@ export default function AdminHome() {
     if (pl.status === 'fulfilled') setPlanes(pl.value.planes);
     if (v.status === 'fulfilled') setVerifs(v.value.verificaciones);
     if (el.status === 'fulfilled') setElims(el.value.eliminaciones);
-    if (an.status === 'fulfilled') setAnuncios(an.value.anuncios);
-    const fallo = [m, t, s, c, pl, v, el, an].find((r) => r.status === 'rejected');
+    const fallo = [m, t, s, c, pl, v, el].find((r) => r.status === 'rejected');
     setError(fallo ? (fallo.reason?.message || 'No se pudieron cargar algunos datos.') : '');
   }
   useEffect(() => { cargar(); }, [filtro]);
@@ -482,65 +437,6 @@ export default function AdminHome() {
                       <button className="btn btn-ghost btn-sm" onClick={() => cambiar(t.id, 'activa')}>Reactivar</button>
                     )}{' '}
                     <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)', fontWeight: 600 }} onClick={() => setBorrar({ id: t.id, nombre: t.nombre })}>Eliminar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Colapsable>
-
-      <Colapsable esMovil={esMovil} titulo="Publicidad (anuncios del home)"
-        badge={anuncios.length > 0 ? <span className="badge badge-brand">{anuncios.length}</span> : null}>
-        <div className="card" style={{ marginBottom: 14 }}>
-          <p className="muted tiny" style={{ marginTop: 0 }}>
-            Sube el banner del anunciante. <b>Banner</b> = franja grande bajo el hero. <b>Patrocinado</b> = tarjeta entre las tiendas. Lo puedes activar u ocultar cuando quieras.
-          </p>
-          <form onSubmit={crearAnuncio}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-              <div className="field"><label>Imagen del anuncio</label>
-                <input className="input" type="file" accept="image/*" onChange={(e) => setNvArchivo(e.target.files?.[0] || null)} /></div>
-              <div className="field"><label>Título (opcional)</label>
-                <input className="input" value={nvAnuncio.titulo} placeholder="Ej: Ofertas de temporada"
-                  onChange={(e) => setNvAnuncio({ ...nvAnuncio, titulo: e.target.value })} /></div>
-              <div className="field"><label>Enlace (opcional)</label>
-                <input className="input" value={nvAnuncio.enlace} placeholder="https://... o /t/mi-tienda"
-                  onChange={(e) => setNvAnuncio({ ...nvAnuncio, enlace: e.target.value })} /></div>
-              <div className="field"><label>Ubicación</label>
-                <select className="input" value={nvAnuncio.ubicacion} onChange={(e) => setNvAnuncio({ ...nvAnuncio, ubicacion: e.target.value })}>
-                  <option value="banner">Banner (bajo el hero)</option>
-                  <option value="patrocinado">Patrocinado (entre tiendas)</option>
-                </select></div>
-              <div className="field"><label>Tienda anunciante (opcional)</label>
-                <select className="input" value={nvAnuncio.tienda_id} onChange={(e) => setNvAnuncio({ ...nvAnuncio, tienda_id: e.target.value })}>
-                  <option value="">— Ninguna —</option>
-                  {tiendas.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                </select></div>
-            </div>
-            <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }} disabled={subiendoAnuncio}>
-              {subiendoAnuncio ? 'Subiendo…' : 'Agregar anuncio'}
-            </button>
-          </form>
-        </div>
-
-        <div className="card card-flush">
-          <table className="table">
-            <thead>
-              <tr><th>Imagen</th><th>Título</th><th>Ubicación</th><th>Tienda</th><th>Enlace</th><th>Estado</th><th></th></tr>
-            </thead>
-            <tbody>
-              {anuncios.length === 0 && <tr><td colSpan={7} className="muted" style={{ padding: 22 }}>No hay anuncios todavía. Sube el primero arriba.</td></tr>}
-              {anuncios.map((a) => (
-                <tr key={a.id}>
-                  <td><img src={a.imagen_url} alt="" style={{ width: 84, height: 48, objectFit: 'cover', borderRadius: 8, display: 'block' }} /></td>
-                  <td>{a.titulo || <span className="muted">—</span>}</td>
-                  <td><span className="badge">{a.ubicacion === 'patrocinado' ? 'Patrocinado' : 'Banner'}</span></td>
-                  <td className="tiny">{a.tienda_nombre || '—'}</td>
-                  <td className="tiny">{a.enlace ? <a href={a.enlace} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)' }}>ver</a> : '—'}</td>
-                  <td>{Number(a.activo) === 1 ? <span className="badge badge-ok">Activo</span> : <span className="badge">Oculto</span>}</td>
-                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => toggleAnuncio(a)}>{Number(a.activo) === 1 ? 'Ocultar' : 'Activar'}</button>{' '}
-                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => borrarAnuncio(a.id)}>Eliminar</button>
                   </td>
                 </tr>
               ))}

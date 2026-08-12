@@ -37,16 +37,6 @@ async function getPlanes() {
   }
 }
 
-async function getAnuncios() {
-  try {
-    const res = await fetch(`${API}/api/anuncios`, { cache: 'no-store' });
-    const json = await res.json();
-    return json?.data || { banners: [], patrocinados: [] };
-  } catch {
-    return { banners: [], patrocinados: [] };
-  }
-}
-
 const VALORES = [
   ['M12 2v20M2 12h20', 'Precios en $ y Bs', 'Cambia tu tasa una sola vez y todos tus precios se actualizan al instante. Sin tocar producto por producto.'],
   ['M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-8A8.4 8.4 0 1121 11.5z', 'Cierre por WhatsApp', 'Cada producto y cada pedido lleva directo al chat con tu cliente. Vende como ya vendes, pero ordenado.'],
@@ -105,36 +95,8 @@ function planParaHome(p, i, total) {
   };
 }
 
-function BannerAd({ b }) {
-  const inner = (
-    <div className="ad-banner">
-      <span className="ad-tag">Publicidad</span>
-      <img src={b.imagen_url} alt={b.titulo || 'Anuncio'} />
-    </div>
-  );
-  return b.enlace
-    ? <a href={b.enlace} target="_blank" rel="noreferrer" style={{ display: 'block' }}>{inner}</a>
-    : inner;
-}
-
-function SponCard({ a }) {
-  const href = a.enlace || (a.tienda_slug ? `/t/${a.tienda_slug}` : null);
-  const inner = (
-    <div className="spon-card">
-      <span className="ad-tag">Patrocinado</span>
-      <img src={a.imagen_url} alt={a.titulo || a.tienda_nombre || 'Patrocinado'} />
-      {(a.titulo || a.tienda_nombre) && <div className="spon-cap">{a.titulo || a.tienda_nombre}</div>}
-    </div>
-  );
-  return href
-    ? <a href={href} target={a.enlace ? '_blank' : undefined} rel="noreferrer" style={{ display: 'block' }}>{inner}</a>
-    : inner;
-}
-
 export default async function Home() {
-  const [vitrina, tiendas, planesRaw, anuncios] = await Promise.all([getVitrina(), getTiendas(), getPlanes(), getAnuncios()]);
-  const banners = anuncios.banners || [];
-  const patrocinados = anuncios.patrocinados || [];
+  const [vitrina, tiendas, planesRaw] = await Promise.all([getVitrina(), getTiendas(), getPlanes()]);
   const planes = planesRaw.length ? planesRaw.map((p, i) => planParaHome(p, i, planesRaw.length)) : PLANES_FALLBACK;
 
   return (
@@ -142,24 +104,8 @@ export default async function Home() {
       <Navbar />
       <HeroSlider />
 
-      {/* Banner publicitario */}
-      <section className="ad-wrap">
-        <div className="container">
-          {banners.length > 0 ? (
-            <div className="ad-stack">
-              {banners.map((b) => <BannerAd key={b.id} b={b} />)}
-            </div>
-          ) : (
-            <div className="ad-empty">
-              <div><b>Tu marca aquí.</b> Llega a los compradores de Cumaná.</div>
-              <a className="btn btn-primary btn-sm" href="https://wa.me/584121890090" target="_blank" rel="noreferrer">Anúnciate con nosotros</a>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Tiendas destacadas + patrocinados */}
-      {(tiendas.length > 0 || patrocinados.length > 0) && (
+      {/* Tiendas destacadas */}
+      {tiendas.length > 0 && (
         <section className="lp-section" id="tiendas">
           <div className="container">
             <div className="section-head">
@@ -167,26 +113,12 @@ export default async function Home() {
               <h2>Tiendas destacadas</h2>
               <p>Conoce a los emprendedores de Cumaná y entra a la tienda que quieras.</p>
             </div>
-
-            {patrocinados.length > 0 && (
-              <div style={{ marginBottom: tiendas.length > 0 ? 34 : 0 }}>
-                <div className="spon-head"><span className="eyebrow">Patrocinados</span></div>
-                <div className="spon-grid">
-                  {patrocinados.map((a) => <SponCard key={a.id} a={a} />)}
-                </div>
-              </div>
-            )}
-
-            {tiendas.length > 0 && (
-              <>
-                <div className="grid grid-cards">
-                  {tiendas.map((t) => <TiendaCard key={t.slug} t={t} />)}
-                </div>
-                <div className="row" style={{ justifyContent: 'center', marginTop: 28 }}>
-                  <Link className="btn btn-primary btn-lg" href="/tiendas">Ver todas las tiendas</Link>
-                </div>
-              </>
-            )}
+            <div className="grid grid-cards">
+              {tiendas.map((t) => <TiendaCard key={t.slug} t={t} />)}
+            </div>
+            <div className="row" style={{ justifyContent: 'center', marginTop: 28 }}>
+              <Link className="btn btn-primary btn-lg" href="/tiendas">Ver todas las tiendas</Link>
+            </div>
           </div>
         </section>
       )}
