@@ -1193,3 +1193,30 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .ev-ic { width: 66px; height: 66px; margin: 0 auto 18px; display: grid; place-items: center; border-radius: 50%; background: var(--brand-soft); color: var(--brand); }
 .estado-vacio h3 { margin: 0 0 6px; font-size: 21px; letter-spacing: -.01em; }
 .ev-accion { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+/* ---- Detalle: relacionados (izq) + reseñas (der) 50/50 ---- */
+.prod-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; margin-top: 44px; }
+.prod-bottom .resenas { margin-top: 0; }
+@media (max-width: 900px) { .prod-bottom { grid-template-columns: 1fr; gap: 30px; } }
+
+.rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.rel-card {
+  display: flex; flex-direction: column; text-decoration: none;
+  border: 1px solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-sm);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.rel-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.rel-thumb { aspect-ratio: 1/1; background: var(--surface-2) center / cover no-repeat; display: block; }
+.rel-body { padding: 9px 10px 11px; display: flex; flex-direction: column; gap: 3px; }
+.rel-name {
+  margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.3; color: var(--text);
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rel-price { font-size: 13.5px; font-weight: 700; color: var(--brand); }
+.rel-nav { display: flex; gap: 6px; }
+.rel-nav button {
+  width: 32px; height: 32px; border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  cursor: pointer; display: grid; place-items: center; font-size: 18px; line-height: 1;
+}
+.rel-nav button:disabled { opacity: .4; cursor: default; }
+.rel-nav button:hover:not(:disabled) { background: var(--surface-2); }

@@ -53,6 +53,8 @@ export default function ProductoClient({ slug, prodSlug }) {
   const [seleccion, setSeleccion] = useState({});
   const [agregado, setAgregado] = useState(false);
   const [lightbox, setLightbox] = useState(false);
+  const [relacionados, setRelacionados] = useState([]);
+  const [rpag, setRpag] = useState(0);
 
   // Reseñas
   const [comentarios, setComentarios] = useState([]);
@@ -94,6 +96,13 @@ export default function ProductoClient({ slug, prodSlug }) {
       .then((d) => { setComentarios(d.comentarios || []); if (d.resumen) setResumen({ promedio: Number(d.resumen.promedio) || 0, total: Number(d.resumen.total) || 0 }); })
       .catch(() => {});
   }, [prod?.id, slug]);
+
+  // Productos relacionados: otros productos de la misma tienda.
+  useEffect(() => {
+    api(`/api/publico/${slug}/productos`, { auth: false })
+      .then((d) => setRelacionados((d.productos || []).filter((p) => p.slug !== prodSlug)))
+      .catch(() => {});
+  }, [slug, prodSlug]);
 
   // Lightbox: cerrar con Esc y navegar con flechas.
   useEffect(() => {
@@ -337,8 +346,42 @@ export default function ProductoClient({ slug, prodSlug }) {
           </div>
         )}
 
-        {/* Reseñas */}
-        <section id="resenas" className="resenas">
+        <div className="prod-bottom">
+          {/* Productos relacionados (izquierda) */}
+          <section className="relacionados">
+            <div className="row" style={{ alignItems: 'center', gap: 12, marginBottom: 14 }}>
+              <h2 style={{ margin: 0 }}>Relacionados</h2>
+              <div className="spacer" />
+              {relacionados.length > 3 && (
+                <div className="rel-nav">
+                  <button type="button" onClick={() => setRpag((p) => Math.max(0, p - 1))} disabled={rpag === 0} aria-label="Anteriores">‹</button>
+                  <button type="button" onClick={() => setRpag((p) => ((p + 1) * 3 < relacionados.length ? p + 1 : p))} disabled={(rpag + 1) * 3 >= relacionados.length} aria-label="Siguientes">›</button>
+                </div>
+              )}
+            </div>
+            {relacionados.length === 0 ? (
+              <p className="muted">No hay otros productos por ahora.</p>
+            ) : (
+              <div className="rel-grid">
+                {relacionados.slice(rpag * 3, rpag * 3 + 3).map((p) => {
+                  const conVar = Number(p.tiene_variantes) > 0;
+                  const rp = (!conVar && p.precio_oferta != null) ? p.precio_oferta : (conVar && p.precio_desde != null ? p.precio_desde : p.precio);
+                  return (
+                    <Link className="rel-card" key={p.id} href={`/t/${slug}/${p.slug}`}>
+                      <span className="rel-thumb" style={{ backgroundImage: p.imagen ? `url(${p.imagen})` : 'none' }} />
+                      <div className="rel-body">
+                        <p className="rel-name">{p.nombre}</p>
+                        <span className="rel-price">{usd(rp)}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* Reseñas (derecha) */}
+          <section id="resenas" className="resenas">
           <div className="row" style={{ alignItems: 'baseline', gap: 12 }}>
             <h2 style={{ margin: 0 }}>Reseñas</h2>
             {resumen.total > 0 && (
@@ -392,6 +435,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             ))}
           </div>
         </section>
+        </div>
       </main>
     </>
   );
