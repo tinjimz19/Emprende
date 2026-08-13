@@ -7,6 +7,8 @@ import TiendaNav from '@/components/tienda/TiendaNav';
 import BotonFavorito from '@/components/BotonFavorito';
 import BotonUbicacion from '@/components/BotonUbicacion';
 import Toast from '@/components/Toast';
+import Cargando from '@/components/Spinner';
+import EstadoVacio from '@/components/EstadoVacio';
 
 function Stars({ valor = 0, size = 16 }) {
   const v = Math.max(0, Math.min(5, Number(valor) || 0));
@@ -135,8 +137,17 @@ export default function ProductoClient({ slug, prodSlug }) {
     ) || null;
   }, [prod, atributos, seleccion]);
 
-  if (error) return <main className="container" style={{ paddingTop: 60 }}><div className="alert error">{error}</div></main>;
-  if (!prod) return <main className="container" style={{ paddingTop: 60 }}><p className="muted">Cargando…</p></main>;
+  if (error) return (
+    <main className="container" style={{ paddingTop: 40 }}>
+      <EstadoVacio
+        icono={<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>}
+        titulo="Producto no encontrado"
+        texto={error}
+        accion={<Link className="btn btn-primary btn-sm" href={`/t/${slug}`}>Volver a la tienda</Link>}
+      />
+    </main>
+  );
+  if (!prod) return <main className="container" style={{ paddingTop: 60 }}><Cargando texto="Cargando producto" /></main>;
 
   const tieneVar = Number(prod.tiene_variantes) > 0 && Object.keys(atributos).length > 0;
   const precio = tieneVar
@@ -281,6 +292,7 @@ export default function ProductoClient({ slug, prodSlug }) {
                       <span className="wa-corta">WhatsApp</span>
                     </a>
                   )}
+                  <BotonUbicacion direccion={tienda?.direccion} ubicacion={tienda?.ubicacion_maps} nombre="" />
                 </div>
               </>
             )}
@@ -306,9 +318,6 @@ export default function ProductoClient({ slug, prodSlug }) {
 
 
 
-            <div style={{ marginTop: 12 }}>
-              <BotonUbicacion direccion={tienda?.direccion} ubicacion={tienda?.ubicacion_maps} nombre="Ubicación" />
-            </div>
           </div>
         </div>
 

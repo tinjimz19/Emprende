@@ -15,8 +15,10 @@ export default function BotonUbicacion({ direccion, ubicacion, className = 'btn 
   if (!direccion && !ubicacion) return null;
   return (
     <>
-      <button type="button" className={className} onClick={() => setAbierto(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-        <IconPin /> {nombre}
+      <button type="button" className={className} onClick={() => setAbierto(true)}
+        title={nombre || 'Ubicación'} aria-label={nombre || 'Ubicación'}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: nombre ? 8 : 0 }}>
+        <IconPin />{nombre ? ` ${nombre}` : ''}
       </button>
       {abierto && typeof document !== 'undefined' && createPortal(
         <div onClick={() => setAbierto(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16, overflowY: 'auto' }}>

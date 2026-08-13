@@ -6,6 +6,8 @@ import { getCart, addToCart, cartTotal } from '@/lib/cart';
 import TiendaNav from '@/components/tienda/TiendaNav';
 import Carrito from '@/components/tienda/CarritoDrawer';
 import BotonVolver from '@/components/BotonVolver';
+import Cargando from '@/components/Spinner';
+import EstadoVacio from '@/components/EstadoVacio';
 import { Stars, StarInput } from '@/components/Estrellas';
 import BotonFavorito from '@/components/BotonFavorito';
 import BotonSeguir from '@/components/BotonSeguir';
@@ -114,8 +116,17 @@ export default function CatalogoClient({ slug }) {
 
   const visibles = ocultarAgotados ? productos.filter((p) => !estaAgotado(p)) : productos;
 
-  if (error) return <main className="container" style={{ paddingTop: 60 }}><div className="alert error">{error}</div></main>;
-  if (!tienda) return <main className="container" style={{ paddingTop: 60 }}><p className="muted">Cargando…</p></main>;
+  if (error) return (
+    <main className="container" style={{ paddingTop: 40 }}>
+      <EstadoVacio
+        icono={<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/></svg>}
+        titulo="Tienda no encontrada"
+        texto={error}
+        accion={<Link className="btn btn-primary btn-sm" href="/tiendas">Volver a tiendas</Link>}
+      />
+    </main>
+  );
+  if (!tienda) return <main className="container" style={{ paddingTop: 60 }}><Cargando texto="Cargando tienda" /></main>;
 
   return (
     <>
