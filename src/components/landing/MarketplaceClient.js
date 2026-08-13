@@ -99,12 +99,11 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
 
           <div className="mkt2-sec">
             <div className="mkt2-title">Categorías</div>
-            <div className="mkt2-radios">
+            <div className="mkt-cats">
               {cats.map((c) => (
-                <label key={c || 'todo'} className="mkt2-radio">
-                  <input type="radio" name="mkt-cat" checked={cat === c} onChange={() => elegirCat(c)} />
-                  <span>{c === '' ? 'Todo' : c}</span>
-                </label>
+                <button key={c || 'todo'} className={`mkt-cat ${cat === c ? 'active' : ''}`} onClick={() => elegirCat(c)}>
+                  {c === '' ? 'Todo' : c}
+                </button>
               ))}
             </div>
           </div>

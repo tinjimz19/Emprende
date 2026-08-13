@@ -1,5 +1,4 @@
 import Navbar from '@/components/landing/Navbar';
-import BotonVolver from '@/components/BotonVolver';
 import TiendasClient from '@/components/landing/TiendasClient';
 import BotonTiendasCerca from '@/components/BotonTiendasCerca';
 
@@ -33,16 +32,18 @@ export default async function Tiendas() {
       <Navbar />
       <section className="lp-section" style={{ paddingTop: 34 }}>
         <div className="container">
-          <div className="tienda-head">
-            <div className="tienda-head-back">
-              <BotonVolver fallback="/" />
-            </div>
+          <div className="mkt2-crumbs">
+            <a href="/">Inicio</a>
+            <span>›</span>
+            <span className="on">Tiendas</span>
+          </div>
+          <div className="dir-head">
             <div style={{ minWidth: 0 }}>
               <span className="eyebrow">Directorio</span>
-              <h2 style={{ margin: '4px 0 0' }}>Todas las tiendas</h2>
-              <p className="muted" style={{ margin: '6px 0 0' }}>Explora las tiendas de los emprendedores de Cumaná y entra a la que quieras.</p>
-              <div style={{ marginTop: 12 }}><BotonTiendasCerca className="btn btn-soft btn-sm" /></div>
+              <h1 className="mkt2-h1">Todas las tiendas</h1>
+              <p className="mkt2-sub" style={{ marginBottom: 0 }}>Explora las tiendas de los emprendedores de Cumaná y entra a la que quieras.</p>
             </div>
+            <BotonTiendasCerca className="btn btn-soft btn-sm" />
           </div>
           <TiendasClient inicial={inicial} rubros={rubros} />
         </div>

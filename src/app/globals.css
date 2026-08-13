@@ -1293,6 +1293,32 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .mkt2-tienda span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
 .mkt2-oferta { position: absolute; top: 10px; left: 10px; z-index: 2; background: var(--brand); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 3px 9px; }
 
+/* ---------- Directorio de tiendas (/tiendas) ---------- */
+.dir-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
+.dir-head > div { min-width: 0; }
+.dir-head .btn { flex: none; }
+@media (max-width: 640px) { .dir-head { flex-direction: column; align-items: flex-start; gap: 14px; } }
+
+.dir-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1100px) { .dir-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .dir-grid { grid-template-columns: 1fr; } }
+
+.dir-card { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 5px; padding: 26px 18px 20px; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.dir-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.dir-card:hover .dir-logo { border-color: var(--brand); }
+.dir-logo { width: 72px; height: 72px; border-radius: 50%; flex: none; margin-bottom: 4px; background: var(--surface-2) center / cover no-repeat; display: grid; place-items: center; font-weight: 800; font-size: 26px; color: var(--brand); border: 2px solid var(--border-soft); transition: border-color .2s ease; }
+.dir-nombre { font-weight: 700; font-size: 16px; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.dir-rubros { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.dir-destacado { position: absolute; top: 10px; right: 10px; background: var(--brand); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .05em; padding: 3px 8px; }
+.dir-card .btn-block { margin-top: auto; }
+
+.switch-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+.switch-txt { font-weight: 600; font-size: 14px; color: var(--text); }
+.switch { position: relative; width: 40px; height: 22px; border-radius: 999px; background: var(--border); border: 1px solid var(--border); flex: none; transition: background .18s ease, border-color .18s ease; cursor: pointer; }
+.switch.on { background: var(--brand); border-color: var(--brand); }
+.switch-dot { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .18s ease; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.switch.on .switch-dot { transform: translateX(18px); }
+
 /* ---- Filtros colapsables en móvil (marketplace + perfil de tienda) ---- */
 .filtros-toggle { display: none; }
 @media (max-width: 860px) {
