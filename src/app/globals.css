@@ -1140,7 +1140,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 @media (max-width: 460px) { .ad-masonry { column-count: 1; } }
 
 /* ---- Detalle de producto: título contenido + precio en color de marca ---- */
-.prod-info h1 { font-size: clamp(20px, 2.3vw, 27px); line-height: 1.15; letter-spacing: -0.02em; }
+.prod-info h1 { font-size: clamp(24px, 3vw, 34px); line-height: 1.15; letter-spacing: -0.02em; }
 .prod-info .price { color: var(--brand); }
 
 /* ---- Lightbox de la galería del producto ---- */
@@ -1199,9 +1199,11 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .ev-accion { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 
 /* ---- Detalle: relacionados (izq) + reseñas (der) 50/50 ---- */
-.relacionados h2, .prod-bottom .resenas h2 { font-size: 20px; letter-spacing: -.01em; }
+.prod-bottom > section { background: var(--surface); border: 1px solid var(--border-soft); padding: 22px 24px; box-shadow: var(--shadow-sm); }
+.prod-bottom > section > .row:first-child { border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; }
+.relacionados h2, .prod-bottom .resenas h2 { font-size: 22px; letter-spacing: -.01em; }
 .prod-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; margin-top: 44px; }
-.prod-bottom .resenas { margin-top: 0; border-top: none; padding-top: 0; max-width: none; }
+.prod-bottom .resenas { margin-top: 0; border-top: none; max-width: none; }
 @media (max-width: 900px) { .prod-bottom { grid-template-columns: 1fr; gap: 30px; } }
 
 .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }

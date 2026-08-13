@@ -245,6 +245,21 @@ export default function ProductoClient({ slug, prodSlug }) {
               <BotonFavorito id={prod.id} size={24} />
             </div>
 
+            <div className="prod-stats">
+              {stock !== null && (
+                <span className={`prod-stat ${sinStock ? 'agotado' : ''}`}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                  {stock > 0 ? `${stock} disponibles` : (tieneVar && !variante ? 'Elige las opciones' : 'Agotado')}
+                </span>
+              )}
+              {Number(prod.vistas) > 0 && (
+                <span className="prod-stat">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  {prod.vistas} {Number(prod.vistas) === 1 ? 'vista' : 'vistas'}
+                </span>
+              )}
+            </div>
+
             {resumen.total > 0 && (
               <a href="#resenas" className="row" style={{ gap: 8, alignItems: 'center', marginBottom: 10, textDecoration: 'none' }}>
                 <Stars valor={resumen.promedio} />
@@ -253,7 +268,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             )}
 
             <div className="row" style={{ gap: 12, alignItems: 'baseline' }}>
-              <div className="price" style={{ fontSize: 32, lineHeight: 1.05 }}>{usd(precio)}</div>
+              <div className="price" style={{ fontSize: 38, lineHeight: 1.05 }}>{usd(precio)}</div>
               {enOferta && <div className="price-old" style={{ fontSize: 17 }}>{usd(prod.precio)}</div>}
             </div>
             {precioBs(precio, tasa) && <div className="price-bs" style={{ fontSize: 16, marginTop: 0 }}>{precioBs(precio, tasa)}</div>}
@@ -291,35 +306,22 @@ export default function ProductoClient({ slug, prodSlug }) {
             ) : (
               <>
 
-                <div className="row" style={{ marginTop: 8, gap: 10, flexWrap: 'nowrap' }}>
-                  <button className="btn btn-primary btn-sm" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
+                <div className="row prod-cta" style={{ marginTop: 18, gap: 10, flexWrap: 'nowrap' }}>
+                  <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}
                   </button>
                   {waProducto() && (
-                    <a className="btn btn-wa btn-sm" href={waProducto()} target="_blank" rel="noreferrer">
+                    <a className="btn btn-wa btn-lg" style={{ flex: 1 }} href={waProducto()} target="_blank" rel="noreferrer">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.3-1.18l-.31-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.35c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.79.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43-.14-.01-.31-.01-.48-.01-.16 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.16 1.75 2.67 4.25 3.74.59.26 1.06.41 1.42.53.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
                       <span className="wa-full">Consultar por WhatsApp</span>
                       <span className="wa-corta">WhatsApp</span>
                     </a>
                   )}
-                  <BotonUbicacion direccion={tienda?.direccion} ubicacion={tienda?.ubicacion_maps} nombre="" />
+                  <BotonUbicacion direccion={tienda?.direccion} ubicacion={tienda?.ubicacion_maps} className="btn btn-soft btn-lg" nombre="" />
                 </div>
               </>
             )}
-
-            <div className="prod-stats">
-              {stock !== null && (
-                <span className={`prod-stat ${sinStock ? 'agotado' : ''}`}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                  {stock > 0 ? `${stock} disponibles` : (tieneVar && !variante ? 'Elige las opciones' : 'Agotado')}
-                </span>
-              )}
-              {Number(prod.vistas) > 0 && (
-                <span className="prod-stat">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  {prod.vistas} {Number(prod.vistas) === 1 ? 'vista' : 'vistas'}
-                </span>
-              )}
-            </div>
 
             {prod.descripcion && <p style={{ lineHeight: 1.6, marginTop: 12, fontSize: 14.5, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
 
