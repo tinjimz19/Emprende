@@ -141,8 +141,8 @@ export default function CarritoDrawer({ slug, tienda, cart, total, tasa, cuenta,
             <div style={{ marginTop: 14 }}>
               {cart.map((i, idx) => (
                 <div className="row" key={idx} style={{ borderBottom: '1px solid var(--border-soft)', padding: '9px 0' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{i.nombre}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{i.nombre}</div>
                     <div className="price" style={{ fontSize: 14 }}>{usd(i.precio)}</div>
                   </div>
                   <input className="input" type="number" min={1} value={i.cantidad} style={{ width: 66 }} onChange={(e) => updateQty(slug, idx, Number(e.target.value))} />
