@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { api, usd, precioBs } from '@/lib/api';
 import BotonFavorito from '@/components/BotonFavorito';
 import Verificado from '@/components/Verificado';
+import BotonTiendasCerca from '@/components/BotonTiendasCerca';
 
 const LIMIT = 12;
 
@@ -40,7 +41,7 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
   const [maxIn, setMaxIn] = useState('');
   const [precioMin, setPrecioMin] = useState('');
   const [precioMax, setPrecioMax] = useState('');
-  const [soloAbiertas, setSoloAbiertas] = useState(false);
+  const [q, setQ] = useState('');
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(false);
   const topRef = useRef(null);
@@ -52,6 +53,7 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
     if (primera.current) { primera.current = false; return; }
     const params = new URLSearchParams({ limit: String(LIMIT), offset: String((pagina - 1) * LIMIT) });
     if (cat) params.set('categoria', cat);
+    if (q) params.set('q', q);
     if (orden && orden !== 'recomendados') params.set('orden', orden);
     if (precioMin !== '') params.set('precio_min', precioMin);
     if (precioMax !== '') params.set('precio_max', precioMax);
@@ -63,9 +65,10 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
         .finally(() => setCargando(false));
     }, 150);
     return () => clearTimeout(t);
-  }, [cat, orden, precioMin, precioMax, pagina]);
+  }, [cat, q, orden, precioMin, precioMax, pagina]);
 
   function elegirCat(c) { setCat(c); setPagina(1); }
+  function buscar(v) { setQ(v); setPagina(1); }
   function aplicarPrecio() { setPrecioMin(minIn.trim()); setPrecioMax(maxIn.trim()); setPagina(1); }
 
   function irA(n) {
@@ -82,6 +85,13 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
       {/* Sidebar de filtros */}
       <aside className="mkt2-side">
         <div className="card mkt2-filtros">
+          <div className="mkt2-sec">
+            <div className="input-busca">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input className="input" placeholder="Filtrar productos…" value={q} onChange={(e) => buscar(e.target.value)} />
+            </div>
+          </div>
+
           <div className="mkt2-sec">
             <div className="mkt2-title">Categorías</div>
             <div className="mkt2-radios">
@@ -106,10 +116,7 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
 
           <div className="mkt2-sec">
             <div className="mkt2-title">Tiendas</div>
-            <label className="row muted tiny" style={{ gap: 8, cursor: 'pointer' }}>
-              <input type="checkbox" checked={soloAbiertas} onChange={(e) => setSoloAbiertas(e.target.checked)} />
-              Solo tiendas abiertas
-            </label>
+            <BotonTiendasCerca className="btn btn-soft btn-sm btn-block" />
           </div>
         </div>
       </aside>
