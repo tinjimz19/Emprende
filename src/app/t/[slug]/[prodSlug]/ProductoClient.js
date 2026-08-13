@@ -240,7 +240,7 @@ export default function ProductoClient({ slug, prodSlug }) {
           {/* Info */}
           <div className="prod-info">
             <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
-              <h1 style={{ margin: '0 0 10px' }}>{prod.nombre}</h1>
+              <h1 style={{ margin: '0 0 6px' }}>{prod.nombre}</h1>
               <div className="spacer" />
               <BotonFavorito id={prod.id} size={24} />
             </div>
@@ -278,12 +278,12 @@ export default function ProductoClient({ slug, prodSlug }) {
 
             {modoDueno ? (
               esMiTienda ? (
-                <div className="row" style={{ marginTop: 16, gap: 10 }}>
+                <div className="row" style={{ marginTop: 12, gap: 10 }}>
                   <Link className="btn btn-primary btn-lg" href={`/panel/productos/${prod.id}`}>Editar producto</Link>
                   <Link className="btn btn-soft btn-lg" href="/panel/productos">Mis productos</Link>
                 </div>
               ) : (
-                <div className="warn-box" style={{ marginTop: 16 }}>
+                <div className="warn-box" style={{ marginTop: 12 }}>
                   Estás navegando como <b>tienda</b>, no como comprador. Para comprar necesitas una{' '}
                   <a href="/cliente/registro" style={{ color: 'var(--warn)', fontWeight: 700, textDecoration: 'underline' }}>cuenta de cliente</a>.
                 </div>
@@ -291,7 +291,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             ) : (
               <>
 
-                <div className="row" style={{ marginTop: 16, gap: 10, flexWrap: 'nowrap' }}>
+                <div className="row" style={{ marginTop: 12, gap: 10, flexWrap: 'nowrap' }}>
                   <button className="btn btn-primary btn-sm" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}
                   </button>
@@ -321,7 +321,7 @@ export default function ProductoClient({ slug, prodSlug }) {
               )}
             </div>
 
-            {prod.descripcion && <p style={{ lineHeight: 1.6, marginTop: 16, fontSize: 14.5, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
+            {prod.descripcion && <p style={{ lineHeight: 1.6, marginTop: 12, fontSize: 14.5, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
 
 
 
@@ -350,7 +350,7 @@ export default function ProductoClient({ slug, prodSlug }) {
           {/* Productos relacionados (izquierda) */}
           <section className="relacionados">
             <div className="row" style={{ alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <h2 style={{ margin: 0 }}>Relacionados</h2>
+              <h2 style={{ margin: 0 }}>Productos relacionados</h2>
               <div className="spacer" />
               {relacionados.length > 3 && (
                 <div className="rel-nav">
@@ -382,7 +382,7 @@ export default function ProductoClient({ slug, prodSlug }) {
 
           {/* Reseñas (derecha) */}
           <section id="resenas" className="resenas">
-          <div className="row" style={{ alignItems: 'baseline', gap: 12 }}>
+          <div className="row" style={{ alignItems: 'baseline', gap: 12, marginBottom: 14 }}>
             <h2 style={{ margin: 0 }}>Reseñas</h2>
             {resumen.total > 0 && (
               <div className="row" style={{ gap: 8, alignItems: 'center' }}>

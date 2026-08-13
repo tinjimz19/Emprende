@@ -826,7 +826,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
    TIENDA PÚBLICA — FICHA DE PRODUCTO + RESEÑAS
    ============================================================ */
 .prod-detail {
-  display: grid; grid-template-columns: minmax(0, 35fr) 65fr; gap: 36px; align-items: start;
+  display: grid; grid-template-columns: minmax(0, 40fr) 60fr; gap: 36px; align-items: start;
 }
 @media (max-width: 780px) { .prod-detail { grid-template-columns: 1fr; gap: 24px; } }
 
@@ -1164,7 +1164,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .lb-count { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.85); font-size: 13px; }
 
 /* ---- Detalle: chips de stock y vistas (más presencia) ---- */
-.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 .prod-stat {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 9px; background: var(--surface-2); border: 1px solid var(--border);
@@ -1195,8 +1195,9 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .ev-accion { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 
 /* ---- Detalle: relacionados (izq) + reseñas (der) 50/50 ---- */
+.relacionados h2, .prod-bottom .resenas h2 { font-size: 20px; letter-spacing: -.01em; }
 .prod-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; margin-top: 44px; }
-.prod-bottom .resenas { margin-top: 0; }
+.prod-bottom .resenas { margin-top: 0; border-top: none; padding-top: 0; max-width: none; }
 @media (max-width: 900px) { .prod-bottom { grid-template-columns: 1fr; gap: 30px; } }
 
 .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
