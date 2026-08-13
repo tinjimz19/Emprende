@@ -99,8 +99,8 @@ export default function ProductoClient({ slug, prodSlug }) {
 
   // Productos relacionados: otros productos de la misma tienda.
   useEffect(() => {
-    api(`/api/publico/${slug}/productos`, { auth: false })
-      .then((d) => setRelacionados((d.productos || []).filter((p) => p.slug !== prodSlug)))
+    api(`/api/publico/${slug}/producto/${prodSlug}/relacionados`, { auth: false })
+      .then((d) => { setRelacionados(d.productos || []); setRpag(0); })
       .catch(() => {});
   }, [slug, prodSlug]);
 
@@ -367,7 +367,7 @@ export default function ProductoClient({ slug, prodSlug }) {
                   const conVar = Number(p.tiene_variantes) > 0;
                   const rp = (!conVar && p.precio_oferta != null) ? p.precio_oferta : (conVar && p.precio_desde != null ? p.precio_desde : p.precio);
                   return (
-                    <Link className="rel-card" key={p.id} href={`/t/${slug}/${p.slug}`}>
+                    <Link className="rel-card" key={p.id} href={`/t/${p.tienda_slug || slug}/${p.slug}`}>
                       <span className="rel-thumb" style={{ backgroundImage: p.imagen ? `url(${p.imagen})` : 'none' }} />
                       <div className="rel-body">
                         <p className="rel-name">{p.nombre}</p>
