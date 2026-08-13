@@ -826,7 +826,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
    TIENDA PÚBLICA — FICHA DE PRODUCTO + RESEÑAS
    ============================================================ */
 .prod-detail {
-  display: grid; grid-template-columns: minmax(0, 40fr) 60fr; gap: 36px; align-items: start;
+  display: grid; grid-template-columns: minmax(0, 35fr) 65fr; gap: 36px; align-items: start;
 }
 @media (max-width: 780px) { .prod-detail { grid-template-columns: 1fr; gap: 24px; } }
 
@@ -1136,7 +1136,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 @media (max-width: 460px) { .ad-masonry { column-count: 1; } }
 
 /* ---- Detalle de producto: título contenido + precio en color de marca ---- */
-.prod-info h1 { font-size: clamp(20px, 2.3vw, 27px); line-height: 1.25; letter-spacing: -0.02em; }
+.prod-info h1 { font-size: clamp(20px, 2.3vw, 27px); line-height: 1.15; letter-spacing: -0.02em; }
 .prod-info .price { color: var(--brand); }
 
 /* ---- Lightbox de la galería del producto ---- */

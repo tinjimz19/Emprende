@@ -240,7 +240,7 @@ export default function ProductoClient({ slug, prodSlug }) {
           {/* Info */}
           <div className="prod-info">
             <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
-              <h1 style={{ margin: '0 0 6px' }}>{prod.nombre}</h1>
+              <h1 style={{ margin: '0 0 2px' }}>{prod.nombre}</h1>
               <div className="spacer" />
               <BotonFavorito id={prod.id} size={24} />
             </div>
@@ -253,10 +253,10 @@ export default function ProductoClient({ slug, prodSlug }) {
             )}
 
             <div className="row" style={{ gap: 12, alignItems: 'baseline' }}>
-              <div className="price" style={{ fontSize: 32 }}>{usd(precio)}</div>
+              <div className="price" style={{ fontSize: 32, lineHeight: 1.05 }}>{usd(precio)}</div>
               {enOferta && <div className="price-old" style={{ fontSize: 17 }}>{usd(prod.precio)}</div>}
             </div>
-            {precioBs(precio, tasa) && <div className="price-bs" style={{ fontSize: 16, marginTop: 2 }}>{precioBs(precio, tasa)}</div>}
+            {precioBs(precio, tasa) && <div className="price-bs" style={{ fontSize: 16, marginTop: 0 }}>{precioBs(precio, tasa)}</div>}
 
             {tieneVar && Object.entries(atributos).map(([attr, valores]) => (
               <div className="field" key={attr} style={{ marginTop: 16 }}>
@@ -278,12 +278,12 @@ export default function ProductoClient({ slug, prodSlug }) {
 
             {modoDueno ? (
               esMiTienda ? (
-                <div className="row" style={{ marginTop: 12, gap: 10 }}>
+                <div className="row" style={{ marginTop: 6, gap: 10 }}>
                   <Link className="btn btn-primary btn-lg" href={`/panel/productos/${prod.id}`}>Editar producto</Link>
                   <Link className="btn btn-soft btn-lg" href="/panel/productos">Mis productos</Link>
                 </div>
               ) : (
-                <div className="warn-box" style={{ marginTop: 12 }}>
+                <div className="warn-box" style={{ marginTop: 6 }}>
                   Estás navegando como <b>tienda</b>, no como comprador. Para comprar necesitas una{' '}
                   <a href="/cliente/registro" style={{ color: 'var(--warn)', fontWeight: 700, textDecoration: 'underline' }}>cuenta de cliente</a>.
                 </div>
@@ -291,7 +291,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             ) : (
               <>
 
-                <div className="row" style={{ marginTop: 12, gap: 10, flexWrap: 'nowrap' }}>
+                <div className="row" style={{ marginTop: 8, gap: 10, flexWrap: 'nowrap' }}>
                   <button className="btn btn-primary btn-sm" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}
                   </button>
