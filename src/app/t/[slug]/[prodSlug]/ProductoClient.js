@@ -50,6 +50,7 @@ export default function ProductoClient({ slug, prodSlug }) {
   const [imgActiva, setImgActiva] = useState(0);
   const [seleccion, setSeleccion] = useState({});
   const [agregado, setAgregado] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
 
   // Reseñas
   const [comentarios, setComentarios] = useState([]);
@@ -91,6 +92,19 @@ export default function ProductoClient({ slug, prodSlug }) {
       .then((d) => { setComentarios(d.comentarios || []); if (d.resumen) setResumen({ promedio: Number(d.resumen.promedio) || 0, total: Number(d.resumen.total) || 0 }); })
       .catch(() => {});
   }, [prod?.id, slug]);
+
+  // Lightbox: cerrar con Esc y navegar con flechas.
+  useEffect(() => {
+    if (!lightbox) return;
+    const n = prod?.imagenes?.length || 0;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightbox(false);
+      else if (n > 1 && e.key === 'ArrowLeft') setImgActiva((i) => (i - 1 + n) % n);
+      else if (n > 1 && e.key === 'ArrowRight') setImgActiva((i) => (i + 1) % n);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox, prod]);
 
   const atributos = useMemo(() => {
     if (!prod?.variantes?.length) return {};
@@ -187,7 +201,7 @@ export default function ProductoClient({ slug, prodSlug }) {
           <div className="prod-media">
             <div className="prod-foto">
               {imgPrincipal
-                ? <img src={imgPrincipal} alt={prod.nombre} />
+                ? <img src={imgPrincipal} alt={prod.nombre} onClick={() => imgs.length > 0 && setLightbox(true)} style={{ cursor: imgs.length > 0 ? 'zoom-in' : 'default' }} />
                 : <div className="prod-foto-vacia">Sin imagen</div>}
               {enOferta && Number(prod.precio) > precio && <span className="prod-tag oferta">-{Math.round((1 - precio / Number(prod.precio)) * 100)}% OFERTA</span>}
               {sinStock && <span className="prod-tag agotado">Agotado</span>}
@@ -289,6 +303,22 @@ export default function ProductoClient({ slug, prodSlug }) {
             </div>
           </div>
         </div>
+
+        {lightbox && imgs.length > 0 && (
+          <div className="lb-ov" onClick={() => setLightbox(false)}>
+            <button className="lb-x" onClick={() => setLightbox(false)} aria-label="Cerrar">✕</button>
+            {imgs.length > 1 && (
+              <button className="lb-nav lb-prev" aria-label="Anterior"
+                onClick={(e) => { e.stopPropagation(); setImgActiva((i) => (i - 1 + imgs.length) % imgs.length); }}>‹</button>
+            )}
+            <img className="lb-img" src={imgs[imgActiva]?.url_full} alt={prod.nombre} onClick={(e) => e.stopPropagation()} />
+            {imgs.length > 1 && (
+              <button className="lb-nav lb-next" aria-label="Siguiente"
+                onClick={(e) => { e.stopPropagation(); setImgActiva((i) => (i + 1) % imgs.length); }}>›</button>
+            )}
+            {imgs.length > 1 && <div className="lb-count">{imgActiva + 1} / {imgs.length}</div>}
+          </div>
+        )}
 
         {/* Reseñas */}
         <section id="resenas" className="resenas">

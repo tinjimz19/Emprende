@@ -360,7 +360,11 @@ select { appearance: none; background-image: none; cursor: pointer; }
   display: block; position: relative;
 }
 .prod-card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 3px; }
-.prod-card .name { font-weight: 600; font-size: 15px; margin: 0; letter-spacing: -0.01em; }
+.prod-card .name {
+  font-weight: 600; font-size: 15px; margin: 0; letter-spacing: -0.01em; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .price { color: var(--text); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
 .price-bs { color: var(--text-2); font-size: 13px; font-weight: 500; }
 .price-old { color: var(--text-3); text-decoration: line-through; font-weight: 500; font-size: 13px; }
@@ -822,7 +826,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
    TIENDA PÚBLICA — FICHA DE PRODUCTO + RESEÑAS
    ============================================================ */
 .prod-detail {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+  display: grid; grid-template-columns: minmax(0, 3fr) 7fr; gap: 36px; align-items: start;
 }
 @media (max-width: 780px) { .prod-detail { grid-template-columns: 1fr; gap: 24px; } }
 
@@ -1130,3 +1134,31 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .ad-mcap { display: block; padding: 8px 11px; font-size: 13px; font-weight: 600; color: var(--text); }
 @media (max-width: 760px) { .ad-masonry { column-count: 2; } }
 @media (max-width: 460px) { .ad-masonry { column-count: 1; } }
+
+/* ---- Detalle de producto: título contenido + precio en color de marca ---- */
+.prod-info h1 { font-size: clamp(20px, 2.3vw, 27px); line-height: 1.25; letter-spacing: -0.02em; }
+.prod-info .price { color: var(--brand); }
+
+/* ---- Lightbox de la galería del producto ---- */
+.lb-ov {
+  position: fixed; inset: 0; z-index: 1300; background: rgba(0,0,0,.9);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  animation: admodal-fade .15s ease;
+}
+.lb-img { max-width: 92vw; max-height: 88vh; object-fit: contain; display: block; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+.lb-x {
+  position: absolute; top: 16px; right: 18px; width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; z-index: 2; font-size: 17px;
+  background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.3);
+}
+.lb-x:hover { background: rgba(255,255,255,.24); }
+.lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px; border-radius: 50%; font-size: 30px; line-height: 1; cursor: pointer;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.3);
+}
+.lb-nav:hover { background: rgba(255,255,255,.24); }
+.lb-prev { left: 16px; }
+.lb-next { right: 16px; }
+.lb-count { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.85); font-size: 13px; }
