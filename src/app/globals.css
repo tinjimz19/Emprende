@@ -1168,7 +1168,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .lb-count { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.85); font-size: 13px; }
 
 /* ---- Detalle: chips de stock y vistas (más presencia) ---- */
-.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 3px; }
 .prod-stat {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 9px; background: var(--surface-2); border: 1px solid var(--border);

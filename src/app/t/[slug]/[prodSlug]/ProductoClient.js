@@ -267,7 +267,7 @@ export default function ProductoClient({ slug, prodSlug }) {
               </a>
             )}
 
-            <div className="row" style={{ gap: 12, alignItems: 'baseline' }}>
+            <div className="row" style={{ gap: 12, alignItems: 'baseline', marginTop: 8 }}>
               <div className="price" style={{ fontSize: 38, lineHeight: 1.05 }}>{usd(precio)}</div>
               {enOferta && <div className="price-old" style={{ fontSize: 17 }}>{usd(prod.precio)}</div>}
             </div>
@@ -306,7 +306,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             ) : (
               <>
 
-                <div className="row prod-cta" style={{ marginTop: 18, gap: 10, flexWrap: 'nowrap' }}>
+                <div className="row prod-cta" style={{ marginTop: 12, gap: 10, flexWrap: 'nowrap' }}>
                   <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}
