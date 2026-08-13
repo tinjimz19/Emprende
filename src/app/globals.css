@@ -1168,7 +1168,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .lb-count { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.85); font-size: 13px; }
 
 /* ---- Detalle: chips de stock y vistas (más presencia) ---- */
-.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 .prod-stat {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 9px; background: var(--surface-2); border: 1px solid var(--border);
@@ -1199,10 +1199,10 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .ev-accion { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 
 /* ---- Detalle: relacionados (izq) + reseñas (der) 50/50 ---- */
-.prod-bottom > section { background: var(--surface); border: 1px solid var(--border-soft); padding: 22px 24px; box-shadow: var(--shadow-sm); }
+.prod-bottom > section { background: var(--surface); border: 1px solid var(--border-soft); padding: 18px 18px; box-shadow: var(--shadow-sm); }
 .prod-bottom > section > .row:first-child { border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; }
 .relacionados h2, .prod-bottom .resenas h2 { font-size: 22px; letter-spacing: -.01em; }
-.prod-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; margin-top: 44px; }
+.prod-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; margin-top: 40px; }
 .prod-bottom .resenas { margin-top: 0; border-top: none; max-width: none; }
 @media (max-width: 900px) { .prod-bottom { grid-template-columns: 1fr; gap: 30px; } }
 
