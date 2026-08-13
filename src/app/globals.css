@@ -826,7 +826,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
    TIENDA PÚBLICA — FICHA DE PRODUCTO + RESEÑAS
    ============================================================ */
 .prod-detail {
-  display: grid; grid-template-columns: minmax(0, 3fr) 7fr; gap: 36px; align-items: start;
+  display: grid; grid-template-columns: minmax(0, 35fr) 65fr; gap: 36px; align-items: start;
 }
 @media (max-width: 780px) { .prod-detail { grid-template-columns: 1fr; gap: 24px; } }
 
@@ -1162,3 +1162,14 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .lb-prev { left: 16px; }
 .lb-next { right: 16px; }
 .lb-count { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.85); font-size: 13px; }
+
+/* ---- Detalle: chips de stock y vistas (más presencia) ---- */
+.prod-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.prod-stat {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px; background: var(--surface-2); border: 1px solid var(--border);
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.prod-stat svg { color: var(--brand); flex: none; }
+.prod-stat.agotado { color: var(--text-2); }
+.prod-stat.agotado svg { color: var(--text-3); }
