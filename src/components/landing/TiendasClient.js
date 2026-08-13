@@ -25,7 +25,6 @@ export default function TiendasClient({ inicial, rubros = [] }) {
   const [total, setTotal] = useState(inicial?.total ?? (inicial?.tiendas || []).length);
   const [q, setQ] = useState('');
   const [rubro, setRubro] = useState('');
-  const [abiertas, setAbiertas] = useState(false);
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(false);
   const [filtros, setFiltros] = useState(false);
@@ -73,15 +72,6 @@ export default function TiendasClient({ inicial, rubros = [] }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
               <input className="input" placeholder="Buscar tienda…" value={q} onChange={(e) => buscar(e.target.value)} />
             </div>
-          </div>
-
-          <div className="mkt2-sec">
-            <label className="switch-row">
-              <span className="switch-txt">Tiendas abiertas</span>
-              <span className={`switch ${abiertas ? 'on' : ''}`} onClick={() => setAbiertas((v) => !v)} role="switch" aria-checked={abiertas}>
-                <span className="switch-dot" />
-              </span>
-            </label>
           </div>
 
           <div className="mkt2-sec">

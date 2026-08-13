@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Navbar from '@/components/landing/Navbar';
 import TiendasClient from '@/components/landing/TiendasClient';
 import BotonTiendasCerca from '@/components/BotonTiendasCerca';
@@ -32,11 +33,10 @@ export default async function Tiendas() {
       <Navbar />
       <section className="lp-section" style={{ paddingTop: 34 }}>
         <div className="container">
-          <div className="mkt2-crumbs">
-            <a href="/">Inicio</a>
-            <span>›</span>
+          <nav className="mkt2-crumbs">
+            <Link href="/">Home</Link><span>›</span>
             <span className="on">Tiendas</span>
-          </div>
+          </nav>
           <div className="dir-head">
             <div style={{ minWidth: 0 }}>
               <span className="eyebrow">Directorio</span>
