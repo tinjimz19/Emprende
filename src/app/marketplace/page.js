@@ -1,13 +1,12 @@
+import Link from 'next/link';
 import Navbar from '@/components/landing/Navbar';
 import MarketplaceClient from '@/components/landing/MarketplaceClient';
-import BotonVolver from '@/components/BotonVolver';
-import BotonTiendasCerca from '@/components/BotonTiendasCerca';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/emprende-back';
 
 async function getInicial(cat) {
   try {
-    const params = new URLSearchParams({ limit: '9' });
+    const params = new URLSearchParams({ limit: '12' });
     if (cat) params.set('categoria', cat);
     const res = await fetch(`${API}/api/vitrina?${params}`, { cache: 'no-store' });
     const json = await res.json();
@@ -25,17 +24,15 @@ export default async function Marketplace({ searchParams }) {
   return (
     <div className="lp">
       <Navbar />
-      <section className="lp-section" style={{ paddingTop: 34 }}>
+      <section className="lp-section" style={{ paddingTop: 30 }}>
         <div className="container">
-          <div style={{ marginBottom: 16 }}><BotonVolver fallback="/" /></div>
-          <div className="mkt-head">
-            <div>
-              <span className="eyebrow">Marketplace</span>
-              <h2 style={{ margin: '4px 0 0' }}>Todos los productos</h2>
-            </div>
-            <p className="muted" style={{ margin: 0 }}>Explora el catálogo completo de las tiendas de Cumaná. Filtra por categoría o busca lo que necesitas.</p>
-            <div style={{ marginTop: 10 }}><BotonTiendasCerca className="btn btn-soft btn-sm" /></div>
-          </div>
+          <nav className="mkt2-crumbs">
+            <Link href="/">Home</Link><span>›</span>
+            <Link href="/marketplace">Marketplace</Link><span>›</span>
+            <span className="on">Todos los productos</span>
+          </nav>
+          <h1 className="mkt2-h1">Todos los productos</h1>
+          <p className="muted mkt2-sub">Descubre miles de productos de tiendas locales de Cumaná. Calidad y servicio al mejor precio.</p>
           <MarketplaceClient inicial={inicial} categoriaInicial={cat} />
         </div>
       </section>

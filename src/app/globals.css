@@ -1263,3 +1263,32 @@ select { appearance: none; background-image: none; cursor: pointer; }
 @media (max-width: 430px)  { .tienda-grid { grid-template-columns: 1fr; } }
 
 .tienda-main .resenas { max-width: none; margin-top: 34px; }
+
+/* ============================================================
+   MARKETPLACE — encabezado, sidebar de filtros y cards
+   ============================================================ */
+.mkt2-crumbs { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+.mkt2-crumbs a { color: var(--text-2); text-decoration: none; }
+.mkt2-crumbs a:hover { color: var(--text); }
+.mkt2-crumbs .on { color: var(--brand); font-weight: 600; }
+.mkt2-h1 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -.03em; margin: 0 0 8px; }
+.mkt2-sub { max-width: 560px; margin: 0 0 26px; font-size: 15px; }
+
+.mkt2 { display: grid; grid-template-columns: 250px 1fr; gap: 24px; align-items: start; }
+@media (max-width: 860px) { .mkt2 { grid-template-columns: 1fr; } }
+@media (min-width: 861px) { .mkt2-side { position: sticky; top: 80px; } }
+
+.mkt2-filtros { padding: 0; }
+.mkt2-sec { padding: 18px; }
+.mkt2-sec + .mkt2-sec { border-top: 1px solid var(--border-soft); }
+.mkt2-title { font-weight: 800; font-size: 15px; margin-bottom: 12px; }
+.mkt2-radios { display: flex; flex-direction: column; gap: 10px; }
+.mkt2-radio { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 14px; color: var(--text); }
+.mkt2-radio input { accent-color: var(--brand); width: 16px; height: 16px; }
+.mkt2-precio { display: flex; align-items: center; gap: 8px; }
+.mkt2-precio .input { width: 100%; }
+
+.mkt2-tienda { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); font-size: 12.5px; text-decoration: none; width: fit-content; margin-bottom: 2px; }
+.mkt2-tienda:hover { color: var(--brand); }
+.mkt2-tienda span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+.mkt2-oferta { position: absolute; top: 10px; left: 10px; z-index: 2; background: var(--brand); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 3px 9px; }
