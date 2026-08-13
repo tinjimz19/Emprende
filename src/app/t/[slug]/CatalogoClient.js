@@ -137,20 +137,23 @@ export default function CatalogoClient({ slug }) {
           <div className="tienda-head-back">
             <BotonVolver fallback="/marketplace" />
           </div>
-          <div className="tienda-head-main">
-            {tienda.logo_url && (
-              <img src={tienda.logo_url} alt={tienda.nombre} className="tienda-avatar" />
-            )}
-            <div style={{ minWidth: 0 }}>
-              <h1 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>{tienda.nombre}{tienda.verificada && <Verificado size={20} />}</h1>
-              {resenaTienda.resumen.total > 0 && (
-                <div className="row" style={{ gap: 8, alignItems: 'center', margin: '4px 0 0' }}>
-                  <Stars valor={resenaTienda.resumen.promedio} size={15} />
-                  <span className="muted tiny">{Number(resenaTienda.resumen.promedio).toFixed(1)} · {resenaTienda.resumen.total} calificación{resenaTienda.resumen.total !== 1 ? 'es' : ''}</span>
-                </div>
+          <div className="tienda-head-band">
+            <div className="tienda-head-main">
+              {tienda.logo_url && (
+                <img src={tienda.logo_url} alt={tienda.nombre} className="tienda-avatar" />
               )}
-              {tienda.descripcion && <p className="muted" style={{ margin: '2px 0 0' }}>{tienda.descripcion}</p>}
-              <div className="row" style={{ gap: 10, marginTop: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ minWidth: 0 }}>
+                <h1 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>{tienda.nombre}{tienda.verificada && <Verificado size={20} />}</h1>
+                {resenaTienda.resumen.total > 0 && (
+                  <div className="row" style={{ gap: 8, alignItems: 'center', margin: '4px 0 0' }}>
+                    <Stars valor={resenaTienda.resumen.promedio} size={15} />
+                    <span className="muted tiny">{Number(resenaTienda.resumen.promedio).toFixed(1)} · {resenaTienda.resumen.total} calificación{resenaTienda.resumen.total !== 1 ? 'es' : ''}</span>
+                  </div>
+                )}
+                {tienda.descripcion && <p className="muted" style={{ margin: '2px 0 0' }}>{tienda.descripcion}</p>}
+              </div>
+            </div>
+            <div className="tienda-acciones">
               {dueno?.tiendaSlug !== slug && <BotonSeguir id={tienda.id} mostrarAviso={false} />}
               {tienda.whatsapp && dueno?.tiendaSlug !== slug && (
                 <a
@@ -165,7 +168,6 @@ export default function CatalogoClient({ slug }) {
                 </a>
               )}
               <BotonUbicacion direccion={tienda.direccion} ubicacion={tienda.ubicacion_maps} className="btn btn-soft btn-sm" nombre="Ubicación" />
-              </div>
             </div>
           </div>
         </div>

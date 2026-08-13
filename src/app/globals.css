@@ -901,7 +901,10 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .tn-cart { display: inline-flex; align-items: center; gap: 6px; }
 .tn-cart-n { background: rgba(255,255,255,0.28); border-radius: 980px; padding: 0 7px; font-weight: 700; font-size: 12px; }
 .tienda-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-.tienda-head { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: start; margin-bottom: 22px; }
+.tienda-head { margin-bottom: 22px; }
+.tienda-head-back { margin-bottom: 14px; }
+.tienda-head-band { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.tienda-acciones { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .tienda-head h1 { font-size: 30px; }
 .mapa-frame { border-radius: 12px; overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface-2); }
 .toast {
@@ -934,7 +937,8 @@ select { appearance: none; background-image: none; cursor: pointer; }
 @media (max-width: 640px) { .tc-mapwrap { grid-template-columns: 1fr; } .tc-map { height: 300px; } .tc-lista { max-height: 240px; } }
 .tienda-head-main { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .tienda-avatar { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 3px solid var(--brand); flex: none; }
-@media (max-width: 820px) { .tienda-head { grid-template-columns: 1fr; gap: 14px; } }
+@media (max-width: 820px) { .tienda-head-band { gap: 14px; } }
+@media (max-width: 640px) { .tienda-acciones { width: 100%; } }
 @media (max-width: 640px) { .tienda-avatar { width: 64px; height: 64px; border-width: 3px; } }
 @media (max-width: 560px) { .tn-cart-txt { display: none; } .tn-name, .tn-crumb { max-width: 26vw; } }
 
