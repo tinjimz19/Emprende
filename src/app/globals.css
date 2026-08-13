@@ -1292,3 +1292,17 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .mkt2-tienda:hover { color: var(--brand); }
 .mkt2-tienda span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
 .mkt2-oferta { position: absolute; top: 10px; left: 10px; z-index: 2; background: var(--brand); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 3px 9px; }
+
+/* ---- Filtros colapsables en móvil (marketplace + perfil de tienda) ---- */
+.filtros-toggle { display: none; }
+@media (max-width: 860px) {
+  .filtros-toggle {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; margin-bottom: 14px;
+  }
+  .mkt2 .filtros-toggle { grid-column: 1 / -1; margin-bottom: 4px; }
+  .mkt2-side { display: none; }
+  .mkt2-side.abierto { display: block; }
+  .tienda-filtros-card { display: none; }
+  .tienda-filtros-card.abierto { display: flex; }
+}

@@ -44,6 +44,7 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
   const [q, setQ] = useState('');
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(false);
+  const [filtros, setFiltros] = useState(false);
   const topRef = useRef(null);
 
   const totalPaginas = Math.max(1, Math.ceil(total / LIMIT));
@@ -82,8 +83,12 @@ export default function MarketplaceClient({ inicial, categoriaInicial = '' }) {
 
   return (
     <div className="mkt2" ref={topRef}>
+      <button type="button" className="filtros-toggle btn btn-soft btn-sm" onClick={() => setFiltros((v) => !v)}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        {filtros ? 'Ocultar filtros' : 'Filtros'}
+      </button>
       {/* Sidebar de filtros */}
-      <aside className="mkt2-side">
+      <aside className={`mkt2-side ${filtros ? 'abierto' : ''}`}>
         <div className="card mkt2-filtros">
           <div className="mkt2-sec">
             <div className="input-busca">

@@ -24,6 +24,7 @@ export default function CatalogoClient({ slug }) {
   const [color, setColor] = useState('');
   const [q, setQ] = useState('');
   const [ocultarAgotados, setOcultarAgotados] = useState(false);
+  const [filtros, setFiltros] = useState(false);
   const [orden, setOrden] = useState('recomendados');
   const [precioMax, setPrecioMax] = useState(null);
   const [error, setError] = useState('');
@@ -185,7 +186,11 @@ export default function CatalogoClient({ slug }) {
             </div>
 
             {/* Filtros */}
-            <div className="card tienda-filtros-card">
+            <button type="button" className="filtros-toggle btn btn-soft btn-sm" onClick={() => setFiltros((v) => !v)}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              {filtros ? 'Ocultar filtros' : 'Filtros y categorías'}
+            </button>
+            <div className={`card tienda-filtros-card ${filtros ? 'abierto' : ''}`}>
               <div className="input-busca">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
                 <input className="input" placeholder="Buscar productos…" value={q} onChange={(e) => setQ(e.target.value)} />
