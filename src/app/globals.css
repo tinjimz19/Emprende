@@ -471,6 +471,7 @@ select { appearance: none; background-image: none; cursor: pointer; }
 .hero-bg-img {
   position: absolute; inset: 0; background-size: cover; background-position: center right;
   opacity: 0; transform: scale(1.06);
+  filter: saturate(1.1) contrast(1.06);
   transition: opacity 1s ease, transform 8s ease;
 }
 .hero-bg-img.on { opacity: 1; transform: scale(1); }
@@ -481,14 +482,15 @@ select { appearance: none; background-image: none; cursor: pointer; }
   background:
     linear-gradient(90deg,
       var(--surface) 0%,
-      color-mix(in srgb, var(--surface) 86%, transparent) 34%,
-      color-mix(in srgb, var(--surface) 34%, transparent) 60%,
-      transparent 82%),
-    linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--surface) 60%, transparent));
+      color-mix(in srgb, var(--surface) 88%, transparent) 30%,
+      color-mix(in srgb, var(--surface) 26%, transparent) 55%,
+      transparent 72%),
+    linear-gradient(180deg, transparent 70%, color-mix(in srgb, var(--surface) 40%, transparent));
 }
 .lp-hero .inner { position: relative; z-index: 1; width: 100%; }
 .lp-hero .slide { max-width: 620px; }
-.lp-hero .slide h1 { text-shadow: none; }
+.lp-hero .slide h1 { text-shadow: 0 1px 16px color-mix(in srgb, var(--surface) 60%, transparent); }
+.lp-hero .slide p { text-shadow: 0 1px 10px color-mix(in srgb, var(--surface) 52%, transparent); }
 .lp-hero .hero-stats { border-top: 1px solid var(--border); padding-top: 28px; }
 @media (max-width: 720px) {
   .hero-scrim {
