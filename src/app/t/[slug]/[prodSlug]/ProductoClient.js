@@ -238,23 +238,6 @@ export default function ProductoClient({ slug, prodSlug }) {
             </div>
             {precioBs(precio, tasa) && <div className="price-bs" style={{ fontSize: 16, marginTop: 2 }}>{precioBs(precio, tasa)}</div>}
 
-            <div className="prod-stats">
-              {stock !== null && (
-                <span className={`prod-stat ${sinStock ? 'agotado' : ''}`}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                  {stock > 0 ? `${stock} disponibles` : (tieneVar && !variante ? 'Elige las opciones' : 'Agotado')}
-                </span>
-              )}
-              {Number(prod.vistas) > 0 && (
-                <span className="prod-stat">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  {prod.vistas} {Number(prod.vistas) === 1 ? 'vista' : 'vistas'}
-                </span>
-              )}
-            </div>
-
-            {prod.descripcion && <p style={{ lineHeight: 1.65, marginTop: 16, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
-
             {tieneVar && Object.entries(atributos).map(([attr, valores]) => (
               <div className="field" key={attr} style={{ marginTop: 16 }}>
                 <label>{attr}</label>
@@ -273,7 +256,6 @@ export default function ProductoClient({ slug, prodSlug }) {
               </div>
             ))}
 
-
             {modoDueno ? (
               esMiTienda ? (
                 <div className="row" style={{ marginTop: 16, gap: 10 }}>
@@ -289,7 +271,7 @@ export default function ProductoClient({ slug, prodSlug }) {
             ) : (
               <>
 
-                <div className="row" style={{ marginTop: 16, gap: 10 }}>
+                <div className="row" style={{ marginTop: 16, gap: 10, flexWrap: 'nowrap' }}>
                   <button className="btn btn-primary btn-sm" onClick={agregar} disabled={(tieneVar && !variante) || sinStock}>
                     {sinStock ? 'Agotado' : 'Agregar al carrito'}
                   </button>
@@ -302,6 +284,28 @@ export default function ProductoClient({ slug, prodSlug }) {
                 </div>
               </>
             )}
+
+            <div className="prod-stats">
+              {stock !== null && (
+                <span className={`prod-stat ${sinStock ? 'agotado' : ''}`}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                  {stock > 0 ? `${stock} disponibles` : (tieneVar && !variante ? 'Elige las opciones' : 'Agotado')}
+                </span>
+              )}
+              {Number(prod.vistas) > 0 && (
+                <span className="prod-stat">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  {prod.vistas} {Number(prod.vistas) === 1 ? 'vista' : 'vistas'}
+                </span>
+              )}
+            </div>
+
+            {prod.descripcion && <p style={{ lineHeight: 1.6, marginTop: 16, fontSize: 14.5, color: 'var(--text-2)' }}>{prod.descripcion}</p>}
+
+
+
+
+
             <div style={{ marginTop: 12 }}>
               <BotonUbicacion direccion={tienda?.direccion} ubicacion={tienda?.ubicacion_maps} nombre="Ubicación" />
             </div>
