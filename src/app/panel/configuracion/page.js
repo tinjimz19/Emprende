@@ -26,6 +26,13 @@ const METODOS_ENVIO_LIST = [
 ];
 const ENVIOS_VALIDOS = METODOS_ENVIO_LIST.map(([k]) => k);
 
+// Origen de la tasa del día que puede elegir la tienda.
+const TIPOS_TASA = [
+  ['manual', 'Manual', 'Escribes la tasa que prefieras.'],
+  ['bcv_usd', 'BCV $', 'Dólar oficial: se sincroniza automáticamente cada 2 horas desde bcv.org.ve.'],
+  ['bcv_eur', 'BCV Euro', 'Euro oficial: se sincroniza automáticamente cada 2 horas desde bcv.org.ve.'],
+];
+
 // metodos_envio se guarda como CSV ("delivery,origen,..."). Devuelve un array de claves válidas.
 function parseEnvios(raw) {
   const arr = Array.isArray(raw) ? raw : String(raw || '').split(',');
@@ -59,6 +66,12 @@ export default function Configuracion() {
   const [copiado, setCopiado] = useState(false);
   const fileRef = useRef(null);
 
+  // Tasa del día: origen (manual / BCV) + tasas BCV vigentes.
+  const [tipoTasa, setTipoTasa] = useState('manual');
+  const [tasasBcv, setTasasBcv] = useState(null);
+  const [actualizandoBcv, setActualizandoBcv] = useState(false);
+  const [actualizadaAt, setActualizadaAt] = useState('');
+
   // Modal de agregar/editar método de pago.
   const [modal, setModal] = useState(false);
   const [editIdx, setEditIdx] = useState(null);
@@ -70,11 +83,60 @@ export default function Configuracion() {
     api('/api/tienda')
       .then((d) => {
         setT(d.tienda);
+        const tt = d.tienda?.tipo_tasa || 'manual';
+        setTipoTasa(tt);
         setMetodos(parseMetodos(d.tienda?.datos_pago));
         setMetodosEnvio(parseEnvios(d.tienda?.metodos_envio));
+        if (tt !== 'manual') {
+          cargarTasasBcv(tt === 'bcv_eur' ? 'EUR' : 'USD');
+        }
       })
       .catch((e) => setError(e.message));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function formatoFecha(s) {
+    if (!s) return '—';
+    const [f, h] = String(s).split(/[ T]/);
+    const [y, m, d] = f.split('-');
+    return `${d}/${m}/${y} ${(h || '').slice(0, 5)}`;
+  }
+
+  function guardarTasasDesde(d) {
+    const obj = {};
+    (d.tasas || []).forEach((x) => { obj[x.moneda] = x.tasa_bs; });
+    setTasasBcv(obj);
+    setActualizadaAt(formatoFecha(d.actualizada_at));
+    return obj;
+  }
+
+  async function cargarTasasBcv(moneda) {
+    try {
+      const d = await api('/api/tasa-bcv', { auth: false });
+      const obj = guardarTasasDesde(d);
+      if (obj[moneda]) set('tasa_bs', obj[moneda]);
+    } catch (e) { setError(e.message); }
+  }
+
+  async function actualizarBcv() {
+    setError(''); setOk(''); setActualizandoBcv(true);
+    try {
+      const d = await api('/api/tasa-bcv/refrescar', { method: 'POST' });
+      const obj = guardarTasasDesde(d);
+      const moneda = tipoTasa === 'bcv_eur' ? 'EUR' : 'USD';
+      if (obj[moneda]) set('tasa_bs', obj[moneda]);
+      setOk('Tasa BCV actualizada ✓');
+    } catch (e) { setError(e.message); }
+    finally { setActualizandoBcv(false); }
+  }
+
+  function cambiarTipoTasa(k) {
+    setTipoTasa(k);
+    if (k === 'manual') return;
+    if (!tasasBcv) { cargarTasasBcv(k === 'bcv_eur' ? 'EUR' : 'USD'); return; }
+    const moneda = k === 'bcv_eur' ? 'EUR' : 'USD';
+    if (tasasBcv[moneda]) set('tasa_bs', tasasBcv[moneda]);
+  }
 
   function set(k, v) { setT({ ...t, [k]: v }); }
   function toggleEnvio(k) {
@@ -104,7 +166,7 @@ export default function Configuracion() {
         body: {
           nombre: t.nombre, descripcion: t.descripcion, whatsapp: t.whatsapp,
           direccion: t.direccion || '', ubicacion_maps: t.ubicacion_maps || '', costo_delivery: Number(t.costo_delivery || 0),
-          metodos_envio: metodosEnvio, tasa_bs: Number(t.tasa_bs || 0),
+          metodos_envio: metodosEnvio, tasa_bs: Number(t.tasa_bs || 0), tipo_tasa: tipoTasa,
           stock_min_alerta: Number(t.stock_min_alerta || 0),
           color_primario: t.color_primario || '',
         },
@@ -277,9 +339,43 @@ export default function Configuracion() {
             <hr className="divider" />
 
             <div className="field">
-              <label>Tasa del día (Bs por $1)</label>
-              <input className="input" type="number" step="0.01" value={t.tasa_bs || ''} onChange={(e) => set('tasa_bs', e.target.value)} style={{ maxWidth: 200 }} />
+              <label>Origen de la tasa del día</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                {TIPOS_TASA.map(([k, label, desc]) => (
+                  <label key={k} className="row" style={{ gap: 8, alignItems: 'flex-start', cursor: 'pointer' }}>
+                    <input type="radio" name="tipo_tasa" checked={tipoTasa === k} onChange={() => cambiarTipoTasa(k)} style={{ marginTop: 3 }} />
+                    <span>
+                      <span style={{ fontWeight: 600 }}>{label}</span>
+                      <span className="muted tiny" style={{ display: 'block' }}>{desc}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
+            {tipoTasa === 'manual' ? (
+              <div className="field">
+                <label>Tasa del día (Bs por $1)</label>
+                <input className="input" type="number" step="0.01" value={t.tasa_bs || ''} onChange={(e) => set('tasa_bs', e.target.value)} style={{ maxWidth: 200 }} />
+              </div>
+            ) : (
+              <div className="field">
+                <label>Tasa BCV {tipoTasa === 'bcv_eur' ? 'del euro' : 'del dólar'} (Bs)</label>
+                <div className="row" style={{ gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    className="input"
+                    readOnly
+                    value={tasasBcv?.[tipoTasa === 'bcv_eur' ? 'EUR' : 'USD'] ?? t.tasa_bs ?? ''}
+                    style={{ maxWidth: 200, fontWeight: 700 }}
+                  />
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={actualizarBcv} disabled={actualizandoBcv || !tasasBcv}>
+                    {actualizandoBcv ? 'Actualizando…' : 'Actualizar ahora'}
+                  </button>
+                </div>
+                <p className="muted tiny" style={{ margin: '6px 0 0' }}>
+                  Se mantiene actualizada automáticamente cada 2 horas desde bcv.org.ve. Última actualización: {actualizadaAt}.
+                </p>
+              </div>
+            )}
             <div className="field">
               <label>Color de tu tienda</label>
               <div className="row" style={{ gap: 10, alignItems: 'center' }}>
