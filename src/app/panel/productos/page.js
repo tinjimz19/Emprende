@@ -117,7 +117,13 @@ export default function Productos() {
         const j = await res.json().catch(() => null);
         throw new Error(j?.error || `Error ${res.status}`);
       }
-      const blob = await res.blob();
+      const buffer = await res.arrayBuffer();
+      const head = new TextDecoder().decode(new Uint8Array(buffer, 0, Math.min(5, buffer.byteLength)));
+      if (!head.startsWith('%PDF')) {
+        const texto = new TextDecoder().decode(buffer).slice(0, 300);
+        throw new Error(`La respuesta no es un PDF válido: ${texto}`);
+      }
+      const blob = new Blob([buffer], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -125,7 +131,7 @@ export default function Productos() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
     } catch (e) { setError(e.message); }
   }
 
