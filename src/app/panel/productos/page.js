@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Link from 'next/link';
-import { api, usd, enviarFormulario } from '@/lib/api';
+import { api, usd, enviarFormulario, API_BASE } from '@/lib/api';
 
 const CSV_HEADERS = 'nombre,precio,precio_oferta,descripcion,categoria,stock,estado,imagen_url';
 const CSV_EJEMPLO = [
@@ -31,6 +31,7 @@ export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
+  const [slug, setSlug] = useState('');
 
   // Filtro / búsqueda / paginación
   const [filtro, setFiltro] = useState('activo');
@@ -49,9 +50,10 @@ export default function Productos() {
   async function cargar() {
     setCargando(true);
     try {
-      const p = await api('/api/productos');
+      const [p, t] = await Promise.all([api('/api/productos'), api('/api/tienda')]);
       setProductos(p.productos);
       setUmbral(p.umbral_stock || 0);
+      setSlug(t.tienda?.slug || '');
     } catch (e) { setError(e.message); }
     finally { setCargando(false); }
   }
@@ -158,6 +160,9 @@ export default function Productos() {
         <h1 style={{ margin: 0 }}>Productos</h1>
         <div className="spacer" />
         <button className="btn btn-ghost btn-sm" onClick={abrirImportar}>Importar CSV</button>{' '}
+        {slug && (
+          <a className="btn btn-ghost btn-sm" href={`${API_BASE}/api/publico/${slug}/catalogo.pdf`} target="_blank" rel="noreferrer">Descargar catálogo PDF</a>
+        )}{' '}
         <Link className="btn btn-primary btn-sm" href="/panel/productos/nuevo">+ Nuevo producto</Link>
       </div>
       {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}

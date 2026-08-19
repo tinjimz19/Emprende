@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { api, usd, precioBs, getClienteToken, getToken } from '@/lib/api';
+import { api, usd, precioBs, getClienteToken, getToken, API_BASE } from '@/lib/api';
 import { getCart, addToCart, cartTotal } from '@/lib/cart';
 import TiendaNav from '@/components/tienda/TiendaNav';
 import Carrito from '@/components/tienda/CarritoDrawer';
@@ -182,6 +182,16 @@ export default function CatalogoClient({ slug }) {
                   </a>
                 )}
                 <BotonUbicacion direccion={tienda.direccion} ubicacion={tienda.ubicacion_maps} className="btn btn-soft btn-sm btn-block" nombre="Ubicación" />
+                <a
+                  className="btn btn-soft btn-sm btn-block"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  href={`${API_BASE}/api/publico/${slug}/catalogo.pdf`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                  Descargar catálogo PDF
+                </a>
               </div>
             </div>
 
