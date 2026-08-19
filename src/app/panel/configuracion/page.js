@@ -102,6 +102,11 @@ export default function Configuracion() {
     return `${d}/${m}/${y} ${(h || '').slice(0, 5)}`;
   }
 
+  function fmtTasa(v) {
+    const n = Number(v);
+    return Number.isFinite(n) && v !== '' && v != null ? n.toFixed(2) : '';
+  }
+
   function guardarTasasDesde(d) {
     const obj = {};
     (d.tasas || []).forEach((x) => { obj[x.moneda] = x.tasa_bs; });
@@ -364,7 +369,7 @@ export default function Configuracion() {
                   <input
                     className="input"
                     readOnly
-                    value={tasasBcv?.[tipoTasa === 'bcv_eur' ? 'EUR' : 'USD'] ?? t.tasa_bs ?? ''}
+                    value={fmtTasa(tasasBcv?.[tipoTasa === 'bcv_eur' ? 'EUR' : 'USD'] ?? t.tasa_bs)}
                     style={{ maxWidth: 200, fontWeight: 700 }}
                   />
                   <button type="button" className="btn btn-ghost btn-sm" onClick={actualizarBcv} disabled={actualizandoBcv || !tasasBcv}>
