@@ -80,6 +80,25 @@ export default function CatalogoClient({ slug }) {
   }
   useEffect(() => { cargarResenasTienda(); }, [slug]);
 
+  async function descargarCatalogo() {
+    try {
+      const res = await fetch(`${API_BASE}/api/publico/${slug}/catalogo.pdf`);
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        throw new Error(j?.error || `Error ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `catalogo-${slug}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) { setMsgR(err.message); }
+  }
+
   async function enviarResenaTienda(e) {
     e.preventDefault();
     setMsgR('');
@@ -182,16 +201,15 @@ export default function CatalogoClient({ slug }) {
                   </a>
                 )}
                 <BotonUbicacion direccion={tienda.direccion} ubicacion={tienda.ubicacion_maps} className="btn btn-soft btn-sm btn-block" nombre="Ubicación" />
-                <a
+                <button
+                  type="button"
                   className="btn btn-soft btn-sm btn-block"
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-                  href={`${API_BASE}/api/publico/${slug}/catalogo.pdf`}
-                  target="_blank"
-                  rel="noreferrer"
+                  onClick={descargarCatalogo}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                   Descargar catálogo PDF
-                </a>
+                </button>
               </div>
             </div>
 

@@ -109,6 +109,26 @@ export default function Productos() {
     setErrImp('');
   }
 
+  async function descargarCatalogo() {
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE}/api/publico/${slug}/catalogo.pdf`);
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        throw new Error(j?.error || `Error ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `catalogo-${slug}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) { setError(e.message); }
+  }
+
   function descargarPlantilla() {
     const contenido = '﻿' + CSV_HEADERS + '\n' + CSV_EJEMPLO.join('\n') + '\n';
     const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8' });
@@ -161,7 +181,7 @@ export default function Productos() {
         <div className="spacer" />
         <button className="btn btn-ghost btn-sm" onClick={abrirImportar}>Importar CSV</button>{' '}
         {slug && (
-          <a className="btn btn-ghost btn-sm" href={`${API_BASE}/api/publico/${slug}/catalogo.pdf`} target="_blank" rel="noreferrer">Descargar catálogo PDF</a>
+          <button className="btn btn-ghost btn-sm" onClick={descargarCatalogo}>Descargar catálogo PDF</button>
         )}{' '}
         <Link className="btn btn-primary btn-sm" href="/panel/productos/nuevo">+ Nuevo producto</Link>
       </div>
